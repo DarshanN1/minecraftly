@@ -1,0 +1,4 @@
+name: MinecraftlyCore
+version: @project.version@
+main: @project.group@.MclyCoreBukkitPlugin
+author: Minecraftly Network

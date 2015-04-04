@@ -1,0 +1,239 @@
+buildscript {
+    repositories {
+        jcenter()
+
+        maven {
+            name = 'zt-public-snapshots'
+            url = 'http://repos.zeroturnaround.com/nexus/content/groups/zt-public'
+        }
+    }
+
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.1'
+        classpath group: 'org.zeroturnaround', name: 'gradle-jrebel-plugin', version: '1.1.2'
+    }
+}
+
+import org.apache.tools.ant.filters.ReplaceTokens
+
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import java.util.regex.Pattern
+
+apply plugin: 'idea'
+
+final def bukkitVersion = '1.8.3-R0.1-SNAPSHOT'
+final def bungeeVersion = '1.8-SNAPSHOT'
+final def exhaustVersion = '1.0.0-SNAPSHOT'
+final def pmfVersion = '1.0.0-SNAPSHOT'
+
+defaultTasks 'clean', 'build', 'test'
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'rebel'
+    apply plugin: 'com.github.johnrengelman.shadow'
+
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
+
+    jar { // rename un-shadowed jar, adding the suffix 'original', much like how Maven handles this
+        classifier = 'original'
+    }
+
+    shadowJar { // rename the shadowed jar, removing the suffix 'all'
+        classifier = ''
+    }
+
+    repositories {
+        mavenCentral()
+        mavenLocal() // PluginMessageFramework
+
+        maven {
+            url 'https://hub.spigotmc.org/nexus/content/groups/public/'
+        }
+
+        maven {
+            url 'https://oss.sonatype.org/content/repositories/snapshots'
+        }
+
+        maven { // Intake
+            url 'http://maven.sk89q.com/artifactory/libs-snapshot-local'
+        }
+
+        maven { // Exhaust
+            url 'http://repo.korobi.io/content/repositories/snapshots/'
+        }
+    }
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.12'
+    }
+
+    test {
+        testLogging.showStandardStreams = true
+
+        minHeapSize = '128m'
+        maxHeapSize = '512m'
+
+        beforeTest { descriptor ->
+            logger.lifecycle('Running test: ' + descriptor)
+        }
+
+        testLogging {
+            exceptionFormat = 'full'
+        }
+    }
+
+    rebel {
+        rebelXmlDirectory = "/"
+    }
+
+    task('copyOutputsForTesting') {
+        outputs.upToDateWhen { false }
+
+        doLast {
+            File sourceFile = project.shadowJar.archivePath;
+
+            if (!sourceFile.exists()) {
+                sourceFile = jar.outputs.files.files.getAt(0);
+            }
+
+            File targetFile = new File(parent.getProjectDir(), "testing/");
+            if (targetFile.exists() && !targetFile.isDirectory()) {
+                throw new RuntimeException("Path '" + targetFile.getPath() + "' is not a directory.");
+            }
+
+            if (project.getName().equals("core-bukkit")) {
+                targetFile = new File(targetFile, "/bukkit/plugins/");
+            } else if (project.getName().equals("core-bungee")) {
+                targetFile = new File(targetFile, "/bungee/plugins");
+            } else if (project.getName().startsWith(Pattern.quote("module-"))) {
+                targetFile = new File(targetFile, "/bukkit/plugins/MinecraftlyCore/modules/")
+            } else {
+                return; // don't copy any other jars
+            }
+
+            targetFile.mkdirs();
+            targetFile = new File(targetFile, sourceFile.getName());
+            Files.copy(sourceFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+}
+
+group = 'com.minecraftly'
+
+project(':core') {
+    group = parent.getGroup() + '.core'
+    version = '1.0-SNAPSHOT'
+
+    dependencies {
+        compile group: 'lc.vq', name: 'exhaust-core', version: exhaustVersion
+
+        // HikariCP dependencies
+        compile group: 'com.zaxxer', name: 'HikariCP', version: '2.3.5'
+        compile group: 'org.javassist', name: 'javassist', version: '3.19.0-GA'
+        compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.10'
+        compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.10'
+
+        compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-core', version: pmfVersion
+    }
+
+    shadowJar {
+        dependencies {
+            include(dependency('lc.vq:exhaust-core'))
+
+            // include HikariCP dependencies
+            include(dependency('com.zaxxer:HikariCP'))
+            include(dependency('org.javassist:javassist'))
+            include(dependency('org.slf4j:slf4j-api'))
+            include(dependency('org.slf4j:slf4j-simple'))
+
+            include(dependency('com.ikeirnez.pluginmessageframework:pmf-core'))
+        }
+    }
+
+    build.dependsOn(shadowJar)
+}
+
+project(':core-bungee') {
+    group = project(':core').getGroup() + '.bungee'
+    version = '1.0-SNAPSHOT'
+
+    dependencies {
+        compile project(':core')
+        compile group: 'net.md-5', name: 'bungeecord-api', version: bungeeVersion
+        compile group: 'lc.vq', name: 'exhaust-bungee', version: exhaustVersion
+        compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-bungeecord', version: pmfVersion
+    }
+
+    shadowJar {
+        from zipTree(project(':core').shadowJar.archivePath)
+
+        dependencies {
+            include(dependency('lc.vq:exhaust-bungee'))
+            include(dependency('com.ikeirnez.pluginmessageframework:pmf-bungeecord'))
+        }
+    }
+
+    build.dependsOn(shadowJar)
+}
+
+project(':core-bukkit') {
+    group = project(':core').getGroup() + '.bukkit'
+    version = '1.0-SNAPSHOT'
+
+    dependencies {
+        compile project(':core')
+        compile group: 'org.spigotmc', name: 'spigot-api', version: bukkitVersion
+        compile group: 'lc.vq', name: 'exhaust-bukkit', version: exhaustVersion
+        compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-bukkit', version: pmfVersion
+    }
+
+    shadowJar {
+        from zipTree(project(':core').shadowJar.archivePath)
+
+        dependencies {
+            include(dependency('lc.vq:exhaust-bukkit'))
+            include(dependency('com.ikeirnez.pluginmessageframework:pmf-bukkit'))
+        }
+    }
+
+    build.dependsOn(shadowJar)
+}
+
+project(':module-test') {
+    group = parent.getGroup() + '.modules.test'
+    version = '1.0-SNAPSHOT'
+
+    dependencies {
+        compile group: 'org.spigotmc', name: 'spigot-api', version: bukkitVersion
+        compile project(':core-bukkit')
+    }
+}
+
+project(':module-world') {
+    group = parent.getGroup() + '.modules.world'
+    version = '1.0-SNAPSHOT'
+
+    dependencies {
+        compile group: 'org.spigotmc', name: 'spigot-api', version: bukkitVersion
+        compile project(':core-bukkit')
+    }
+}
+
+subprojects { // this needs done after projects have been initialized
+    processResources {
+        filter ReplaceTokens, tokens: [
+                'project.group'  : project.getGroup(),
+                'project.name'   : project.getName(),
+                'project.version': project.getVersion()
+        ]
+    }
+}
+
+idea {
+    project {
+        languageLevel = '1.7'
+    }
+}

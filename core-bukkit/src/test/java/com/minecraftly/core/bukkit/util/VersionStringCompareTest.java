@@ -2,7 +2,7 @@ package com.minecraftly.core.bukkit.util;
 
 import org.junit.Test;
 
-import static com.minecraftly.core.bukkit.utilities.Utilities.compareVersions;
+import static com.minecraftly.core.bukkit.utilities.BukkitUtilities.compareVersions;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 

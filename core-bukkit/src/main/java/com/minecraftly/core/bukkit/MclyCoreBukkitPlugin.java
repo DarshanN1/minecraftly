@@ -4,16 +4,18 @@ import com.google.common.collect.ImmutableList;
 import com.ikeirnez.pluginmessageframework.bukkit.BukkitGateway;
 import com.ikeirnez.pluginmessageframework.bukkit.DefaultBukkitGateway;
 import com.minecraftly.core.MinecraftlyCommon;
+import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bukkit.commands.MinecraftlyCommand;
 import com.minecraftly.core.bukkit.commands.ModulesCommand;
 import com.minecraftly.core.bukkit.database.DatabaseManager;
 import com.minecraftly.core.bukkit.internal.intake.MinecraftlyBinding;
 import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.language.SimpleLanguageManager;
+import com.minecraftly.core.bukkit.listeners.PacketListener;
 import com.minecraftly.core.bukkit.module.ModuleManager;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.PrefixedLogger;
-import com.minecraftly.core.bukkit.utilities.Utilities;
+import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.sk89q.intake.Parameter;
 import com.sk89q.intake.SettableDescription;
 import com.sk89q.intake.SettableParameter;
@@ -76,18 +78,18 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         }
 
         try {
-            languageManager = new SimpleLanguageManager(Utilities.getLogger(this, SimpleLanguageManager.class, "Language"), new File(getDataFolder(), "language_en.yml"));
+            languageManager = new SimpleLanguageManager(BukkitUtilities.getLogger(this, SimpleLanguageManager.class, "Language"), new File(getDataFolder(), "language_en.yml"));
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "Error whilst initializing language manager.", e);
             pluginManager.disablePlugin(this);
             return;
         }
 
-        directoryCheck(generalDataDirectory);
-        directoryCheck(backupDirectory);
+        Utilities.createDirectory(generalDataDirectory);
+        Utilities.createDirectory(backupDirectory);
 
         connectDatabase();
-        userManager = new UserManager(Utilities.getLogger(this, UserManager.class, "User Manager"), databaseManager);
+        userManager = new UserManager(BukkitUtilities.getLogger(this, UserManager.class, "User Manager"), databaseManager);
 
         try {
             moduleManager = new ModuleManager(getLogger(), getName(), new File(getDataFolder(), "modules"));
@@ -98,6 +100,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         }
 
         gateway = new DefaultBukkitGateway(MinecraftlyCommon.GATEWAY_CHANNEL, this);
+        gateway.registerListener(new PacketListener());
 
         moduleManager.loadModules();
         DispatcherNode dispatcherNode = registerCoreCommands();
@@ -132,14 +135,6 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         Logger databaseLogger = new PrefixedLogger(DatabaseManager.class.getName(), "[" + getName() + ": Database] ", getLogger());
         databaseManager = new DatabaseManager(databaseLogger, getConfig().getConfigurationSection("database").getValues(true));
         databaseManager.connect();
-    }
-
-    private void directoryCheck(File directory) {
-        if (!directory.exists() && !directory.mkdir()) {
-            throw new RuntimeException("Cannot create directory: '" + directory.getPath() + "'.");
-        } else if (!directory.isDirectory()) {
-            throw new RuntimeException("Path '" + directory.getPath() + "' is not a directory.");
-        }
     }
 
     @Override

@@ -6,7 +6,7 @@ import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.language.SimpleLanguageManager;
 import com.minecraftly.core.bukkit.module.Module;
 import com.minecraftly.core.bukkit.utilities.ConfigManager;
-import com.minecraftly.core.bukkit.utilities.Utilities;
+import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;
 import org.bukkit.ChatColor;
@@ -96,7 +96,7 @@ public class ModulesCommand {
         sLanguageManager.save();
         FileConfiguration languageConfig = sLanguageManager.config;
 
-        File backupFile = new File(minecraftlyCore.getBackupsDirectory(), "language-" + Utilities.TIMESTAMP_FORMAT.format(new Date()) + ".yml");
+        File backupFile = new File(minecraftlyCore.getBackupsDirectory(), "language-" + BukkitUtilities.TIMESTAMP_FORMAT.format(new Date()) + ".yml");
         ConfigManager backupConfigManager = new ConfigManager(backupFile);
         FileConfiguration backupConfig = backupConfigManager.getConfig();
         int count = 0;

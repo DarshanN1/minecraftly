@@ -1,3 +1,0 @@
-name: TestModule
-version: @project.version@
-main: com.minecraftly.testmodule.TestModule

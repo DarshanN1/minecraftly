@@ -1,5 +1,8 @@
 package com.minecraftly.core.bukkit.utilities;
 
+import com.minecraftly.core.packets.LocationContainer;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
 
 import java.text.SimpleDateFormat;
@@ -11,14 +14,14 @@ import static com.google.common.base.Preconditions.checkArgument;
 /**
  * Created by Keir on 20/03/2015.
  */
-public class Utilities {
+public class BukkitUtilities {
 
     public static final char COLOR_CHAR = '\u00A7';
     public static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 
     private static final Pattern VALID_VERSION_STRING_PATTERN = Pattern.compile("^([0-9]+(\\.[0-9])*)+[a-z]?$");
 
-    private Utilities() {
+    private BukkitUtilities() {
     }
 
     /**
@@ -94,6 +97,21 @@ public class Utilities {
         }
 
         return new String(b);
+    }
+
+    /**
+     * Converts a {@link LocationContainer} to a Bukkit {@link Location}.
+     *
+     * @param locationContainer the location container to convert
+     * @return the bukkit location
+     */
+    public static Location getLocation(LocationContainer locationContainer) {
+        return new Location(Bukkit.getWorld(locationContainer.getWorld()),
+                locationContainer.getX(),
+                locationContainer.getY(),
+                locationContainer.getZ(),
+                locationContainer.getYaw(),
+                locationContainer.getPitch());
     }
 
 }

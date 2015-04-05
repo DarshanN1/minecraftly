@@ -202,8 +202,8 @@ project(':core-bukkit') {
     build.dependsOn(shadowJar)
 }
 
-project(':module-test') {
-    group = parent.getGroup() + '.modules.test'
+project(':module-world') {
+    group = parent.getGroup() + '.modules.world'
     version = '1.0-SNAPSHOT'
 
     dependencies {
@@ -212,8 +212,8 @@ project(':module-test') {
     }
 }
 
-project(':module-world') {
-    group = parent.getGroup() + '.modules.world'
+project(':module-spawn') {
+    group = parent.getGroup() + '.modules.spawn'
     version = '1.0-SNAPSHOT'
 
     dependencies {

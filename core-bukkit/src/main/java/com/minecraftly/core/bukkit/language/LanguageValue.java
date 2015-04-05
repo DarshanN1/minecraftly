@@ -1,7 +1,7 @@
 package com.minecraftly.core.bukkit.language;
 
 import com.minecraftly.core.ContentOwner;
-import com.minecraftly.core.bukkit.utilities.Utilities;
+import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -43,6 +43,6 @@ public class LanguageValue {
             this.unformattedValue = value;
         }
 
-        this.value = Utilities.translateAlternateColorCodes('&', this.unformattedValue);
+        this.value = BukkitUtilities.translateAlternateColorCodes('&', this.unformattedValue);
     }
 }

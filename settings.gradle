@@ -6,4 +6,3 @@ include 'module-test'
 include 'module-world'
 
 include 'core-bungee'
-

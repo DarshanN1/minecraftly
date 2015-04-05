@@ -1,8 +1,9 @@
 package com.minecraftly.core.bukkit;
 
 import com.google.common.collect.ImmutableList;
+import com.ikeirnez.pluginmessageframework.bukkit.BukkitGateway;
 import com.ikeirnez.pluginmessageframework.bukkit.DefaultBukkitGateway;
-import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
+import com.minecraftly.core.MinecraftlyCommon;
 import com.minecraftly.core.TestPacket;
 import com.minecraftly.core.bukkit.commands.MinecraftlyCommand;
 import com.minecraftly.core.bukkit.commands.ModulesCommand;
@@ -21,7 +22,6 @@ import com.sk89q.intake.fluent.DispatcherNode;
 import lc.vq.exhaust.bukkit.command.CommandManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -42,7 +42,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     private UserManager userManager;
     private ModuleManager moduleManager;
     private PluginManager pluginManager;
-    private ServerGateway<Player> gateway;
+    private BukkitGateway gateway;
     private File generalDataDirectory = new File(getDataFolder(), "data");
     private File backupDirectory = new File(getDataFolder(), "backups");
     private boolean skipDisable = false;
@@ -98,13 +98,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
             return;
         }
 
-        gateway = new DefaultBukkitGateway("Test", this);
-
-        try {
-            gateway.sendPacket(new TestPacket("Hey, this message has been sent from Bukkit to BungeeCord"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        gateway = new DefaultBukkitGateway(MinecraftlyCommon.GATEWAY_CHANNEL, this);
 
         moduleManager.loadModules();
         DispatcherNode dispatcherNode = registerCoreCommands();
@@ -197,6 +191,11 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     @Override
     public File getBackupsDirectory() {
         return backupDirectory;
+    }
+
+    @Override
+    public BukkitGateway getGateway() {
+        return gateway;
     }
 
     @Override

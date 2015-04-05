@@ -1,5 +1,6 @@
 package com.minecraftly.core.bukkit;
 
+import com.ikeirnez.pluginmessageframework.bukkit.BukkitGateway;
 import com.minecraftly.core.ContentOwner;
 import com.minecraftly.core.bukkit.database.DatabaseManager;
 import com.minecraftly.core.bukkit.language.LanguageManager;
@@ -21,6 +22,8 @@ public interface MinecraftlyCore extends Plugin, ContentOwner {
     UserManager getUserManager();
 
     ModuleManager getModuleManager();
+
+    BukkitGateway getGateway();
 
     File getGeneralDataDirectory();
 

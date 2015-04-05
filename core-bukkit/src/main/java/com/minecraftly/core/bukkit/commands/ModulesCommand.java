@@ -17,7 +17,6 @@ import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Created by Keir on 15/03/2015.
@@ -45,6 +44,7 @@ public class ModulesCommand {
         this.plugin = plugin;
         languageManager = plugin.getLanguageManager();
 
+        //noinspection serial
         languageManager.registerAll(new HashMap<String, LanguageValue>() {{
             put(LANG_LOADED_MODULES, new LanguageValue(plugin, "&bLoaded modules: "));
             put(LANG_LOADED_MODULES_SEPARATOR, new LanguageValue(plugin, "&7, "));

@@ -6,8 +6,8 @@ package com.minecraftly.core;
  */
 public interface ContentOwner {
 
-    public String getName();
+    String getName();
 
-    public String getIdentifier();
+    String getIdentifier();
 
 }

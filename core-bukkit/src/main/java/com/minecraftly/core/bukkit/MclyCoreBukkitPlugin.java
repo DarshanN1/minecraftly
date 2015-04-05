@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.ikeirnez.pluginmessageframework.bukkit.BukkitGateway;
 import com.ikeirnez.pluginmessageframework.bukkit.DefaultBukkitGateway;
 import com.minecraftly.core.MinecraftlyCommon;
-import com.minecraftly.core.TestPacket;
 import com.minecraftly.core.bukkit.commands.MinecraftlyCommand;
 import com.minecraftly.core.bukkit.commands.ModulesCommand;
 import com.minecraftly.core.bukkit.database.DatabaseManager;

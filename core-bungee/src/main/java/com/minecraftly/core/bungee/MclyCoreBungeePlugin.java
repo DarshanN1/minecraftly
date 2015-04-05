@@ -17,6 +17,7 @@ import net.md_5.bungee.config.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Level;
 
 /**
@@ -24,7 +25,7 @@ import java.util.logging.Level;
  */
 public class MclyCoreBungeePlugin extends Plugin implements MinecraftyBungeeCore {
 
-    private File configurationFile = new File(getDataFolder(), "config.yml");
+    private File configurationFile;
     private ConfigurationProvider configurationProvider;
     private Configuration configuration;
 
@@ -33,12 +34,14 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftyBungeeCore
 
     @Override
     public void onEnable() {
+        configurationFile = new File(getDataFolder(), "config.yml");
         Utilities.createDirectory(getDataFolder());
         configurationProvider = ConfigurationProvider.getProvider(YamlConfiguration.class);
 
         try {
             configurationFile.createNewFile();
             configuration = configurationProvider.load(configurationFile);
+            copyDefaults();
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "Error loading configuration.", e);
             return;
@@ -50,6 +53,38 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftyBungeeCore
         commandManager = new CommandManager(this);
         commandManager.builder().registerMethods(this);
         commandManager.build();
+    }
+
+    private void copyDefaults() {
+        Configuration defaultConfiguration;
+
+        try (InputStream inputStream = getResourceAsStream("config.yml")) {
+            defaultConfiguration = configurationProvider.load(inputStream);
+        } catch (IOException e) {
+            getLogger().log(Level.WARNING, "Error copy defaults to config.", e);
+            return;
+        }
+
+        boolean updated = false;
+
+        for (String key : defaultConfiguration.getKeys()) {
+            if (configuration.get(key) == null) {
+                configuration.set(key, defaultConfiguration.get(key));
+                updated = true;
+            }
+        }
+
+        if (updated) {
+            saveConfig();
+        }
+    }
+
+    private void saveConfig() {
+        try {
+            configurationProvider.save(configuration, configurationFile);
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Error saving configuration.", e);
+        }
     }
 
     @Override

@@ -108,7 +108,7 @@ subprojects {
                 targetFile = new File(targetFile, "/bukkit/plugins/");
             } else if (project.getName().equals("core-bungee")) {
                 targetFile = new File(targetFile, "/bungee/plugins");
-            } else if (project.getName().startsWith(Pattern.quote("module-"))) {
+            } else if (project.getName().startsWith("module-")) {
                 targetFile = new File(targetFile, "/bukkit/plugins/MinecraftlyCore/modules/")
             } else {
                 return; // don't copy any other jars

@@ -22,8 +22,8 @@ public class LocationContainer implements Serializable {
                 (double) data.get("x"),
                 (double) data.get("y"),
                 (double) data.get("z"),
-                (float) data.get("yaw"),
-                (float) data.get("pitch"));
+                ((Double) data.get("yaw")).floatValue(),
+                ((Double) data.get("pitch")).floatValue());
     }
 
     public LocationContainer(String world, double x, double y, double z, float yaw, float pitch) {

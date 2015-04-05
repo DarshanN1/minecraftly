@@ -37,18 +37,26 @@ public class SpawnModuleHandler {
 
     @PacketHandler
     public void onPacketSpawn(PacketSpawn packetSpawn, final ProxiedPlayer proxiedPlayer) {
-        proxiedPlayer.connect(spawnServer, new Callback<Boolean>() {
-            @Override
-            public void done(Boolean success, Throwable throwable) {
-                if (success) {
-                    try {
-                        minecraftly.getGateway().sendPacket(proxiedPlayer, new PacketTeleport(spawnLocation));
-                    } catch (IOException e) { // todo
-                        e.printStackTrace();
+        if (proxiedPlayer.getServer().getInfo().equals(spawnServer)) {
+            sendTeleportPacket(proxiedPlayer);
+        } else {
+            proxiedPlayer.connect(spawnServer, new Callback<Boolean>() {
+                @Override
+                public void done(Boolean success, Throwable throwable) {
+                    if (success) {
+                        sendTeleportPacket(proxiedPlayer);
                     }
                 }
-            }
-        });
+            });
+        }
+    }
+
+    private void sendTeleportPacket(ProxiedPlayer proxiedPlayer) {
+        try {
+            minecraftly.getGateway().sendPacket(proxiedPlayer, new PacketTeleport(spawnLocation));
+        } catch (IOException e) { // todo
+            e.printStackTrace();
+        }
     }
 
 }

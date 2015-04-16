@@ -1,0 +1,3 @@
+name: ChatModule
+version: @project.version@
+main: com.minecraftly.modules.chat.ChatModule

@@ -1,8 +1,8 @@
 package com.minecraftly.core.bukkit;
 
 import com.google.common.collect.ImmutableList;
-import com.ikeirnez.pluginmessageframework.bukkit.BukkitGateway;
-import com.ikeirnez.pluginmessageframework.bukkit.DefaultBukkitGateway;
+import com.ikeirnez.pluginmessageframework.bukkit.BukkitGatewayProvider;
+import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
 import com.minecraftly.core.MinecraftlyCommon;
 import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bukkit.commands.MinecraftlyCommand;
@@ -14,8 +14,8 @@ import com.minecraftly.core.bukkit.language.SimpleLanguageManager;
 import com.minecraftly.core.bukkit.listeners.PacketListener;
 import com.minecraftly.core.bukkit.module.ModuleManager;
 import com.minecraftly.core.bukkit.user.UserManager;
-import com.minecraftly.core.bukkit.utilities.PrefixedLogger;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
+import com.minecraftly.core.bukkit.utilities.PrefixedLogger;
 import com.sk89q.intake.Parameter;
 import com.sk89q.intake.SettableDescription;
 import com.sk89q.intake.SettableParameter;
@@ -23,6 +23,7 @@ import com.sk89q.intake.fluent.DispatcherNode;
 import lc.vq.exhaust.bukkit.command.CommandManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -43,7 +44,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     private UserManager userManager;
     private ModuleManager moduleManager;
     private PluginManager pluginManager;
-    private BukkitGateway gateway;
+    private ServerGateway<Player> gateway;
     private File generalDataDirectory = new File(getDataFolder(), "data");
     private File backupDirectory = new File(getDataFolder(), "backups");
     private boolean skipDisable = false;
@@ -99,7 +100,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
             return;
         }
 
-        gateway = new DefaultBukkitGateway(MinecraftlyCommon.GATEWAY_CHANNEL, this);
+        gateway = BukkitGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, this);
         gateway.registerListener(new PacketListener());
 
         moduleManager.loadModules();
@@ -188,7 +189,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     }
 
     @Override
-    public BukkitGateway getGateway() {
+    public ServerGateway<Player> getGateway() {
         return gateway;
     }
 

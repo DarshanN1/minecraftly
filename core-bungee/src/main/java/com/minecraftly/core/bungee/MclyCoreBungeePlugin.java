@@ -1,8 +1,8 @@
 package com.minecraftly.core.bungee;
 
-import com.ikeirnez.pluginmessageframework.bungeecord.BungeeGateway;
-import com.ikeirnez.pluginmessageframework.bungeecord.DefaultBungeeGateway;
+import com.ikeirnez.pluginmessageframework.bungeecord.BungeeGatewayProvider;
 import com.ikeirnez.pluginmessageframework.connection.ProxySide;
+import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.minecraftly.core.MinecraftlyCommon;
 import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bungee.module.SpawnModuleHandler;
@@ -10,6 +10,8 @@ import com.sk89q.intake.Command;
 import lc.vq.exhaust.bungee.command.CommandManager;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
@@ -30,7 +32,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftyBungeeCore
     private Configuration configuration;
 
     private CommandManager commandManager;
-    private BungeeGateway gateway;
+    private ProxyGateway<ProxiedPlayer, ServerInfo> gateway;
 
     @Override
     public void onEnable() {
@@ -47,11 +49,12 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftyBungeeCore
             return;
         }
 
-        gateway = new DefaultBungeeGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
-        gateway.registerListener(new SpawnModuleHandler(this));
+        gateway = BungeeGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
 
         commandManager = new CommandManager(this);
-        commandManager.builder().registerMethods(this);
+        commandManager.builder()
+                .registerMethods(this)
+                .registerMethods(new SpawnModuleHandler(this));
         commandManager.build();
     }
 
@@ -88,7 +91,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftyBungeeCore
     }
 
     @Override
-    public BungeeGateway getGateway() {
+    public ProxyGateway<ProxiedPlayer, ServerInfo> getGateway() {
         return gateway;
     }
 

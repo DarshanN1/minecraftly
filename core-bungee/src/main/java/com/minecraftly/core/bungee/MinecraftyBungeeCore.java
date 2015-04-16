@@ -1,7 +1,9 @@
 package com.minecraftly.core.bungee;
 
-import com.ikeirnez.pluginmessageframework.bungeecord.BungeeGateway;
+import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.config.Configuration;
 
 /**
@@ -11,7 +13,7 @@ public interface MinecraftyBungeeCore {
 
     ProxyServer getProxy();
 
-    BungeeGateway getGateway();
+    ProxyGateway<ProxiedPlayer, ServerInfo> getGateway();
 
     Configuration getConfiguration();
 }

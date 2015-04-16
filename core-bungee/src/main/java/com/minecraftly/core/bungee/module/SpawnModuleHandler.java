@@ -1,10 +1,9 @@
 package com.minecraftly.core.bungee.module;
 
-import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
 import com.minecraftly.core.bungee.MinecraftyBungeeCore;
 import com.minecraftly.core.packets.LocationContainer;
 import com.minecraftly.core.packets.PacketTeleport;
-import com.minecraftly.core.packets.spawn.PacketSpawn;
+import com.sk89q.intake.Command;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -35,8 +34,8 @@ public class SpawnModuleHandler {
         spawnLocation = new LocationContainer((Map<String, Object>) configuration.get("location"));
     }
 
-    @PacketHandler
-    public void onPacketSpawn(PacketSpawn packetSpawn, final ProxiedPlayer proxiedPlayer) {
+    @Command(aliases = "spawn", desc = "Teleports the player to the main spawn location", max = 0)
+    public void spawnCommand(final ProxiedPlayer proxiedPlayer) {
         if (proxiedPlayer.getServer().getInfo().equals(spawnServer)) {
             sendTeleportPacket(proxiedPlayer);
         } else {

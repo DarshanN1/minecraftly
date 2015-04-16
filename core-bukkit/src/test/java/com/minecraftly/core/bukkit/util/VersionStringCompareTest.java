@@ -1,14 +1,15 @@
 package com.minecraftly.core.bukkit.util;
 
-import org.junit.Test;
-
 import static com.minecraftly.core.bukkit.utilities.BukkitUtilities.compareVersions;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import org.junit.Test;
+
 /**
  * Test to confirm Utilities#compareVersions method functions correctly in a variety of conditions.
  * Who cares if I went over the top?
+ * todo move to core
  */
 public class VersionStringCompareTest {
 

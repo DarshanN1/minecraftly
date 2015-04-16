@@ -1,3 +1,0 @@
-name: SpawnModule
-version: @project.version@
-main: com.minecraftly.modules.spawn.SpawnModule

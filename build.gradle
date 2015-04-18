@@ -14,11 +14,11 @@ buildscript {
     }
 }
 
+
 import org.apache.tools.ant.filters.ReplaceTokens
 
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
-import java.util.regex.Pattern
 
 apply plugin: 'idea'
 
@@ -131,7 +131,7 @@ project(':core') {
         compile group: 'lc.vq', name: 'exhaust-core', version: exhaustVersion
 
         // HikariCP dependencies
-        compile group: 'com.zaxxer', name: 'HikariCP', version: '2.3.5'
+        compile group: 'com.zaxxer', name: 'HikariCP-java6', version: '2.3.6'
         compile group: 'org.javassist', name: 'javassist', version: '3.19.0-GA'
         compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.10'
         compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.10'
@@ -144,7 +144,7 @@ project(':core') {
             include(dependency('lc.vq:exhaust-core'))
 
             // include HikariCP dependencies
-            include(dependency('com.zaxxer:HikariCP'))
+            include(dependency('com.zaxxer:HikariCP-java6'))
             include(dependency('org.javassist:javassist'))
             include(dependency('org.slf4j:slf4j-api'))
             include(dependency('org.slf4j:slf4j-simple'))

@@ -42,9 +42,13 @@ public class WorldCommands {
                 sender.sendMessage(ChatColor.AQUA + "Loading world " + ChatColor.GOLD + worldName + ChatColor.AQUA + " (this may cause some short-term lag)");
 
                 world = worldModule.loadWorld(realWorldName);
-                worldModule.addStartupLoadTask(world.getName());
 
-                sender.sendMessage(ChatColor.AQUA + "Loaded world " + ChatColor.GOLD + worldName);
+                if (world != null) {
+                    worldModule.addStartupLoadTask(world.getName());
+                    sender.sendMessage(ChatColor.AQUA + "Loaded world " + ChatColor.GOLD + worldName);
+                } else {
+                    sender.sendMessage(ChatColor.RED + "There was an error loading this world (try checking the console).");
+                }
             } else {
                 sender.sendMessage(ChatColor.AQUA + "Couldn't find world named " + ChatColor.GOLD + worldName + ChatColor.AQUA + ".");
             }
@@ -69,6 +73,13 @@ public class WorldCommands {
         } else {
             sender.sendMessage(ChatColor.RED + "Failed to unload world, no further detail was given.");
         }
+    }
+
+    @Command(aliases = {"teleport", "tp"}, desc = "Teleports the sender to a loaded world.", usage = "<world>", min = 1, max = 1)
+    @Require("minecraftly.world.teleport")
+    public void teleportWorld(Player player, World world) {
+        player.sendMessage(ChatColor.AQUA + "Teleporting to world: " + ChatColor.GOLD + world.getName());
+        player.teleport(world.getSpawnLocation());
     }
 
 }

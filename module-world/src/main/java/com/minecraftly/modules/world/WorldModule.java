@@ -46,7 +46,7 @@ public class WorldModule extends Module {
                 .getDispatcher().getDescription();
 
         description.setParameters(ImmutableList.<Parameter>builder()
-                .add(new SettableParameter("load/unload"))
+                .add(new SettableParameter("load/unload/tp"))
                 .build());
     }
 

@@ -1,12 +1,12 @@
 package com.minecraftly.core.bukkit.user;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.minecraftly.core.bukkit.database.DatabaseManager;
 import org.bukkit.OfflinePlayer;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +14,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Created by Keir on 15/03/2015.
@@ -34,12 +32,13 @@ public class UserManager {
         this.databaseManager = databaseManager;
         this.logger = logger;
 
-        try (Connection connection = databaseManager.getConnection()) {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(
-                    String.format("CREATE TABLE IF NOT EXISTS `%smain` (`uuid` BINARY(16) NOT NULL, `last_name` VARCHAR(16), PRIMARY KEY (`uuid`))",
-                            databaseManager.getPrefix()))) {
-                preparedStatement.execute();
-            }
+        try {
+            databaseManager.getQueryRunner().update(
+                    String.format(
+                            "CREATE TABLE IF NOT EXISTS `%smain` (`uuid` BINARY(16) NOT NULL, `last_name` VARCHAR(16), PRIMARY KEY (`uuid`))",
+                            databaseManager.getPrefix()
+                    )
+            );
         } catch (SQLException e) {
             e.printStackTrace();
         }

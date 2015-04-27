@@ -6,3 +6,5 @@ include 'module-world'
 include 'module-chat'
 include 'core-bungee'
 
+include 'module-survival-worlds'
+

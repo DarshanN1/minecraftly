@@ -1,7 +1,10 @@
 package com.minecraftly.core.bukkit.database;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.apache.commons.dbutils.QueryRunner;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -9,8 +12,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Created by Keir on 15/03/2015.
@@ -25,7 +26,8 @@ public class DatabaseManager {
     private final String database;
     private final int port;
 
-    private HikariDataSource hikariDataSource;
+    private HikariDataSource dataSource;
+    private QueryRunner queryRunner;
 
     public DatabaseManager(Logger logger, Map<String, Object> data) {
         this(logger,
@@ -70,20 +72,26 @@ public class DatabaseManager {
         hikariConfig.addDataSourceProperty("password", password);
 
         logger.info("Connecting to host '" + getHost() + "'");
-        hikariDataSource = new HikariDataSource(hikariConfig);
+        dataSource = new HikariDataSource(hikariConfig);
+        queryRunner = new QueryRunner(dataSource);
     }
 
     public void disconnect() {
-        hikariDataSource.close();
+        queryRunner = null;
+        dataSource.close();
     }
 
-    public HikariDataSource getHikariDataSource() {
-        return hikariDataSource;
+    public HikariDataSource getDataSource() {
+        return dataSource;
+    }
+
+    public QueryRunner getQueryRunner() {
+        return queryRunner;
     }
 
     public Connection getConnection() {
         try {
-            return getHikariDataSource().getConnection();
+            return getDataSource().getConnection();
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error obtaining database connection.", e);
         }

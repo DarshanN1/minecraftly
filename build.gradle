@@ -136,6 +136,7 @@ project(':core') {
         compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.10'
         compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.10'
 
+        compile group: 'commons-dbutils', name: 'commons-dbutils', version: '1.6'
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-core', version: pmfVersion
     }
 
@@ -149,6 +150,7 @@ project(':core') {
             include(dependency('org.slf4j:slf4j-api'))
             include(dependency('org.slf4j:slf4j-simple'))
 
+            include(dependency('commons-dbutils:commons-dbutils'))
             include(dependency('com.ikeirnez.pluginmessageframework:pmf-core'))
         }
     }
@@ -220,6 +222,17 @@ project(':module-chat') {
 
     dependencies {
         compile group: 'org.spigotmc', name: 'spigot-api', version: bukkitVersion
+        compile project(':core-bukkit')
+    }
+}
+
+project(':module-survival-worlds') {
+    group = parent.getGroup() + '.modules.survivalworlds'
+    version = '1.0-SNAPSHOT'
+
+    dependencies {
+        compile group: 'org.spigotmc', name: 'spigot-api', version: bukkitVersion
+        compile files(new File(getParent().rootDir, 'libs/spigot-1.8.3.jar'))
         compile project(':core-bukkit')
     }
 }

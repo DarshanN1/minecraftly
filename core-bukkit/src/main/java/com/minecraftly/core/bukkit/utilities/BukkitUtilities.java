@@ -1,15 +1,18 @@
 package com.minecraftly.core.bukkit.utilities;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.minecraftly.core.packets.LocationContainer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 
 import java.text.SimpleDateFormat;
+import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Created by Keir on 20/03/2015.
@@ -106,12 +109,36 @@ public class BukkitUtilities {
      * @return the bukkit location
      */
     public static Location getLocation(LocationContainer locationContainer) {
-        return new Location(Bukkit.getWorld(locationContainer.getWorld()),
+        return new Location(
+                Bukkit.getWorld(locationContainer.getWorld()),
                 locationContainer.getX(),
                 locationContainer.getY(),
                 locationContainer.getZ(),
                 locationContainer.getYaw(),
-                locationContainer.getPitch());
+                locationContainer.getPitch()
+        );
+    }
+
+    public static Location getLocation(ConfigurationSection configurationSection) {
+        return getLocation(configurationSection.getValues(true));
+    }
+
+    public static Location getLocation(Map<String, Object> data) {
+        return getLocation(new LocationContainer(data));
+    }
+
+    /**
+     * Takes a location and gets the nearest safest location (above) to spawn a player.
+     *
+     * @param location the original location
+     * @return the safe location
+     */
+    public static Location getSafeLocation(Location location) {
+        while (location.getBlock().getType() != Material.AIR || location.add(0, 1, 0).getBlock().getType() != Material.AIR) {
+            location = location.add(0, 1, 0);
+        }
+
+        return location;
     }
 
 }

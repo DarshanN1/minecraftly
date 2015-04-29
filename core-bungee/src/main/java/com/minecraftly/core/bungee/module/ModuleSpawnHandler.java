@@ -15,13 +15,13 @@ import java.util.Map;
 /**
  * Created by Keir on 05/04/2015.
  */
-public class SpawnModuleHandler {
+public class ModuleSpawnHandler {
 
     private MinecraftyBungeeCore minecraftly;
     private ServerInfo spawnServer;
     private LocationContainer spawnLocation;
 
-    public SpawnModuleHandler(MinecraftyBungeeCore minecraftly) {
+    public ModuleSpawnHandler(MinecraftyBungeeCore minecraftly) {
         this.minecraftly = minecraftly;
 
         Configuration configuration = minecraftly.getConfiguration().getSection("spawn");

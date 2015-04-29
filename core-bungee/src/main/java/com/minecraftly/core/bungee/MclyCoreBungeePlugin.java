@@ -5,7 +5,7 @@ import com.ikeirnez.pluginmessageframework.connection.ProxySide;
 import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.minecraftly.core.MinecraftlyCommon;
 import com.minecraftly.core.Utilities;
-import com.minecraftly.core.bungee.module.SpawnModuleHandler;
+import com.minecraftly.core.bungee.module.ModuleSpawnHandler;
 import com.sk89q.intake.Command;
 import lc.vq.exhaust.bungee.command.CommandManager;
 import net.md_5.bungee.api.CommandSender;
@@ -54,7 +54,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftyBungeeCore
         commandManager = new CommandManager(this);
         commandManager.builder()
                 .registerMethods(this)
-                .registerMethods(new SpawnModuleHandler(this));
+                .registerMethods(new ModuleSpawnHandler(this));
         commandManager.build();
     }
 

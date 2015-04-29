@@ -8,7 +8,6 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +35,7 @@ public class ModuleSurvivalWorldsHandler {
         }
     }
 
-    @Command(aliases = "home", desc = "Teleports the sender to their world")
+    @Command(aliases = "home", desc = "Teleport's the sender to their world")
     public void connectBestServer(ProxiedPlayer proxiedPlayer) {
         connectBestServer(proxiedPlayer, proxiedPlayer.getUniqueId());
     }
@@ -69,11 +68,7 @@ public class ModuleSurvivalWorldsHandler {
     }
 
     public void sendWorldPacket(ServerInfo serverInfo, ProxiedPlayer proxiedPlayer, UUID ownerUUID) {
-        try {
-            minecraftyBungeeCore.getGateway().sendPacketServer(serverInfo, new PacketPlayerWorld(proxiedPlayer.getUniqueId(), ownerUUID));
-        } catch (IOException e) {
-            e.printStackTrace(); // todo get rid of
-        }
+        minecraftyBungeeCore.getGateway().sendPacketServer(serverInfo, new PacketPlayerWorld(proxiedPlayer.getUniqueId(), ownerUUID));
     }
 
     @Nullable

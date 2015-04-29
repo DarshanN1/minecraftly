@@ -9,7 +9,6 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.config.Configuration;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -51,11 +50,7 @@ public class ModuleSpawnHandler {
     }
 
     private void sendTeleportPacket(ProxiedPlayer proxiedPlayer) {
-        try {
-            minecraftly.getGateway().sendPacket(proxiedPlayer, new PacketTeleport(spawnLocation));
-        } catch (IOException e) { // todo
-            e.printStackTrace();
-        }
+        minecraftly.getGateway().sendPacket(proxiedPlayer, new PacketTeleport(spawnLocation));
     }
 
 }

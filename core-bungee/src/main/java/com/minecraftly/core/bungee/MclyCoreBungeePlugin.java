@@ -6,6 +6,7 @@ import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.minecraftly.core.MinecraftlyCommon;
 import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bungee.module.ModuleSpawnHandler;
+import com.minecraftly.core.bungee.module.ModuleSurvivalWorldsHandler;
 import com.sk89q.intake.Command;
 import lc.vq.exhaust.bungee.command.CommandManager;
 import net.md_5.bungee.api.CommandSender;
@@ -13,6 +14,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
@@ -49,13 +51,20 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftyBungeeCore
             return;
         }
 
+        ModuleSurvivalWorldsHandler survivalWorldsHandler = new ModuleSurvivalWorldsHandler(this);
+
         gateway = BungeeGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
+        gateway.registerListener(survivalWorldsHandler);
 
         commandManager = new CommandManager(this);
         commandManager.builder()
                 .registerMethods(this)
-                .registerMethods(new ModuleSpawnHandler(this));
+                .registerMethods(new ModuleSpawnHandler(this))
+                .registerMethods(survivalWorldsHandler);
         commandManager.build();
+
+        PluginManager pluginManager = getProxy().getPluginManager();
+        pluginManager.registerListener(this, survivalWorldsHandler);
     }
 
     private void copyDefaults() {

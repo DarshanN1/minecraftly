@@ -127,6 +127,17 @@ public class BukkitUtilities {
         return getLocation(new LocationContainer(data));
     }
 
+    public static LocationContainer getLocationContainer(Location location) {
+        return new LocationContainer(
+                location.getWorld().getName(),
+                location.getX(),
+                location.getY(),
+                location.getZ(),
+                location.getYaw(),
+                location.getPitch()
+        );
+    }
+
     /**
      * Takes a location and gets the nearest safest location (above) to spawn a player.
      *

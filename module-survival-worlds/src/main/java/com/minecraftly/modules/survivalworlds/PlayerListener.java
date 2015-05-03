@@ -1,12 +1,8 @@
 package com.minecraftly.modules.survivalworlds;
 
 import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.cache.RemovalCause;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
 import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.bukkit.utilities.ConfigManager;
@@ -22,12 +18,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -36,43 +31,29 @@ import java.util.logging.Level;
  */
 public class PlayerListener implements Listener {
 
-    private SurvivalWorldsPlugin plugin;
+    private SurvivalWorldsModule plugin;
+    private Cache<UUID, UUID> joinQueue = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.SECONDS).build();
 
-    private LoadingCache<UUID, World> worldCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(1, TimeUnit.MINUTES)
-            .removalListener(new RemovalListener<UUID, World>() {
-                @Override
-                public void onRemoval(@Nonnull RemovalNotification<UUID, World> notification) {
-                    if (notification.getCause() != RemovalCause.EXPLICIT) {
-                        World world = notification.getValue();
-
-                        if (world != null) {
-                            checkWorldForUnload(world);
-                        }
-                    }
-                }
-            }).build(new CacheLoader<UUID, World>() {
-                @Override
-                public World load(@Nonnull UUID key) throws Exception {
-                    return plugin.getWorld(key);
-                }
-            });
-
-    public PlayerListener(SurvivalWorldsPlugin plugin) {
+    public PlayerListener(SurvivalWorldsModule plugin) {
         this.plugin = plugin;
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent e) {
-        Player player = e.getPlayer();
+        final Player player = e.getPlayer();
         UUID playerUUID = player.getUniqueId();
-
-        try {
-            joinWorld(player, worldCache.get(playerUUID));
-        } catch (ExecutionException e1) {
-            player.kickPlayer(ChatColor.RED + "Error whilst loading world: " + e1.getMessage() + "\nSee console for further details.");
-            plugin.getLogger().log(Level.SEVERE, "Error whilst loading world for player " + playerUUID, e1);
+        UUID worldUUID = joinQueue.getIfPresent(playerUUID);
+        if (worldUUID == null) {
+            worldUUID = playerUUID;
         }
+
+        final UUID finalWorldUUID = worldUUID;
+        Bukkit.getScheduler().runTask(plugin.getBukkitPlugin(), new Runnable() {
+            @Override
+            public void run() {
+                joinWorld(player, plugin.getWorld(finalWorldUUID));
+            }
+        });
     }
 
     @PacketHandler
@@ -81,22 +62,25 @@ public class PlayerListener implements Listener {
         UUID worldUUID = packet.getWorld();
 
         Player player = Bukkit.getPlayer(playerUUID);
-        World world = plugin.getWorld(worldUUID);
 
         if (player != null) {
-            joinWorld(player, world);
+            joinWorld(player, plugin.getWorld(worldUUID));
         } else {
-            worldCache.put(playerUUID, world);
+            joinQueue.put(playerUUID, worldUUID);
         }
     }
 
     public void joinWorld(Player player, World world) {
         Preconditions.checkNotNull(player);
-        Preconditions.checkNotNull(world);
-
         UUID playerUUID = player.getUniqueId();
-        worldCache.invalidate(playerUUID);
 
+        if (world == null) {
+            player.kickPlayer(ChatColor.RED + "Unable to load world.");
+            plugin.getLogger().log(Level.SEVERE, "Unable to load world for player " + playerUUID);
+            return;
+        }
+
+        joinQueue.invalidate(playerUUID);
         Location spawnLocation;
         File dataFile = new File(world.getWorldFolder(), "mcly-data.yml");
 
@@ -114,21 +98,42 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
-        checkWorldForUnload(e.getPlayer().getWorld());
+        Player player = e.getPlayer();
+        World world = player.getWorld();
+
+        if (plugin.isSurvivalWorld(world)) {
+
+        }
+
+        checkWorldForUnloadDelayed(e.getPlayer().getWorld());
     }
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerTeleport(PlayerTeleportEvent e) {
         World from = e.getFrom().getWorld();
         World to = e.getTo().getWorld();
 
         if (!from.equals(to)) {
-            checkWorldForUnload(from);
+            checkWorldForUnloadDelayed(from);
         }
     }
 
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerRespawn(PlayerRespawnEvent e) {
+        e.setRespawnLocation(e.getPlayer().getWorld());
+    }
+
+    public void checkWorldForUnloadDelayed(final World world) {
+        Bukkit.getScheduler().runTask(plugin.getBukkitPlugin(), new Runnable() {
+            @Override
+            public void run() {
+                checkWorldForUnload(world);
+            }
+        });
+    }
+
     public void checkWorldForUnload(World world) {
-        if (SurvivalWorldsPlugin.isSurvivalWorld(world) && world.getPlayers().size() == 0) {
+        if (plugin.isSurvivalWorld(world) && world.getPlayers().size() == 0) {
             Bukkit.unloadWorld(world, true);
         }
     }

@@ -1,11 +1,18 @@
 package com.minecraftly.core.bungee.module;
 
+import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
 import com.minecraftly.core.bungee.MinecraftyBungeeCore;
+import com.minecraftly.core.packets.survivalworlds.PacketNoLongerHosting;
 import com.minecraftly.core.packets.survivalworlds.PacketPlayerWorld;
 import com.sk89q.intake.Command;
 import net.md_5.bungee.api.Callback;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.ServerDisconnectEvent;
+import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.event.EventHandler;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -17,7 +24,7 @@ import java.util.UUID;
 /**
  * Created by Keir on 29/04/2015.
  */
-public class ModuleSurvivalWorldsHandler {
+public class ModuleSurvivalWorldsHandler implements Listener {
 
     private final MinecraftyBungeeCore minecraftyBungeeCore;
     private final Map<ServerInfo, List<UUID>> playerServerMap = new HashMap<>();
@@ -50,25 +57,31 @@ public class ModuleSurvivalWorldsHandler {
                 sendWorldPacket(currentServer, proxiedPlayer, ownerUUID);
             } else {
                 serverInfo = getAvailableServer();
-
-                if (serverInfo != null) {
-                    sendWorldPacket(serverInfo, proxiedPlayer, ownerUUID);
-                    final ServerInfo finalServerInfo = serverInfo;
-                    proxiedPlayer.connect(serverInfo, new Callback<Boolean>() {
-                        @Override
-                        public void done(Boolean success, Throwable throwable) {
-                            if (success) {
-                                playerServerMap.get(finalServerInfo).add(ownerUUID);
-                            }
-                        }
-                    });
-                }
             }
+        }
+
+        if (serverInfo != null) {
+            sendWorldPacket(serverInfo, proxiedPlayer, ownerUUID);
+            final ServerInfo finalServerInfo = serverInfo;
+            proxiedPlayer.connect(serverInfo, new Callback<Boolean>() {
+                @Override
+                public void done(Boolean success, Throwable throwable) {
+                    if (success) {
+                        playerServerMap.get(finalServerInfo).add(ownerUUID);
+                    }
+                }
+            });
+        } else {
+            TextComponent message = new TextComponent("There are currently no free slave servers to host your world."); // todo translatable
+            message.setColor(ChatColor.RED);
+            proxiedPlayer.sendMessage(message);
         }
     }
 
     public void sendWorldPacket(ServerInfo serverInfo, ProxiedPlayer proxiedPlayer, UUID ownerUUID) {
-        minecraftyBungeeCore.getGateway().sendPacketServer(serverInfo, new PacketPlayerWorld(proxiedPlayer.getUniqueId(), ownerUUID));
+        if (!proxiedPlayer.getUniqueId().equals(ownerUUID)) { // only need to send if going to other players world
+            minecraftyBungeeCore.getGateway().sendPacketServer(serverInfo, new PacketPlayerWorld(proxiedPlayer.getUniqueId(), ownerUUID));
+        }
     }
 
     @Nullable
@@ -101,6 +114,22 @@ public class ModuleSurvivalWorldsHandler {
         }
 
         return mostFreeServer;
+    }
+
+    // for cases whereby the server disconnecting from has no players online
+    // to notify the proxy that it is no longer hosting a world
+    // so we'll assume no worlds are being hosted
+    @EventHandler
+    public void onServerDisconnect(ServerDisconnectEvent e) {
+        ServerInfo serverLeaving = e.getTarget();
+        if (serverLeaving.getPlayers().size() == 0 && playerServerMap.containsKey(serverLeaving)) {
+            playerServerMap.get(serverLeaving).clear();
+        }
+    }
+
+    @PacketHandler
+    public void onNoLongerHosting(ProxiedPlayer proxiedPlayer, PacketNoLongerHosting packet) {
+        playerServerMap.get(proxiedPlayer.getServer().getInfo()).remove(packet.getWorldUUID());
     }
 
 }

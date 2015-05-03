@@ -1,10 +1,13 @@
 package com.minecraftly.modules.survivalworlds;
 
+import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
 import com.minecraftly.core.bukkit.MinecraftlyCore;
 import com.minecraftly.core.bukkit.module.Module;
 import com.minecraftly.core.bukkit.utilities.ConfigManager;
+import com.minecraftly.core.packets.survivalworlds.PacketNoLongerHosting;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
@@ -23,29 +26,35 @@ import java.util.UUID;
 /**
  * Created by Keir on 23/04/2015.
  */
-public class SurvivalWorldsPlugin extends Module implements Listener {
+public class SurvivalWorldsModule extends Module implements Listener {
 
     public static final String WORLD_NAME_PREFIX = "z-player-world-";
 
-    public static boolean isSurvivalWorld(World world) {
-        return world.getName().startsWith(WORLD_NAME_PREFIX);
+    public static String getWorldName(UUID uuid) {
+        return WORLD_NAME_PREFIX + uuid;
     }
 
-    private MinecraftlyCore plugin;
+    private MinecraftlyCore bukkitPlugin;
+    private ServerGateway<Player> gateway;
 
     public final Map<UUID, World> playerWorlds = new HashMap<>();
     public final Map<World, ConfigManager> worldConfigs = new HashMap<>();
 
+    public MinecraftlyCore getBukkitPlugin() {
+        return bukkitPlugin;
+    }
+
     @Override
-    protected void onEnable(MinecraftlyCore plugin) {
-        this.plugin = plugin;
+    protected void onEnable(MinecraftlyCore bukkitPlugin) {
+        this.bukkitPlugin = bukkitPlugin;
+        this.gateway = bukkitPlugin.getGateway();
 
         PluginManager pluginManager = Bukkit.getPluginManager();
         PlayerListener playerListener = new PlayerListener(this);
 
-        plugin.getGateway().registerListener(playerListener);
-        pluginManager.registerEvents(this, plugin);
-        pluginManager.registerEvents(playerListener, plugin);
+        gateway.registerListener(playerListener);
+        pluginManager.registerEvents(this, bukkitPlugin);
+        pluginManager.registerEvents(playerListener, bukkitPlugin);
     }
 
     @Override
@@ -58,7 +67,11 @@ public class SurvivalWorldsPlugin extends Module implements Listener {
             Bukkit.unloadWorld(world, true);
         }
 
-        this.plugin = null;
+        this.bukkitPlugin = null;
+    }
+
+    public boolean isSurvivalWorld(World world) {
+        return playerWorlds.values().contains(world);
     }
 
     @EventHandler
@@ -73,6 +86,7 @@ public class SurvivalWorldsPlugin extends Module implements Listener {
             }
 
             playerWorlds.remove(ownerUUID);
+            gateway.sendPacket(new PacketNoLongerHosting(ownerUUID), false); // notify proxy if possible
         }
     }
 
@@ -99,12 +113,12 @@ public class SurvivalWorldsPlugin extends Module implements Listener {
         World world = playerWorlds.get(uuid);
 
         if (world == null) {
-            String uuidString = uuid.toString();
-            world = Bukkit.getWorld(uuid.toString());
+            String worldName = getWorldName(uuid);
+            world = Bukkit.getWorld(worldName);
 
             if (world == null) {
-                WorldCreator worldCreator = new WorldCreator(uuidString);
-                File worldDirectory = new File(Bukkit.getWorldContainer(), WORLD_NAME_PREFIX + uuidString);
+                WorldCreator worldCreator = new WorldCreator(worldName);
+                File worldDirectory = new File(Bukkit.getWorldContainer(), worldName);
 
                 if (worldDirectory.exists() && worldDirectory.isDirectory()) {
                     world = worldCreator.createWorld(); // this actually loads an existing world
@@ -118,6 +132,10 @@ public class SurvivalWorldsPlugin extends Module implements Listener {
         }
 
         return world;
+    }
+
+    public Location getRespawnLocation(Player player) {
+        return null; // todo
     }
 
 }

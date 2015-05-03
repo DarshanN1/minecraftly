@@ -18,15 +18,15 @@ public class ConfigManager {
 
     public ConfigManager(File configFile) {
         this.configFile = configFile;
+    }
 
+    public void reloadConfig() {
         try {
             configFile.createNewFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
 
-    public void reloadConfig() {
         config = YamlConfiguration.loadConfiguration(configFile);
 
         InputStream defConfigStream = getClass().getResourceAsStream("/" + configFile.getName());

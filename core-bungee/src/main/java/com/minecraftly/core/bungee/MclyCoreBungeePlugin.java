@@ -1,8 +1,8 @@
 package com.minecraftly.core.bungee;
 
 import com.ikeirnez.pluginmessageframework.bungeecord.BungeeGatewayProvider;
-import com.ikeirnez.pluginmessageframework.connection.ProxySide;
 import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
+import com.ikeirnez.pluginmessageframework.gateway.ProxySide;
 import com.minecraftly.core.MinecraftlyCommon;
 import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bungee.module.ModuleSpawnHandler;

@@ -120,7 +120,7 @@ public class PlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerRespawn(PlayerRespawnEvent e) {
-        e.setRespawnLocation(e.getPlayer().getWorld());
+        // e.setRespawnLocation(e.getPlayer().getWorld()); todo
     }
 
     public void checkWorldForUnloadDelayed(final World world) {

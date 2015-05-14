@@ -52,9 +52,10 @@ public class ModuleSurvivalWorldsHandler implements Listener {
 
         if (serverInfo == null) {
             ServerInfo currentServer = proxiedPlayer.getServer().getInfo();
+            List<UUID> currentServerWorlds = playerServerMap.get(currentServer);
 
-            if (playerServerMap.containsKey(currentServer) && playerServerMap.get(currentServer).size() < maxWorldsPerServer) { // just use current server if possible
-                sendWorldPacket(currentServer, proxiedPlayer, ownerUUID);
+            if (currentServerWorlds != null && currentServerWorlds.size() < maxWorldsPerServer) { // just use current server if possible
+                serverInfo = currentServer;
             } else {
                 serverInfo = getAvailableServer();
             }
@@ -62,15 +63,18 @@ public class ModuleSurvivalWorldsHandler implements Listener {
 
         if (serverInfo != null) {
             sendWorldPacket(serverInfo, proxiedPlayer, ownerUUID);
-            final ServerInfo finalServerInfo = serverInfo;
-            proxiedPlayer.connect(serverInfo, new Callback<Boolean>() {
-                @Override
-                public void done(Boolean success, Throwable throwable) {
-                    if (success) {
-                        playerServerMap.get(finalServerInfo).add(ownerUUID);
+
+            if (!proxiedPlayer.getServer().getInfo().equals(serverInfo)) { // only connect if not already connected
+                final ServerInfo finalServerInfo = serverInfo;
+                proxiedPlayer.connect(serverInfo, new Callback<Boolean>() {
+                    @Override
+                    public void done(Boolean success, Throwable throwable) {
+                        if (success) {
+                            playerServerMap.get(finalServerInfo).add(ownerUUID);
+                        }
                     }
-                }
-            });
+                });
+            }
         } else {
             TextComponent message = new TextComponent("There are currently no free slave servers to host your world."); // todo translatable
             message.setColor(ChatColor.RED);
@@ -79,9 +83,7 @@ public class ModuleSurvivalWorldsHandler implements Listener {
     }
 
     public void sendWorldPacket(ServerInfo serverInfo, ProxiedPlayer proxiedPlayer, UUID ownerUUID) {
-        if (!proxiedPlayer.getUniqueId().equals(ownerUUID)) { // only need to send if going to other players world
-            minecraftyBungeeCore.getGateway().sendPacketServer(serverInfo, new PacketPlayerWorld(proxiedPlayer.getUniqueId(), ownerUUID));
-        }
+        minecraftyBungeeCore.getGateway().sendPacketServer(serverInfo, new PacketPlayerWorld(proxiedPlayer.getUniqueId(), ownerUUID));
     }
 
     @Nullable

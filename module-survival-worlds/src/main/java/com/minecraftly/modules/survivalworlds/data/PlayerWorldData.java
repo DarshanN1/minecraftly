@@ -7,7 +7,6 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.io.File;
 import java.util.UUID;
@@ -38,6 +37,8 @@ public class PlayerWorldData implements PlayerData {
         this.uuid = uuid;
         this.worldPlayerData = new ConfigManager(worldPlayerDataFile);
 
+        System.out.println("New player world data " + uuid);
+
         if (worldPlayerDataFile.exists()) {
             loadFromFile();
         } else {
@@ -48,11 +49,52 @@ public class PlayerWorldData implements PlayerData {
             }
 
             copyFromPlayer(player);
+            lastLocation = null; // "un-copy" this, causes invalid location on first run
         }
     }
 
     public UUID getUUID() {
         return uuid;
+    }
+
+    public Location getLastLocation() {
+        return lastLocation;
+    }
+
+    public Location getBedLocation() {
+        return bedLocation;
+    }
+
+    public int getAir() {
+        return air;
+    }
+
+    public int getFire() {
+        return fire;
+    }
+
+    public int getFood() {
+        return food;
+    }
+
+    public int getExperience() {
+        return experience;
+    }
+
+    public float getExhaustion() {
+        return exhaustion;
+    }
+
+    public float getSaturation() {
+        return saturation;
+    }
+
+    public float getFallDistance() {
+        return fallDistance;
+    }
+
+    public GameMode getGameMode() {
+        return gameMode;
     }
 
     @Override
@@ -92,11 +134,13 @@ public class PlayerWorldData implements PlayerData {
         configuration.set("fallDistance", fallDistance);
 
         configuration.set("gameMode", gameMode.name());
+
+        worldPlayerData.saveConfig();
+        System.out.println("Saved to file");
     }
 
     @Override
     public void copyToPlayer(Player player) {
-        player.teleport(lastLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
         player.setBedSpawnLocation(bedLocation);
 
         player.setRemainingAir(air);

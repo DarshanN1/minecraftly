@@ -5,14 +5,15 @@ import com.minecraftly.core.bukkit.MinecraftlyCore;
 import com.minecraftly.core.bukkit.module.Module;
 import com.minecraftly.core.bukkit.utilities.ConfigManager;
 import com.minecraftly.core.packets.survivalworlds.PacketNoLongerHosting;
+import com.minecraftly.modules.survivalworlds.data.DataStore;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.plugin.PluginManager;
@@ -28,6 +29,12 @@ import java.util.UUID;
  */
 public class SurvivalWorldsModule extends Module implements Listener {
 
+    private static SurvivalWorldsModule instance;
+
+    public static SurvivalWorldsModule getInstance() {
+        return instance;
+    }
+
     public static final String WORLD_NAME_PREFIX = "z-player-world-";
 
     public static String getWorldName(UUID uuid) {
@@ -36,6 +43,7 @@ public class SurvivalWorldsModule extends Module implements Listener {
 
     private MinecraftlyCore bukkitPlugin;
     private ServerGateway<Player> gateway;
+    private DataStore dataStore;
 
     public final Map<UUID, World> playerWorlds = new HashMap<>();
     public final Map<World, ConfigManager> worldConfigs = new HashMap<>();
@@ -44,10 +52,25 @@ public class SurvivalWorldsModule extends Module implements Listener {
         return bukkitPlugin;
     }
 
+    public DataStore getDataStore() {
+        return dataStore;
+    }
+
+    @Override
+    protected void onLoad(MinecraftlyCore plugin) {
+        instance = this;
+    }
+
     @Override
     protected void onEnable(MinecraftlyCore bukkitPlugin) {
         this.bukkitPlugin = bukkitPlugin;
         this.gateway = bukkitPlugin.getGateway();
+
+        File survivalWorldsDirectory = new File(bukkitPlugin.getGeneralDataDirectory(), "survival-worlds");
+        File globalPlayersDirectory = new File(survivalWorldsDirectory, "global-data");
+        globalPlayersDirectory.mkdirs();
+
+        this.dataStore = new DataStore(this, globalPlayersDirectory);
 
         PluginManager pluginManager = Bukkit.getPluginManager();
         PlayerListener playerListener = new PlayerListener(this);
@@ -68,10 +91,27 @@ public class SurvivalWorldsModule extends Module implements Listener {
         }
 
         this.bukkitPlugin = null;
+        instance = null;
     }
 
     public boolean isSurvivalWorld(World world) {
         return playerWorlds.values().contains(world);
+    }
+
+    @EventHandler
+    public void onWorldLoad(WorldLoadEvent e) {
+        World world = e.getWorld();
+        String worldName = world.getName();
+
+        if (worldName.startsWith(WORLD_NAME_PREFIX)) {
+            String uuidString = worldName.substring(WORLD_NAME_PREFIX.length(), worldName.length());
+
+            try {
+                UUID uuid = UUID.fromString(uuidString);
+                playerWorlds.put(uuid, world);
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
     }
 
     @EventHandler
@@ -87,6 +127,7 @@ public class SurvivalWorldsModule extends Module implements Listener {
 
             playerWorlds.remove(ownerUUID);
             gateway.sendPacket(new PacketNoLongerHosting(ownerUUID), false); // notify proxy if possible
+            getLogger().info("Unloaded world for player: " + ownerUUID);
         }
     }
 
@@ -127,15 +168,9 @@ public class SurvivalWorldsModule extends Module implements Listener {
                     world = worldCreator.createWorld();
                 }
             }
-
-            playerWorlds.put(uuid, world);
         }
 
         return world;
-    }
-
-    public Location getRespawnLocation(Player player) {
-        return null; // todo
     }
 
 }

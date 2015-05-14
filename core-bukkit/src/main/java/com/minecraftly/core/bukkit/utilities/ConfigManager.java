@@ -20,6 +20,10 @@ public class ConfigManager {
         this.configFile = configFile;
     }
 
+    public File getConfigFile() {
+        return configFile;
+    }
+
     public void reloadConfig() {
         try {
             configFile.createNewFile();

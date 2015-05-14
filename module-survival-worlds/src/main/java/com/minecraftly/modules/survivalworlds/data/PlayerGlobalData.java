@@ -45,6 +45,14 @@ public class PlayerGlobalData implements PlayerData {
         return uuid;
     }
 
+    public ItemStack[] getInventoryContents() {
+        return inventoryContents;
+    }
+
+    public ItemStack[] getEnderChestContents() {
+        return enderChestContents;
+    }
+
     @Override
     public void loadFromFile() {
         globalPlayerData.reloadConfig();

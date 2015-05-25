@@ -2,9 +2,10 @@ rootProject.name = 'Minecraftly Network'
 
 include 'core'
 include 'core-bukkit'
-include 'module-world'
-include 'module-chat'
 include 'core-bungee'
 
+include 'module-world'
+include 'module-chat'
 include 'module-survival-worlds'
+include 'module-spawn'
 

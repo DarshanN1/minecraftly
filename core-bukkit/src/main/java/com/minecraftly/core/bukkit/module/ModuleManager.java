@@ -2,6 +2,7 @@ package com.minecraftly.core.bukkit.module;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bukkit.MclyCoreBukkitPlugin;
 import com.minecraftly.core.bukkit.module.exception.InvalidModuleDescriptionException;
 import com.minecraftly.core.bukkit.module.exception.ModuleAlreadyLoadedException;
@@ -51,22 +52,24 @@ public class ModuleManager {
         this.moduleLoggerPrefix = moduleLoggerPrefix;
         this.moduleFolder = moduleFolder;
 
-        if (!moduleFolder.exists()) {
-            if (!moduleFolder.mkdir()) {
-                throw new IOException("Unable to create module directory.");
-            }
-        }
-
-        if (!moduleFolder.isDirectory()) {
-            throw new IllegalArgumentException("File is not a directory.");
-        }
+        Utilities.createDirectory(moduleFolder);
     }
 
+    /**
+     * Gets all loaded modules, both enabled and disabled.
+     *
+     * @return the modules
+     */
     public List<Module> getModules() {
         return Collections.unmodifiableList(new ArrayList<>(modules.values()));
     }
 
-    public List<Module> getActiveModules() {
+    /**
+     * Gets all enabled modules.
+     *
+     * @return the modules
+     */
+    public List<Module> getEnabledModules() {
         List<Module> activeModules = new ArrayList<>();
 
         for (Module module : getModules()) {
@@ -78,10 +81,25 @@ public class ModuleManager {
         return activeModules;
     }
 
+    /**
+     * Gets a module by it's name.
+     *
+     * @param name the name of the module
+     * @return the module (null if not found)
+     */
     public Module getModule(String name) {
-        return modules.get(name);
+        for (Module module : getModules()) {
+            if (module.getName().equalsIgnoreCase(name)) {
+                return module;
+            }
+        }
+
+        return null;
     }
 
+    /**
+     * Attempts to load all modules in the module folder.
+     */
     public void loadModules() {
         File[] files = moduleFolder.listFiles(new FilenameFilter() {
             @Override
@@ -101,12 +119,18 @@ public class ModuleManager {
         }
     }
 
+    /**
+     * Attempts to enable all loaded modules.
+     */
     public void enableModules() {
         for (Module module : modules.values()) {
             module.setEnabled(true);
         }
     }
 
+    /**
+     * Disables all enabled modules.
+     */
     public void disableModules() {
         List<Module> modules = new ArrayList<>(this.modules.values());
         Collections.reverse(modules); // disable in reverse order
@@ -116,6 +140,14 @@ public class ModuleManager {
         }
     }
 
+    /**
+     * Attempts to load a module by it's file.
+     *
+     * @param moduleJar the jar file of the module
+     * @return the module
+     * @throws InvalidModuleDescriptionException thrown if there is an issue with the module description file
+     * @throws ModuleAlreadyLoadedException thrown if the module is already loaded
+     */
     public Module loadModule(File moduleJar) throws InvalidModuleDescriptionException, ModuleAlreadyLoadedException {
         URLClassLoader classLoader;
 
@@ -194,26 +226,39 @@ public class ModuleManager {
         }
     }
 
+    /**
+     * Registers the commands of all enabled modules via the Module#registerCommands method.
+     *
+     * @param dispatcherNode the dispatcher node to register the commands on
+     */
     public void registerCommands(DispatcherNode dispatcherNode) {
-        for (Module module : getModules()) {
-            if (module.isEnabled()) {
-                try {
-                    module.registerCommands(dispatcherNode);
-                } catch (Exception e) {
-                    module.getLogger().log(Level.SEVERE, "Error occurred whilst registering commands.");
-                }
+        for (Module module : getEnabledModules()) {
+            try {
+                module.registerCommands(dispatcherNode);
+            } catch (Exception e) {
+                module.getLogger().log(Level.SEVERE, "Error occurred whilst registering commands.");
             }
         }
     }
 
+    /**
+     * Gets the appropriate chunk generator from the enabled modules.
+     *
+     * @param worldName the name of the world to generate
+     * @param id the arguments for the creation of the world
+     * @return the chunk generator (may be null if not found)
+     */
     public ChunkGenerator getWorldGenerator(String worldName, String id) {
         ChunkGenerator chunkGenerator = null;
 
-        for (Module module : getActiveModules()) {
-            chunkGenerator = module.getWorldGenerator(worldName, id);
+        if (!id.isEmpty()) {
+            String[] parts = id.split(",");
+            String moduleName = parts.length > 0 ? parts[0] : id;
+            Module module = getModule(moduleName);
 
-            if (chunkGenerator != null) {
-                break;
+            if (module != null) {
+                id = id.substring(moduleName.length() + (parts.length == 0 ? 0 : 1), id.length()); // strip module name
+                chunkGenerator = module.getWorldGenerator(worldName, id);
             }
         }
 

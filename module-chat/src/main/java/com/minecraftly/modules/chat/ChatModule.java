@@ -12,9 +12,6 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.Set;
 
-/**
- * Created by Keir on 05/04/2015.
- */
 public class ChatModule extends Module implements Listener {
 
     public static final int CHAT_RADIUS = 100;

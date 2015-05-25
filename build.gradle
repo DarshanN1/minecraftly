@@ -64,7 +64,7 @@ subprojects {
         }
 
         maven { // Exhaust
-            url 'http://repo.korobi.io/content/repositories/snapshots/'
+            url 'http://repo.ellune.net/content/groups/public/'
         }
     }
 

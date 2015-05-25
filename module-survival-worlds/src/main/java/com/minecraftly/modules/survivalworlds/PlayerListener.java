@@ -94,17 +94,9 @@ public class PlayerListener implements Listener {
         player.teleport(spawnLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent e) {
-        Player player = e.getPlayer();
-        World world = player.getWorld();
-
-        // todo remove???
-        if (module.isSurvivalWorld(world)) {
-
-        }
-
-        checkWorldForUnloadDelayed(e.getPlayer().getWorld());
+        checkWorldForUnloadDelayed(module.getBaseWorld(e.getPlayer().getWorld()));
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -113,13 +105,35 @@ public class PlayerListener implements Listener {
         World to = e.getTo().getWorld();
 
         if (!from.equals(to)) {
-            checkWorldForUnloadDelayed(from);
+            checkWorldForUnloadDelayed(module.getBaseWorld(from));
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerRespawn(PlayerRespawnEvent e) {
-        // e.setRespawnLocation(e.getPlayer().getWorld()); todo
+        Player player = e.getPlayer();
+        World world = module.getBaseWorld(player.getWorld());
+
+        if (module.isSurvivalWorld(world)) {
+            PlayerWorldData playerWorldData = dataStore.getPlayerWorldData(world, player);
+            if (playerWorldData != null) {
+                // todo can't help but think this could all be shortened
+                Location bedLocation = playerWorldData.getBedLocation();
+                if (bedLocation == null) {
+                    bedLocation = player.getBedSpawnLocation();
+
+                    if (bedLocation != null && !world.equals(module.getBaseWorld(bedLocation.getWorld()))) { // if bed location is in another "server"
+                        bedLocation = null;
+                    }
+                }
+
+                if (bedLocation != null) {
+                    e.setRespawnLocation(bedLocation);
+                } else {
+                    e.setRespawnLocation(BukkitUtilities.getSafeLocation(world.getSpawnLocation()));
+                }
+            }
+        }
     }
 
     public void checkWorldForUnloadDelayed(final World world) {
@@ -132,8 +146,20 @@ public class PlayerListener implements Listener {
     }
 
     public void checkWorldForUnload(World world) {
-        if (module.isSurvivalWorld(world) && world.getPlayers().size() == 0) {
+        if (module.isSurvivalWorld(world) && module.getPlayerCountFromAllDimensions(world) == 0) {
             Bukkit.unloadWorld(world, true);
+
+            String worldName = world.getName();
+            World netherWorld = Bukkit.getWorld(worldName + SurvivalWorldsModule.WORLD_NETHER_SUFFIX);
+            World theEndWorld = Bukkit.getWorld(worldName + SurvivalWorldsModule.WORLD_THE_END_SUFFIX);
+
+            if (netherWorld != null) {
+                Bukkit.unloadWorld(netherWorld, true);
+            }
+
+            if (theEndWorld != null) {
+                Bukkit.unloadWorld(theEndWorld, true);
+            }
         }
     }
 

@@ -37,8 +37,6 @@ public class PlayerWorldData implements PlayerData {
         this.uuid = uuid;
         this.worldPlayerData = new ConfigManager(worldPlayerDataFile);
 
-        System.out.println("New player world data " + uuid);
-
         if (worldPlayerDataFile.exists()) {
             loadFromFile();
         } else {
@@ -102,7 +100,7 @@ public class PlayerWorldData implements PlayerData {
         worldPlayerData.reloadConfig();
         FileConfiguration configuration = worldPlayerData.getConfig();
 
-        lastLocation = BukkitUtilities.getLocation(configuration.getConfigurationSection("lastLocation"));
+        lastLocation = configuration.contains("lastLocation") ? BukkitUtilities.getLocation(configuration.getConfigurationSection("lastLocation")) : null;
         bedLocation = configuration.contains("bedLocation") ? BukkitUtilities.getLocation(configuration.getConfigurationSection("bedLocation")) : null;
 
         air = configuration.getInt("air");
@@ -121,7 +119,12 @@ public class PlayerWorldData implements PlayerData {
     public void saveToFile() {
         FileConfiguration configuration = worldPlayerData.getConfig();
 
-        configuration.set("lastLocation", BukkitUtilities.getLocationContainer(lastLocation).serialize());
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null) { // todo make this less of a hack
+            lastLocation = player.getLocation();
+        }
+
+        configuration.set("lastLocation", lastLocation != null ? BukkitUtilities.getLocationContainer(lastLocation).serialize() : null);
         configuration.set("bedLocation", bedLocation != null ? BukkitUtilities.getLocationContainer(bedLocation).serialize() : null);
 
         configuration.set("air", air);
@@ -136,7 +139,6 @@ public class PlayerWorldData implements PlayerData {
         configuration.set("gameMode", gameMode.name());
 
         worldPlayerData.saveConfig();
-        System.out.println("Saved to file");
     }
 
     @Override

@@ -168,6 +168,8 @@ public class DataStore implements Listener {
             PlayerWorldData playerWorldData = getPlayerWorldData(world, player);
             if (playerWorldData != null) {
                 playerWorldData.copyFromPlayer(player);
+                playerWorldData.saveToFile();
+                unloadPlayerWorldData(world, player);
             }
         }
     }

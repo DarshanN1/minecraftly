@@ -7,6 +7,7 @@ import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.sk89q.intake.fluent.DispatcherNode;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
+import org.bukkit.generator.ChunkGenerator;
 
 import java.io.File;
 import java.util.logging.Level;
@@ -95,7 +96,11 @@ public abstract class Module implements ContentOwner {
         return getModuleProperties().getIdentifier();
     }
 
-    public final void registerEvents(Listener listener) {
+    public final void registerListener(Listener listener) {
         Bukkit.getPluginManager().registerEvents(listener, MclyCoreBukkitPlugin.getInstance());
+    }
+
+    public ChunkGenerator getWorldGenerator(String worldName, String id) {
+        return null;
     }
 }

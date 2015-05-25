@@ -1,10 +1,13 @@
 package com.minecraftly.core.bukkit.module;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.minecraftly.core.bukkit.MclyCoreBukkitPlugin;
 import com.minecraftly.core.bukkit.module.exception.InvalidModuleDescriptionException;
 import com.minecraftly.core.bukkit.module.exception.ModuleAlreadyLoadedException;
 import com.minecraftly.core.bukkit.utilities.PrefixedLogger;
 import com.sk89q.intake.fluent.DispatcherNode;
+import org.bukkit.generator.ChunkGenerator;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
@@ -16,13 +19,15 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Responsible for managing all modules.
@@ -58,7 +63,19 @@ public class ModuleManager {
     }
 
     public List<Module> getModules() {
-        return new ArrayList<>(modules.values());
+        return Collections.unmodifiableList(new ArrayList<>(modules.values()));
+    }
+
+    public List<Module> getActiveModules() {
+        List<Module> activeModules = new ArrayList<>();
+
+        for (Module module : getModules()) {
+            if (module.isEnabled()) {
+                activeModules.add(module);
+            }
+        }
+
+        return activeModules;
     }
 
     public Module getModule(String name) {
@@ -187,6 +204,20 @@ public class ModuleManager {
                 }
             }
         }
+    }
+
+    public ChunkGenerator getWorldGenerator(String worldName, String id) {
+        ChunkGenerator chunkGenerator = null;
+
+        for (Module module : getActiveModules()) {
+            chunkGenerator = module.getWorldGenerator(worldName, id);
+
+            if (chunkGenerator != null) {
+                break;
+            }
+        }
+
+        return chunkGenerator;
     }
 
 }

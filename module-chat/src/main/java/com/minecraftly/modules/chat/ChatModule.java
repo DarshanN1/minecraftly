@@ -2,7 +2,6 @@ package com.minecraftly.modules.chat;
 
 import com.minecraftly.core.bukkit.MinecraftlyCore;
 import com.minecraftly.core.bukkit.module.Module;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -22,7 +21,7 @@ public class ChatModule extends Module implements Listener {
 
     @Override
     protected void onEnable(MinecraftlyCore plugin) {
-        Bukkit.getPluginManager().registerEvents(this, plugin);
+        registerListener(this);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

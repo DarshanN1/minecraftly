@@ -3,7 +3,6 @@ package com.minecraftly.modules.survivalworlds.data;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.minecraftly.modules.survivalworlds.SurvivalWorldsModule;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -49,7 +48,7 @@ public class DataStore implements Listener {
 
         this.module = module;
         this.globalPlayerDirectory = globalPlayerDirectory;
-        Bukkit.getPluginManager().registerEvents(this, module.getBukkitPlugin());
+        module.registerListener(this);
     }
 
     public PlayerWorldData getPlayerWorldData(World world, OfflinePlayer offlinePlayer) {

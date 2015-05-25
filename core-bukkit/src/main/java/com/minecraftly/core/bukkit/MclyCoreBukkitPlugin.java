@@ -24,6 +24,7 @@ import lc.vq.exhaust.bukkit.command.CommandManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -150,6 +151,11 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         }
 
         instance = null;
+    }
+
+    @Override
+    public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
+        return moduleManager.getWorldGenerator(worldName, id);
     }
 
     // forward commands to Exhaust and then to Intake to be dispatched

@@ -16,7 +16,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
-import org.bukkit.plugin.PluginManager;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -74,12 +73,11 @@ public class SurvivalWorldsModule extends Module implements Listener {
 
         this.dataStore = new DataStore(this, globalPlayersDirectory);
 
-        PluginManager pluginManager = Bukkit.getPluginManager();
         PlayerListener playerListener = new PlayerListener(this);
 
         gateway.registerListener(playerListener);
-        pluginManager.registerEvents(this, bukkitPlugin);
-        pluginManager.registerEvents(playerListener, bukkitPlugin);
+        registerListener(this);
+        registerListener(playerListener);
     }
 
     @Override

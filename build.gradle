@@ -37,6 +37,8 @@ subprojects {
     sourceCompatibility = 1.7
     targetCompatibility = 1.7
 
+    ext.cleanName = getName()
+
     jar { // rename un-shadowed jar, adding the suffix 'original', much like how Maven handles this
         classifier = 'original'
     }
@@ -158,35 +160,13 @@ project(':core') {
     build.dependsOn(shadowJar)
 }
 
-project(':core-bungee') {
-    group = project(':core').getGroup() + '.bungee'
-    version = '1.0-SNAPSHOT'
-
-    dependencies {
-        compile project(':core')
-        compile group: 'net.md-5', name: 'bungeecord-api', version: bungeeVersion
-        compile group: 'lc.vq', name: 'exhaust-bungee', version: exhaustVersion
-        compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-bungeecord', version: pmfVersion
-    }
-
-    shadowJar {
-        from zipTree(project(':core').shadowJar.archivePath)
-
-        dependencies {
-            include(dependency('lc.vq:exhaust-bungee'))
-            include(dependency('com.ikeirnez.pluginmessageframework:pmf-bungeecord'))
-        }
-    }
-
-    build.dependsOn(shadowJar)
-}
-
 project(':core-bukkit') {
+    ext.cleanName = 'Minecraftly'
     group = project(':core').getGroup() + '.bukkit'
     version = '1.0-SNAPSHOT'
 
     dependencies {
-        compile project(':core')
+        compile project(path: ':core', configuration: 'shadow')
         compile group: 'org.spigotmc', name: 'spigot-api', version: bukkitVersion
         compile group: 'lc.vq', name: 'exhaust-bukkit', version: exhaustVersion
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-bukkit', version: pmfVersion
@@ -194,12 +174,34 @@ project(':core-bukkit') {
     }
 
     shadowJar {
-        from zipTree(project(':core').shadowJar.archivePath)
-
         dependencies {
+            include(dependency(':core'))
             include(dependency('lc.vq:exhaust-bukkit'))
             include(dependency('com.ikeirnez.pluginmessageframework:pmf-bukkit'))
             include(dependency('com.ikeirnez.pluginmessageframework:pmf-packets-bungeecord'))
+        }
+    }
+
+    build.dependsOn(shadowJar)
+}
+
+project(':core-bungee') {
+    ext.cleanName = 'MinecraftlyBungee'
+    group = project(':core').getGroup() + '.bungee'
+    version = '1.0-SNAPSHOT'
+
+    dependencies {
+        compile project(path: ':core', configuration: 'shadow')
+        compile group: 'net.md-5', name: 'bungeecord-api', version: bungeeVersion
+        compile group: 'lc.vq', name: 'exhaust-bungee', version: exhaustVersion
+        compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-bungeecord', version: pmfVersion
+    }
+
+    shadowJar {
+        dependencies {
+            include(dependency(':core'))
+            include(dependency('lc.vq:exhaust-bungee'))
+            include(dependency('com.ikeirnez.pluginmessageframework:pmf-bungeecord'))
         }
     }
 
@@ -238,11 +240,15 @@ project(':module-survival-worlds') {
 }
 
 subprojects { // this needs done after projects have been initialized
+    def cleanName = project.ext.cleanName
+    archivesBaseName = cleanName
+
     processResources {
         filter ReplaceTokens, tokens: [
                 'project.group'  : project.getGroup(),
                 'project.name'   : project.getName(),
-                'project.version': project.getVersion()
+                'project.version': project.getVersion(),
+                'project.cleanName': cleanName
         ]
     }
 }

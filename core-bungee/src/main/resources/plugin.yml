@@ -1,4 +1,4 @@
-name: MinecraftlyCore
+name: @project.cleanName@
 version: @project.version@
 main: @project.group@.MclyCoreBungeePlugin
 author: Minecraftly Network

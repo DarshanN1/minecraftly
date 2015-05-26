@@ -14,6 +14,8 @@ import java.util.Random;
  */
 public class VoidGenerator extends ChunkGenerator {
 
+    private final int BASE_LEVEL = 63;
+
     private Material material;
 
     /**
@@ -27,19 +29,19 @@ public class VoidGenerator extends ChunkGenerator {
 
     @Override
     public Location getFixedSpawnLocation(World world, Random random) {
-        return new Location(world, 8.5, world.getSeaLevel() + 1, 8.1);
+        return new Location(world, 264, BASE_LEVEL + 3, 264); // spawn a few higher to prevent falling through floor
     }
 
     @Override
     public byte[][] generateBlockSections(World world, Random random, int chunkX, int chunkZ, BiomeGrid biomes) {
         byte[][] result = new byte[world.getMaxHeight() / 16][];
 
-        if (chunkX == 0 && chunkZ == 0) {
+        if (chunkX == 16 && chunkZ == 16) {
             for (int x = 0; x < 16; x++) {
                 for (int z = 0; z < 16; z++) {
-                    for (int y = 0; y < 6; y++) {
-                        if (y == 0 || y == 5 || x == 0 || x == 15 || z == 0 || z == 15) {
-                            WorldGenUtilities.setBlock(result, x, world.getSeaLevel() + y, z, material);
+                    for (int y = -6; y < 6; y++) {
+                        if (y == -6 || y == 0 || y == 5 || x == 0 || x == 15 || z == 0 || z == 15) {
+                            WorldGenUtilities.setBlock(result, x, BASE_LEVEL + y, z, material);
                         }
                     }
                 }

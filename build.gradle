@@ -91,17 +91,52 @@ subprojects {
         rebelXmlDirectory = "/"
     }
 
+    task('optimizeOutputs') {
+        doLast {
+            File outputDir = new File(project.buildDir, "libs")
+            File[] originalFiles = outputDir.listFiles(new FilenameFilter() {
+                @Override
+                boolean accept(File dir, String name) {
+                    return name.contains("-original.jar");
+                }
+            });
+
+            if (originalFiles.length > 1) {
+                throw new UnsupportedOperationException("More than 1 'original' file.");
+            }
+
+            if (originalFiles.length == 1) {
+                File originalFile = originalFiles[0];
+                File shadedFile = new File(originalFile.getParentFile(), originalFile.getName().replace("-original", ""));
+
+                if (shadedFile.exists()) {
+                    originalFile.delete();
+                } else {
+                    originalFile.renameTo(shadedFile);
+                }
+            }
+        }
+    }
+
     task('copyOutputsForTesting') {
         outputs.upToDateWhen { false }
 
         doLast {
-            File sourceFile = project.shadowJar.archivePath;
+            File outputDir = new File(project.buildDir, "libs");
+            File[] outputFiles = outputDir.listFiles(new FilenameFilter() {
+                @Override
+                boolean accept(File dir, String name) {
+                    return name.endsWith(".jar");
+                }
+            })
 
-            if (!sourceFile.exists()) {
-                sourceFile = jar.outputs.files.files.getAt(0);
+            if (outputFiles.length != 1) {
+                throw new UnsupportedOperationException("Incorrect number of output JARs found (" + outputFiles.length + "), we only support there being 1.");
             }
 
+            File sourceFile = outputFiles[0];
             File targetFile = new File(parent.getProjectDir(), "testing/");
+
             if (targetFile.exists() && !targetFile.isDirectory()) {
                 throw new RuntimeException("Path '" + targetFile.getPath() + "' is not a directory.");
             }
@@ -120,7 +155,7 @@ subprojects {
             targetFile = new File(targetFile, sourceFile.getName());
             Files.copy(sourceFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
-    }
+    }.dependsOn(['optimizeOutputs'])
 }
 
 group = 'com.minecraftly'

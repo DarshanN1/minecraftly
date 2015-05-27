@@ -94,6 +94,22 @@ public class SurvivalWorldsModule extends Module implements Listener {
         instance = null;
     }
 
+    public UUID getWorldOwner(World world) {
+        world = getBaseWorld(world);
+        String name = world.getName();
+        UUID uuid = null;
+
+        if (name.startsWith(WORLD_NAME_PREFIX)) {
+            name = name.substring(WORLD_NAME_PREFIX.length(), name.length());
+
+            try {
+                uuid = UUID.fromString(name);
+            } catch (IllegalArgumentException ignored) {}
+        }
+
+        return uuid;
+    }
+
     public boolean isSurvivalWorld(World world) {
         return playerWorlds.values().contains(world);
     }

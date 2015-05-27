@@ -10,6 +10,7 @@ import com.minecraftly.modules.survivalworlds.data.DataStore;
 import com.minecraftly.modules.survivalworlds.data.PlayerWorldData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -29,6 +30,8 @@ import java.util.logging.Level;
  * Created by Keir on 24/04/2015.
  */
 public class PlayerListener implements Listener {
+
+    //public static final String LANGUAGE_WELCOME_GUEST =
 
     private SurvivalWorldsModule module;
     private DataStore dataStore;
@@ -101,11 +104,19 @@ public class PlayerListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerTeleport(PlayerTeleportEvent e) {
-        World from = e.getFrom().getWorld();
-        World to = e.getTo().getWorld();
+        Player player = e.getPlayer();
+        World from = module.getBaseWorld(e.getFrom().getWorld());
+        World to = module.getBaseWorld(e.getTo().getWorld());
 
         if (!from.equals(to)) {
-            checkWorldForUnloadDelayed(module.getBaseWorld(from));
+            checkWorldForUnloadDelayed(from);
+
+            UUID owner = module.getWorldOwner(to);
+            if (player.getUniqueId().equals(owner)) {
+                player.setGameMode(GameMode.SURVIVAL);
+            } else {
+                player.setGameMode(GameMode.ADVENTURE);
+            }
         }
     }
 

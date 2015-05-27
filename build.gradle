@@ -237,7 +237,6 @@ project(':module-survival-worlds') {
 
     dependencies {
         compile group: 'org.spigotmc', name: 'spigot-api', version: parent.ext.bukkitVersion
-        compile files(new File(getParent().rootDir, 'libs/spigot-1.8.3.jar'))
         compile project(':core-bukkit')
     }
 }

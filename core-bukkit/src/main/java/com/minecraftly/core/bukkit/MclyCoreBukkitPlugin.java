@@ -83,6 +83,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
             languageManager = new SimpleLanguageManager(BukkitUtilities.getLogger(this, SimpleLanguageManager.class, "Language"), new File(getDataFolder(), "language_en.yml"));
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "Error whilst initializing language manager.", e);
+            skipDisable = true;
             pluginManager.disablePlugin(this);
             return;
         }
@@ -90,7 +91,15 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         Utilities.createDirectory(generalDataDirectory);
         Utilities.createDirectory(backupDirectory);
 
-        connectDatabase();
+        try {
+            connectDatabase();
+        } catch (Throwable e) {
+            getLogger().log(Level.SEVERE, "Error connecting to database, disabling plugin...");
+            skipDisable = true;
+            pluginManager.disablePlugin(this);
+            return;
+        }
+
         userManager = new UserManager(BukkitUtilities.getLogger(this, UserManager.class, "User Manager"), databaseManager);
 
         try {

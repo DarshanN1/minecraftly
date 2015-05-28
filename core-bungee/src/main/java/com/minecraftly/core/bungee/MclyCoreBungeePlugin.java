@@ -7,6 +7,7 @@ import com.minecraftly.core.MinecraftlyCommon;
 import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bungee.handlers.module.SpawnHandler;
 import com.minecraftly.core.bungee.handlers.module.SurvivalWorldsHandler;
+import com.minecraftly.core.bungee.handlers.module.TpaHandler;
 import com.sk89q.intake.Command;
 import lc.vq.exhaust.bungee.command.CommandManager;
 import net.md_5.bungee.api.CommandSender;
@@ -15,6 +16,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
+import net.md_5.bungee.api.scheduler.TaskScheduler;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
@@ -22,6 +24,7 @@ import net.md_5.bungee.config.YamlConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
@@ -52,6 +55,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftyBungeeCore
         }
 
         SurvivalWorldsHandler survivalWorldsHandler = new SurvivalWorldsHandler(this);
+        TpaHandler tpaHandler = new TpaHandler(this);
 
         gateway = BungeeGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
         gateway.registerListener(survivalWorldsHandler);
@@ -60,11 +64,15 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftyBungeeCore
         commandManager.builder()
                 .registerMethods(this)
                 .registerMethods(new SpawnHandler(this))
-                .registerMethods(survivalWorldsHandler);
+                .registerMethods(survivalWorldsHandler)
+                .registerMethods(tpaHandler);
         commandManager.build();
 
         PluginManager pluginManager = getProxy().getPluginManager();
         pluginManager.registerListener(this, survivalWorldsHandler);
+
+        TaskScheduler taskScheduler = getProxy().getScheduler();
+        taskScheduler.schedule(this, tpaHandler, 5, TimeUnit.MINUTES);
     }
 
     private void copyDefaults() {

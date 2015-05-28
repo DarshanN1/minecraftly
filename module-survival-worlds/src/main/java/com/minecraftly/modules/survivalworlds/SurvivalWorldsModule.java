@@ -34,6 +34,8 @@ public class SurvivalWorldsModule extends Module implements Listener {
         return instance;
     }
 
+    public static final String LANGUAGE_KEY_PREFIX = "module.survivalWorlds";
+
     public static final String WORLD_NAME_PREFIX = "z-player-world-";
     public static final String WORLD_NETHER_SUFFIX = "_nether";
     public static final String WORLD_THE_END_SUFFIX = "_the_end";

@@ -4,12 +4,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
+import com.minecraftly.core.bukkit.language.LanguageManager;
+import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.packets.survivalworlds.PacketPlayerWorld;
 import com.minecraftly.modules.survivalworlds.data.DataStore;
 import com.minecraftly.modules.survivalworlds.data.PlayerWorldData;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -22,42 +23,56 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 /**
  * Created by Keir on 24/04/2015.
  */
 public class PlayerListener implements Listener {
 
-    //public static final String LANGUAGE_WELCOME_GUEST =
+    public static final String LANGUAGE_KEY_PREFIX = SurvivalWorldsModule.LANGUAGE_KEY_PREFIX;
+
+    public static final String LANGUAGE_LOADING_WORLD = LANGUAGE_KEY_PREFIX + ".loadingWorld";
+    public static final String LANGUAGE_WELCOME_OWNER = LANGUAGE_KEY_PREFIX + ".welcomeOwner";
+    public static final String LANGUAGE_WELCOME_GUEST = LANGUAGE_KEY_PREFIX + ".welcomeGuest";
+
+    public static final String LANGUAGE_ERROR_KEY_PREFIX = LANGUAGE_KEY_PREFIX + ".error";
+    public static final String LANGUAGE_LOAD_FAILED = LANGUAGE_ERROR_KEY_PREFIX + ".loadFailed";
 
     private SurvivalWorldsModule module;
+    private LanguageManager languageManager;
     private DataStore dataStore;
     private Cache<UUID, UUID> joinQueue = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.SECONDS).build();
 
-    public PlayerListener(SurvivalWorldsModule module) {
+    public PlayerListener(final SurvivalWorldsModule module) {
         this.module = module;
+        this.languageManager = module.getBukkitPlugin().getLanguageManager();
         this.dataStore = module.getDataStore();
+
+        languageManager.registerAll(new HashMap<String, LanguageValue>() {{
+            put(LANGUAGE_LOADING_WORLD, new LanguageValue(module, "&bOne moment whilst we load that world."));
+            put(LANGUAGE_WELCOME_OWNER, new LanguageValue(module, "&aWelcome back to your home, &6%s&a."));
+            put(LANGUAGE_WELCOME_GUEST, new LanguageValue(module, "&aWelcome to &6%s&a's world, they will have to grant you permission before you can modify blocks."));
+            put(LANGUAGE_LOAD_FAILED, new LanguageValue(module, "&cWe were unable to load your home, please contact a member of staff."));
+        }});
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent e) {
         final Player player = e.getPlayer();
         UUID playerUUID = player.getUniqueId();
-        UUID worldUUID = joinQueue.getIfPresent(playerUUID);
-        if (worldUUID == null) {
-            worldUUID = playerUUID;
-        }
+        final UUID worldUUID = joinQueue.getIfPresent(playerUUID);
 
-        final UUID finalWorldUUID = worldUUID;
-        Bukkit.getScheduler().runTask(module.getBukkitPlugin(), new Runnable() {
-            @Override
-            public void run() {
-                joinWorld(player, module.getWorld(finalWorldUUID));
-            }
-        });
+        if (worldUUID != null) {
+            Bukkit.getScheduler().runTask(module.getBukkitPlugin(), new Runnable() {
+                @Override
+                public void run() {
+                    joinWorld(player, module.getWorld(worldUUID));
+                }
+            });
+        }
     }
 
     @PacketHandler
@@ -78,10 +93,11 @@ public class PlayerListener implements Listener {
         UUID playerUUID = player.getUniqueId();
 
         if (world == null) {
-            player.kickPlayer(ChatColor.RED + "Unable to load world.");
-            module.getLogger().log(Level.SEVERE, "Unable to load world for player " + playerUUID);
+            player.sendMessage(languageManager.get(LANGUAGE_LOAD_FAILED));
             return;
         }
+
+        player.sendMessage(languageManager.get(LANGUAGE_LOADING_WORLD));
 
         joinQueue.invalidate(playerUUID);
         Location spawnLocation;
@@ -104,18 +120,26 @@ public class PlayerListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerTeleport(PlayerTeleportEvent e) {
-        Player player = e.getPlayer();
+        final Player player = e.getPlayer();
         World from = module.getBaseWorld(e.getFrom().getWorld());
         World to = module.getBaseWorld(e.getTo().getWorld());
 
         if (!from.equals(to)) {
             checkWorldForUnloadDelayed(from);
 
-            UUID owner = module.getWorldOwner(to);
+            final UUID owner = module.getWorldOwner(to);
             if (player.getUniqueId().equals(owner)) {
                 player.setGameMode(GameMode.SURVIVAL);
+                player.sendMessage(languageManager.get(LANGUAGE_WELCOME_OWNER, player.getDisplayName()));
             } else {
                 player.setGameMode(GameMode.ADVENTURE);
+
+                Bukkit.getScheduler().runTaskAsynchronously(module.getBukkitPlugin(), new Runnable() { // async for getOfflinePlayer
+                    @Override
+                    public void run() {
+                        player.sendMessage(languageManager.get(LANGUAGE_WELCOME_GUEST, Bukkit.getOfflinePlayer(owner).getName()));
+                    }
+                });
             }
         }
     }

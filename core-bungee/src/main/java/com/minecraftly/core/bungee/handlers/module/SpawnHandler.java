@@ -1,4 +1,4 @@
-package com.minecraftly.core.bungee.module;
+package com.minecraftly.core.bungee.handlers.module;
 
 import com.minecraftly.core.bungee.MinecraftyBungeeCore;
 import com.minecraftly.core.packets.LocationContainer;
@@ -14,13 +14,13 @@ import java.util.Map;
 /**
  * Created by Keir on 05/04/2015.
  */
-public class ModuleSpawnHandler {
+public class SpawnHandler {
 
     private MinecraftyBungeeCore minecraftly;
     private ServerInfo spawnServer;
     private LocationContainer spawnLocation;
 
-    public ModuleSpawnHandler(MinecraftyBungeeCore minecraftly) {
+    public SpawnHandler(MinecraftyBungeeCore minecraftly) {
         this.minecraftly = minecraftly;
 
         Configuration configuration = minecraftly.getConfiguration().getSection("spawn");

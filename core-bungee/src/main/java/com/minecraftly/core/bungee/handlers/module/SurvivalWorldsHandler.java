@@ -1,4 +1,4 @@
-package com.minecraftly.core.bungee.module;
+package com.minecraftly.core.bungee.handlers.module;
 
 import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
 import com.minecraftly.core.bungee.MinecraftyBungeeCore;
@@ -24,7 +24,7 @@ import java.util.UUID;
 /**
  * Created by Keir on 29/04/2015.
  */
-public class ModuleSurvivalWorldsHandler implements Listener {
+public class SurvivalWorldsHandler implements Listener {
 
     private final MinecraftyBungeeCore minecraftyBungeeCore;
     private final Map<ServerInfo, List<UUID>> playerServerMap = new HashMap<>();
@@ -32,7 +32,7 @@ public class ModuleSurvivalWorldsHandler implements Listener {
     private final String survivalWorldsServerPrefix = "survivalworlds-"; // todo make configurable
     private final int maxWorldsPerServer = 10; // todo make configurable
 
-    public ModuleSurvivalWorldsHandler(MinecraftyBungeeCore minecraftyBungeeCore) {
+    public SurvivalWorldsHandler(MinecraftyBungeeCore minecraftyBungeeCore) {
         this.minecraftyBungeeCore = minecraftyBungeeCore;
 
         for (Map.Entry<String, ServerInfo> entry : minecraftyBungeeCore.getProxy().getServers().entrySet()) {

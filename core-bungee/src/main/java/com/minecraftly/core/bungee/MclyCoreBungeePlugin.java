@@ -3,8 +3,11 @@ package com.minecraftly.core.bungee;
 import com.ikeirnez.pluginmessageframework.bungeecord.BungeeGatewayProvider;
 import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.ikeirnez.pluginmessageframework.gateway.ProxySide;
+import com.imaginarycode.minecraft.redisbungee.RedisBungee;
+import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.minecraftly.core.MinecraftlyCommon;
 import com.minecraftly.core.Utilities;
+import com.minecraftly.core.bungee.handlers.module.PreQuitHandler;
 import com.minecraftly.core.bungee.handlers.module.SpawnHandler;
 import com.minecraftly.core.bungee.handlers.module.SurvivalWorldsHandler;
 import com.minecraftly.core.bungee.handlers.module.TpaHandler;
@@ -30,7 +33,7 @@ import java.util.logging.Level;
 /**
  * Created by Keir on 24/03/2015.
  */
-public class MclyCoreBungeePlugin extends Plugin implements MinecraftyBungeeCore {
+public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCore {
 
     private File configurationFile;
     private ConfigurationProvider configurationProvider;
@@ -38,6 +41,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftyBungeeCore
 
     private CommandManager commandManager;
     private ProxyGateway<ProxiedPlayer, ServerInfo> gateway;
+    private RedisBungeeAPI redisBungeeAPI;
 
     @Override
     public void onEnable() {
@@ -54,11 +58,16 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftyBungeeCore
             return;
         }
 
+        PluginManager pluginManager = getProxy().getPluginManager();
         gateway = BungeeGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
+        redisBungeeAPI = RedisBungee.getApi();
 
         SurvivalWorldsHandler survivalWorldsHandler = new SurvivalWorldsHandler(this);
         TpaHandler tpaHandler = new TpaHandler(this);
+        PreQuitHandler preQuitHandler = new PreQuitHandler(this);
+
         gateway.registerListener(survivalWorldsHandler);
+        gateway.registerListener(preQuitHandler);
 
         commandManager = new CommandManager(this);
         commandManager.builder()
@@ -68,8 +77,9 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftyBungeeCore
                 .registerMethods(tpaHandler);
         commandManager.build();
 
-        PluginManager pluginManager = getProxy().getPluginManager();
         pluginManager.registerListener(this, survivalWorldsHandler);
+        pluginManager.registerListener(this, tpaHandler);
+        pluginManager.registerListener(this, preQuitHandler);
 
         TaskScheduler taskScheduler = getProxy().getScheduler();
         taskScheduler.schedule(this, tpaHandler, 5, TimeUnit.MINUTES);
@@ -115,6 +125,11 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftyBungeeCore
     @Override
     public Configuration getConfiguration() {
         return configuration;
+    }
+
+    @Override
+    public RedisBungeeAPI getRedisBungeeAPI() {
+        return redisBungeeAPI;
     }
 
     @Command(aliases = "mclybungeetestcommand", desc = "A test command.")

@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.generator.ChunkGenerator;
@@ -50,6 +51,11 @@ public class SpawnModule extends Module implements Listener {
                 player.setGameMode(GameMode.SURVIVAL); // todo survival worlds?
             }
         }
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onPlayerChat(AsyncPlayerChatEvent e) {
+        // todo
     }
 
     private void makePlayerDisabled(Player player, World world) { // lol

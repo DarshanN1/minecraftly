@@ -1,7 +1,7 @@
 package com.minecraftly.core.bungee.handlers.module;
 
 import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
-import com.minecraftly.core.bungee.MinecraftyBungeeCore;
+import com.minecraftly.core.bungee.MinecraftlyBungeeCore;
 import com.minecraftly.core.packets.survivalworlds.PacketNoLongerHosting;
 import com.minecraftly.core.packets.survivalworlds.PacketPlayerWorld;
 import com.sk89q.intake.Command;
@@ -26,16 +26,16 @@ import java.util.UUID;
  */
 public class SurvivalWorldsHandler implements Listener {
 
-    private final MinecraftyBungeeCore minecraftyBungeeCore;
+    private final MinecraftlyBungeeCore minecraftlyBungeeCore;
     private final Map<ServerInfo, List<UUID>> playerServerMap = new HashMap<>();
 
     private final String survivalWorldsServerPrefix = "survivalworlds-"; // todo make configurable
     private final int maxWorldsPerServer = 10; // todo make configurable
 
-    public SurvivalWorldsHandler(MinecraftyBungeeCore minecraftyBungeeCore) {
-        this.minecraftyBungeeCore = minecraftyBungeeCore;
+    public SurvivalWorldsHandler(MinecraftlyBungeeCore minecraftlyBungeeCore) {
+        this.minecraftlyBungeeCore = minecraftlyBungeeCore;
 
-        for (Map.Entry<String, ServerInfo> entry : minecraftyBungeeCore.getProxy().getServers().entrySet()) {
+        for (Map.Entry<String, ServerInfo> entry : minecraftlyBungeeCore.getProxy().getServers().entrySet()) {
             if (entry.getKey().startsWith(survivalWorldsServerPrefix)) {
                 playerServerMap.put(entry.getValue(), new ArrayList<UUID>());
             }
@@ -83,7 +83,7 @@ public class SurvivalWorldsHandler implements Listener {
     }
 
     public void sendWorldPacket(ServerInfo serverInfo, ProxiedPlayer proxiedPlayer, UUID ownerUUID) {
-        minecraftyBungeeCore.getGateway().sendPacketServer(serverInfo, new PacketPlayerWorld(proxiedPlayer.getUniqueId(), ownerUUID));
+        minecraftlyBungeeCore.getGateway().sendPacketServer(serverInfo, new PacketPlayerWorld(proxiedPlayer.getUniqueId(), ownerUUID));
     }
 
     @Nullable

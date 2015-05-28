@@ -2,7 +2,9 @@ package com.minecraftly.modules.survivalworlds.data;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import com.minecraftly.core.Callback;
 import com.minecraftly.modules.survivalworlds.SurvivalWorldsModule;
+import com.minecraftly.modules.survivalworlds.WorldDimension;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -49,6 +51,23 @@ public class DataStore implements Listener {
         this.module = module;
         this.globalPlayerDirectory = globalPlayerDirectory;
         module.registerListener(this);
+
+        module.getBukkitPlugin().getPreSwitchJobManager().addJob(new Callback<Player>() {
+            @Override
+            public void call(Player player) {
+                PlayerGlobalData playerGlobalData = getPlayerGlobalData(player);
+                if (playerGlobalData != null) {
+                    playerGlobalData.saveToFile();
+                }
+
+                World world = WorldDimension.getBaseWorld(player.getWorld());
+                PlayerWorldData playerWorldData = getPlayerWorldData(world, player);
+                if (playerWorldData != null) {
+                    playerWorldData.copyFromPlayer(player);
+                    playerWorldData.saveToFile();
+                }
+            }
+        });
     }
 
     public PlayerWorldData getPlayerWorldData(World world, OfflinePlayer offlinePlayer) {
@@ -154,20 +173,17 @@ public class DataStore implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
         Player player = e.getPlayer();
-        World world = player.getWorld();
+        World world = WorldDimension.getBaseWorld(player.getWorld());
         PlayerGlobalData playerGlobalData = getPlayerGlobalData(e.getPlayer());
 
         if (playerGlobalData != null) {
             playerGlobalData.copyFromPlayer(player);
-            playerGlobalData.saveToFile();
             unloadPlayerGlobalData(player);
         }
 
         if (module.isSurvivalWorld(world)) {
             PlayerWorldData playerWorldData = getPlayerWorldData(world, player);
             if (playerWorldData != null) {
-                playerWorldData.copyFromPlayer(player);
-                playerWorldData.saveToFile();
                 unloadPlayerWorldData(world, player);
             }
         }

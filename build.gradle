@@ -30,6 +30,10 @@ ext.bungeeVersion = '1.8-SNAPSHOT'
 ext.exhaustVersion = '1.0.0-SNAPSHOT'
 ext.pmfVersion = '1.0.0-SNAPSHOT'
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
+
 defaultTasks 'clean', 'build', 'test'
 
 subprojects {
@@ -228,11 +232,18 @@ project(':core-bungee') {
     group = project(':core').getGroup() + '.bungee'
     version = '1.0-SNAPSHOT'
 
+    repositories {
+        maven {
+            url 'http://repo.md-5.net/content/repositories/public/'
+        }
+    }
+
     dependencies {
         compile project(path: ':core', configuration: 'shadow')
         compile group: 'net.md-5', name: 'bungeecord-api', version: parent.ext.bungeeVersion
         compile group: 'lc.vq', name: 'exhaust-bungee', version: parent.ext.exhaustVersion
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-bungeecord', version: parent.ext.pmfVersion
+        compile group: 'com.imaginarycode.minecraft', name: 'RedisBungee', version: '0.3.5'
     }
 
     shadowJar {

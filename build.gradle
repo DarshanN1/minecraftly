@@ -310,54 +310,83 @@ idea {
     }
 }
 
-task('deployForTesting') {
+def host, user, pass
+
+task('parseSettings') {
     doLast {
-        if (project.hasProperty('remoteCredentials')) {
-            if (project.hasProperty('baseFolder')) {
-                String[] credentials = Eval.me((String) remoteCredentials)
+        assert project.hasProperty('remoteCredentials'), 'Connections credentials must be set.'
+        assert project.hasProperty('baseFolder'), 'Base folder must be set.'
+        baseFolder = baseFolder + (!baseFolder.endsWith("/") ? "/" : "")
+        String[] credentials = Eval.me((String) remoteCredentials)
+        host = credentials[0]
+        user = credentials[1]
+        pass = credentials[2]
+    }
+}
 
-                ssh.run {
-                    session(host: credentials[0], user: credentials[1], password: credentials[2]) {
-                        baseFolder = baseFolder + (!baseFolder.endsWith("/") ? "/" : "") + "global/"
-                        execute 'rm -r -f ${baseFolder}bukkit-plugins/*', ignoreError: true
-                        execute 'rm -r -f ${baseFolder}bungee-plugins/*', ignoreError: true
-                        execute 'rm -r -f ${baseFolder}modules/*', ignoreError: true
-
-                        for (Project project : subprojects) {
-                            File outputDir = new File(project.buildDir, "libs");
-                            File[] outputFiles = outputDir.listFiles(new FilenameFilter() {
-                                @Override
-                                boolean accept(File dir, String name) {
-                                    return name.endsWith(".jar");
-                                }
-                            })
-
-                            if (outputFiles.length != 1) {
-                                throw new UnsupportedOperationException("Incorrect number of output JARs found (" + outputFiles.length + "), we only support there being 1.");
-                            }
-
-                            File sourceFile = outputFiles[0];
-                            String targetLocation = baseFolder;
-
-                            if (project.getName().equals("core-bukkit")) {
-                                targetLocation += "bukkit-plugins/"
-                            } else if (project.getName().equals("core-bungee")) {
-                                targetLocation += "bungee-plugins/"
-                            } else if (project.getName().startsWith("module-")) {
-                                targetLocation += "modules/"
-                            } else {
-                                continue;
-                            }
-
-                            put from: sourceFile.path, into: targetLocation
-                        }
-                    }
-                }
-            } else {
-                throw new RuntimeException("Base folder must be set.")
+task('stopServers') {
+    doLast{
+        ssh.run {
+            session(host: host, user: user, password: pass) {
+                execute '''screen -S bungee_proxy -p 0 -X stuff "end$(printf \\\\r)";
+                           screen -S slave_1 -p 0 -X stuff "stop$(printf \\\\r)";
+                           screen -S slave_2 -p 0 -X stuff "stop$(printf \\\\r)"''', ignoreError: true
             }
-        } else {
-            throw new RuntimeException("Connection credentials must be set.")
         }
     }
-}.dependsOn(subprojects.collect { it.tasks.findByName('optimizeOutputs') }) // all sub-modules must optimize their outputs first
+}.dependsOn([ tasks.findByName('parseSettings') ])
+
+task('startServers') {
+    doLast{
+        ssh.run {
+            session(host: host, user: user, password: pass) {
+                execute 'cd ' + baseFolder + ' && ./start_all.sh'
+            }
+        }
+    }
+}.dependsOn([ tasks.findByName('parseSettings') ])
+
+task('deployForTesting') {
+    doLast {
+        ssh.run {
+            session(host: host, user: user, password: pass) {
+                stopServers.execute()
+
+                execute '''rm -r -f ' + baseFolder +  'global/bukkitPlugins/*.jar;
+                           rm -r -f ' + baseFolder +  'global/bungeePlugins/*.jar;
+                           rm -r -f ' + baseFolder +  'global/modules/*.jar''', ignoreError: true
+
+                for (Project project : subprojects) {
+                    def outputDir = new File(project.buildDir, "libs");
+                    def outputFiles = outputDir.listFiles(new FileFilter() {
+                        @Override
+                        boolean accept(File file) {
+                            return file.file && file.name.endsWith(".jar")
+                        }
+                    })
+
+                    assert outputFiles.length == 1, 'There must be exactly 1 output JAR for each module.'
+
+                    File sourceFile = outputFiles[0];
+                    String targetLocation = baseFolder;
+
+                    if (project.getName().equals("core-bukkit")) {
+                        targetLocation += "global/bukkitPlugins/"
+                    } else if (project.getName().equals("core-bungee")) {
+                        targetLocation += "global/bungeePlugins/"
+                    } else if (project.getName().startsWith("module-")) {
+                        targetLocation += "global/modules/"
+                    } else {
+                        continue;
+                    }
+
+                    put from: sourceFile.path, into: targetLocation
+                }
+
+                if (System.getenv().hasProperty('startServers') ? startServers : true) { // allows disabling of this feature
+                    startServers.execute()
+                }
+            }
+        }
+    }
+}.dependsOn([ tasks.findByName('parseSettings'), subprojects.collect { it.tasks.findByName('optimizeOutputs') } ]) // all sub-modules must optimize their outputs first

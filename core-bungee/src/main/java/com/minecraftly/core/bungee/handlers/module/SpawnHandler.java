@@ -1,6 +1,6 @@
 package com.minecraftly.core.bungee.handlers.module;
 
-import com.minecraftly.core.bungee.MinecraftyBungeeCore;
+import com.minecraftly.core.bungee.MinecraftlyBungeeCore;
 import com.minecraftly.core.packets.LocationContainer;
 import com.minecraftly.core.packets.PacketTeleport;
 import com.sk89q.intake.Command;
@@ -16,11 +16,11 @@ import java.util.Map;
  */
 public class SpawnHandler {
 
-    private MinecraftyBungeeCore minecraftly;
+    private MinecraftlyBungeeCore minecraftly;
     private ServerInfo spawnServer;
     private LocationContainer spawnLocation;
 
-    public SpawnHandler(MinecraftyBungeeCore minecraftly) {
+    public SpawnHandler(MinecraftlyBungeeCore minecraftly) {
         this.minecraftly = minecraftly;
 
         Configuration configuration = minecraftly.getConfiguration().getSection("spawn");

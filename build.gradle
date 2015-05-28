@@ -14,6 +14,9 @@ buildscript {
     }
 }
 
+plugins {
+    id 'org.hidetake.ssh' version '1.1.3'
+}
 
 import org.apache.tools.ant.filters.ReplaceTokens
 
@@ -306,3 +309,55 @@ idea {
         languageLevel = '1.7'
     }
 }
+
+task('deployForTesting') {
+    doLast {
+        if (project.hasProperty('remoteCredentials')) {
+            if (project.hasProperty('baseFolder')) {
+                String[] credentials = Eval.me((String) remoteCredentials)
+
+                ssh.run {
+                    session(host: credentials[0], user: credentials[1], password: credentials[2]) {
+                        baseFolder = baseFolder + (!baseFolder.endsWith("/") ? "/" : "") + "global/"
+                        execute 'rm -r -f ${baseFolder}bukkit-plugins/*', ignoreError: true
+                        execute 'rm -r -f ${baseFolder}bungee-plugins/*', ignoreError: true
+                        execute 'rm -r -f ${baseFolder}modules/*', ignoreError: true
+
+                        for (Project project : subprojects) {
+                            File outputDir = new File(project.buildDir, "libs");
+                            File[] outputFiles = outputDir.listFiles(new FilenameFilter() {
+                                @Override
+                                boolean accept(File dir, String name) {
+                                    return name.endsWith(".jar");
+                                }
+                            })
+
+                            if (outputFiles.length != 1) {
+                                throw new UnsupportedOperationException("Incorrect number of output JARs found (" + outputFiles.length + "), we only support there being 1.");
+                            }
+
+                            File sourceFile = outputFiles[0];
+                            String targetLocation = baseFolder;
+
+                            if (project.getName().equals("core-bukkit")) {
+                                targetLocation += "bukkit-plugins/"
+                            } else if (project.getName().equals("core-bungee")) {
+                                targetLocation += "bungee-plugins/"
+                            } else if (project.getName().startsWith("module-")) {
+                                targetLocation += "modules/"
+                            } else {
+                                continue;
+                            }
+
+                            put from: sourceFile.path, into: targetLocation
+                        }
+                    }
+                }
+            } else {
+                throw new RuntimeException("Base folder must be set.")
+            }
+        } else {
+            throw new RuntimeException("Connection credentials must be set.")
+        }
+    }
+}.dependsOn(subprojects.collect { it.tasks.findByName('optimizeOutputs') }) // all sub-modules must optimize their outputs first

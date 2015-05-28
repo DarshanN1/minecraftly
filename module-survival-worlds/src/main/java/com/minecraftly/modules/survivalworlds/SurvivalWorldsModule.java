@@ -23,9 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Created by Keir on 23/04/2015.
- */
 public class SurvivalWorldsModule extends Module implements Listener {
 
     private static SurvivalWorldsModule instance;
@@ -36,9 +33,7 @@ public class SurvivalWorldsModule extends Module implements Listener {
 
     public static final String LANGUAGE_KEY_PREFIX = "module.survivalWorlds";
 
-    public static final String WORLD_NAME_PREFIX = "z-player-world-";
-    public static final String WORLD_NETHER_SUFFIX = "_nether";
-    public static final String WORLD_THE_END_SUFFIX = "_the_end";
+    public static final String WORLD_NAME_PREFIX = ""; // disable prefix
 
     public static String getWorldName(UUID uuid) {
         return WORLD_NAME_PREFIX + uuid;
@@ -97,7 +92,7 @@ public class SurvivalWorldsModule extends Module implements Listener {
     }
 
     public UUID getWorldOwner(World world) {
-        world = getBaseWorld(world);
+        world = WorldDimension.getBaseWorld(world);
         String name = world.getName();
         UUID uuid = null;
 
@@ -112,38 +107,12 @@ public class SurvivalWorldsModule extends Module implements Listener {
         return uuid;
     }
 
+    public boolean isWorldLoaded(UUID worldUUID) {
+        return playerWorlds.containsKey(worldUUID);
+    }
+
     public boolean isSurvivalWorld(World world) {
         return playerWorlds.values().contains(world);
-    }
-
-    public World getBaseWorld(World world) {
-        World newWorld = null;
-        String worldName = world.getName();
-
-        if (worldName.endsWith(WORLD_NETHER_SUFFIX)){
-            newWorld = Bukkit.getWorld(worldName.substring(0, worldName.length() - WORLD_NETHER_SUFFIX.length()));
-        } else if (worldName.endsWith(WORLD_THE_END_SUFFIX)) {
-            newWorld = Bukkit.getWorld(worldName.substring(0, worldName.length() - WORLD_THE_END_SUFFIX.length()));
-        }
-
-        return newWorld != null ? newWorld : world;
-    }
-
-    public int getPlayerCountFromAllDimensions(World world) {
-        int playerCount = world.getPlayers().size();
-        String worldName = world.getName();
-        World netherWorld = Bukkit.getWorld(worldName + WORLD_NETHER_SUFFIX);
-        World theEndWorld = Bukkit.getWorld(worldName + WORLD_THE_END_SUFFIX);
-
-        if (netherWorld != null) {
-            playerCount += netherWorld.getPlayers().size();
-        }
-
-        if (theEndWorld != null) {
-            playerCount += theEndWorld.getPlayers().size();
-        }
-
-        return playerCount;
     }
 
     @EventHandler

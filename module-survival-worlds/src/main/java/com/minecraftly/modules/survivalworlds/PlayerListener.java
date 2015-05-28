@@ -89,7 +89,10 @@ public class PlayerListener implements Listener {
     }
 
     public void joinWorld(Player player, UUID worldUUID) {
-        player.sendMessage(languageManager.get(LANGUAGE_LOADING_WORLD));
+        if (!module.isWorldLoaded(worldUUID)) {
+            player.sendMessage(languageManager.get(LANGUAGE_LOADING_WORLD));
+        }
+
         joinWorld(player, module.getWorld(worldUUID));
     }
 
@@ -118,31 +121,34 @@ public class PlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent e) {
-        checkWorldForUnloadDelayed(module.getBaseWorld(e.getPlayer().getWorld()));
+        checkWorldForUnloadDelayed(WorldDimension.getBaseWorld(e.getPlayer().getWorld()));
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerTeleport(PlayerTeleportEvent e) {
         final Player player = e.getPlayer();
-        World from = module.getBaseWorld(e.getFrom().getWorld());
-        World to = module.getBaseWorld(e.getTo().getWorld());
+        World from = WorldDimension.getBaseWorld(e.getFrom().getWorld());
+        World to = WorldDimension.getBaseWorld(e.getTo().getWorld());
 
         if (!from.equals(to)) {
             checkWorldForUnloadDelayed(from);
 
-            final UUID owner = module.getWorldOwner(to);
-            if (player.getUniqueId().equals(owner)) {
-                player.setGameMode(GameMode.SURVIVAL);
-                player.sendMessage(languageManager.get(LANGUAGE_WELCOME_OWNER, player.getDisplayName()));
-            } else {
-                player.setGameMode(GameMode.ADVENTURE);
+            if (module.isSurvivalWorld(to)) {
+                final UUID owner = module.getWorldOwner(to);
 
-                Bukkit.getScheduler().runTaskAsynchronously(module.getBukkitPlugin(), new Runnable() { // async for getOfflinePlayer
-                    @Override
-                    public void run() {
-                        player.sendMessage(languageManager.get(LANGUAGE_WELCOME_GUEST, Bukkit.getOfflinePlayer(owner).getName()));
-                    }
-                });
+                if (player.getUniqueId().equals(owner)) {
+                    player.setGameMode(GameMode.SURVIVAL);
+                    player.sendMessage(languageManager.get(LANGUAGE_WELCOME_OWNER, player.getDisplayName()));
+                } else {
+                    player.setGameMode(GameMode.ADVENTURE);
+
+                    Bukkit.getScheduler().runTaskAsynchronously(module.getBukkitPlugin(), new Runnable() { // async for getOfflinePlayer
+                        @Override
+                        public void run() {
+                            player.sendMessage(languageManager.get(LANGUAGE_WELCOME_GUEST, Bukkit.getOfflinePlayer(owner).getName()));
+                        }
+                    });
+                }
             }
         }
     }
@@ -150,7 +156,7 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerRespawn(PlayerRespawnEvent e) {
         Player player = e.getPlayer();
-        World world = module.getBaseWorld(player.getWorld());
+        World world = WorldDimension.getBaseWorld(player.getWorld());
 
         if (module.isSurvivalWorld(world)) {
             PlayerWorldData playerWorldData = dataStore.getPlayerWorldData(world, player);
@@ -160,7 +166,7 @@ public class PlayerListener implements Listener {
                 if (bedLocation == null) {
                     bedLocation = player.getBedSpawnLocation();
 
-                    if (bedLocation != null && !world.equals(module.getBaseWorld(bedLocation.getWorld()))) { // if bed location is in another "server"
+                    if (bedLocation != null && !world.equals(WorldDimension.getBaseWorld(bedLocation.getWorld()))) { // if bed location is in another "server"
                         bedLocation = null;
                     }
                 }
@@ -184,19 +190,12 @@ public class PlayerListener implements Listener {
     }
 
     public void checkWorldForUnload(World world) {
-        if (module.isSurvivalWorld(world) && module.getPlayerCountFromAllDimensions(world) == 0) {
+        if (module.isSurvivalWorld(world) && WorldDimension.getPlayersAllDimensions(world).size() == 0) {
             Bukkit.unloadWorld(world, true);
 
-            String worldName = world.getName();
-            World netherWorld = Bukkit.getWorld(worldName + SurvivalWorldsModule.WORLD_NETHER_SUFFIX);
-            World theEndWorld = Bukkit.getWorld(worldName + SurvivalWorldsModule.WORLD_THE_END_SUFFIX);
-
-            if (netherWorld != null) {
-                Bukkit.unloadWorld(netherWorld, true);
-            }
-
-            if (theEndWorld != null) {
-                Bukkit.unloadWorld(theEndWorld, true);
+            for (WorldDimension worldDimension : WorldDimension.values()) {
+                World world1 = worldDimension.convertTo(world);
+                if (world1 != null) Bukkit.unloadWorld(world1, true);
             }
         }
     }

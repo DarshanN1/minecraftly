@@ -54,10 +54,10 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftyBungeeCore
             return;
         }
 
+        gateway = BungeeGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
+
         SurvivalWorldsHandler survivalWorldsHandler = new SurvivalWorldsHandler(this);
         TpaHandler tpaHandler = new TpaHandler(this);
-
-        gateway = BungeeGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
         gateway.registerListener(survivalWorldsHandler);
 
         commandManager = new CommandManager(this);

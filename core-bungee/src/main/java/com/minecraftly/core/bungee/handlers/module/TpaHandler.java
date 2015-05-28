@@ -104,6 +104,8 @@ public class TpaHandler implements Runnable {
                             }
                         }
                     });
+                } else {
+                    gateway.sendPacket(target, new PacketTeleport(senderUUID));
                 }
             }
 

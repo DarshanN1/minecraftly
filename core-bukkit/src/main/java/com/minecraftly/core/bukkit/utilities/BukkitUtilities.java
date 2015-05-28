@@ -7,9 +7,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -150,6 +153,26 @@ public class BukkitUtilities {
         }
 
         return location;
+    }
+
+    /**
+     * Gets all players in a certain radius of a location. Much more efficient than #getNearbyEntities.
+     *
+     * @param location the location to measure from
+     * @param radius the radius a player has to be in to get returned
+     * @return all players within the radius
+     */
+    public static List<Player> getNearbyPlayers(Location location, int radius) {
+        List<Player> players = new ArrayList<>();
+        int radiusSquared = radius * radius;
+
+        for (Player player : location.getWorld().getPlayers()) {
+            if (player.getLocation().distanceSquared(location) <= radiusSquared) {
+                players.add(player);
+            }
+        }
+
+        return players;
     }
 
 }

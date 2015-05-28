@@ -2,8 +2,7 @@ package com.minecraftly.modules.chat;
 
 import com.minecraftly.core.bukkit.MinecraftlyCore;
 import com.minecraftly.core.bukkit.module.Module;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
+import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -27,12 +26,7 @@ public class ChatModule extends Module implements Listener {
         Set<Player> recipients = e.getRecipients();
         recipients.clear();
         recipients.add(player); // not sure if this is required :/
-
-        for (Entity entity : player.getNearbyEntities(CHAT_RADIUS, CHAT_RADIUS, CHAT_RADIUS)) {
-            if (entity.getType() == EntityType.PLAYER) {
-                recipients.add((Player) entity);
-            }
-        }
+        recipients.addAll(BukkitUtilities.getNearbyPlayers(player.getLocation(), CHAT_RADIUS));
     }
 
 }

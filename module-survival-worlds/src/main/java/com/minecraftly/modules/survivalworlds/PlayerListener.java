@@ -82,10 +82,15 @@ public class PlayerListener implements Listener {
         Player player = Bukkit.getPlayer(playerUUID);
 
         if (player != null) {
-            joinWorld(player, module.getWorld(worldUUID));
+            joinWorld(player, worldUUID);
         } else if (!playerUUID.equals(worldUUID)) {
             joinQueue.put(playerUUID, worldUUID);
         }
+    }
+
+    public void joinWorld(Player player, UUID worldUUID) {
+        player.sendMessage(languageManager.get(LANGUAGE_LOADING_WORLD));
+        joinWorld(player, module.getWorld(worldUUID));
     }
 
     public void joinWorld(Player player, World world) {
@@ -96,8 +101,6 @@ public class PlayerListener implements Listener {
             player.sendMessage(languageManager.get(LANGUAGE_LOAD_FAILED));
             return;
         }
-
-        player.sendMessage(languageManager.get(LANGUAGE_LOADING_WORLD));
 
         joinQueue.invalidate(playerUUID);
         Location spawnLocation;

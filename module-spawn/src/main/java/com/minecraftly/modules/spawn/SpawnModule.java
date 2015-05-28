@@ -46,7 +46,7 @@ public class SpawnModule extends Module implements Listener {
                 player.removePotionEffect(PotionEffectType.BLINDNESS);
                 player.removePotionEffect(PotionEffectType.NIGHT_VISION);
                 player.removePotionEffect(PotionEffectType.JUMP);
-                player.setWalkSpeed(1);
+                player.setWalkSpeed(0.2F);
                 player.setGameMode(GameMode.SURVIVAL); // todo survival worlds?
             }
         }

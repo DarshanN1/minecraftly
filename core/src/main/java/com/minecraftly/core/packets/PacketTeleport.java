@@ -1,14 +1,14 @@
 package com.minecraftly.core.packets;
 
 import com.google.common.base.Preconditions;
-import com.ikeirnez.pluginmessageframework.packet.Packet;
+import com.ikeirnez.pluginmessageframework.packet.StandardPacket;
 
 import java.util.UUID;
 
 /**
  * Packet used for instructing a server instance to teleport a player to another location.
  */
-public class PacketTeleport extends Packet {
+public class PacketTeleport extends StandardPacket {
 
     private static final long serialVersionUID = 4714156896979723677L;
 

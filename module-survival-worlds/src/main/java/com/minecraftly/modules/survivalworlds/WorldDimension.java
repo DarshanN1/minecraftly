@@ -35,7 +35,13 @@ public enum WorldDimension {
     }
 
     public String getBaseName(String worldName) {
-        return worldName.substring(0, worldName.length() - suffix.length());
+        for (WorldDimension worldDimension : values()) {
+            if (worldDimension.matches(worldName)) {
+                return worldName.substring(0, worldName.length() - suffix.length());
+            }
+        }
+
+        return worldName;
     }
 
     public String convertTo(String string) {
@@ -68,7 +74,10 @@ public enum WorldDimension {
         List<Player> players = new ArrayList<>(baseWorld.getPlayers());
 
         for (WorldDimension worldDimension : WorldDimension.values()) {
-            players.addAll(worldDimension.convertTo(baseWorld).getPlayers());
+            World world = worldDimension.convertTo(baseWorld);
+            if (world != null) {
+                players.addAll(world.getPlayers());
+            }
         }
 
         return players;

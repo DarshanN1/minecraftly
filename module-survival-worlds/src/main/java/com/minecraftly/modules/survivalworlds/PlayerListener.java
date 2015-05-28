@@ -52,9 +52,9 @@ public class PlayerListener implements Listener {
         this.dataStore = module.getDataStore();
 
         languageManager.registerAll(new HashMap<String, LanguageValue>() {{
-            put(LANGUAGE_LOADING_WORLD, new LanguageValue(module, "&bOne moment whilst we load that world."));
+            put(LANGUAGE_LOADING_WORLD, new LanguageValue(module, "&bOne moment whilst we load that home."));
             put(LANGUAGE_WELCOME_OWNER, new LanguageValue(module, "&aWelcome back to your home, &6%s&a."));
-            put(LANGUAGE_WELCOME_GUEST, new LanguageValue(module, "&aWelcome to &6%s&a's world, they will have to grant you permission before you can modify blocks."));
+            put(LANGUAGE_WELCOME_GUEST, new LanguageValue(module, "&aWelcome to &6%s&a's home, they will have to grant you permission before you can modify blocks."));
             put(LANGUAGE_LOAD_FAILED, new LanguageValue(module, "&cWe were unable to load your home, please contact a member of staff."));
         }});
     }

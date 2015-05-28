@@ -328,7 +328,8 @@ task('stopServers') {
     doLast{
         ssh.run {
             session(host: host, user: user, password: pass) {
-                execute '''screen -S bungee_proxy -p 0 -X stuff "end$(printf \\\\r)";
+                execute '''screen -S bungee_proxy_1 -p 0 -X stuff "end$(printf \\\\r)";
+                           screen -S bungee_proxy_2 -p 0 -X stuff "end$(printf \\\\r)";
                            screen -S slave_1 -p 0 -X stuff "stop$(printf \\\\r)";
                            screen -S slave_2 -p 0 -X stuff "stop$(printf \\\\r)"''', ignoreError: true
             }
@@ -352,9 +353,9 @@ task('deployForTesting') {
             session(host: host, user: user, password: pass) {
                 stopServers.execute()
 
-                execute '''rm -r -f ' + baseFolder +  'global/bukkitPlugins/*.jar;
-                           rm -r -f ' + baseFolder +  'global/bungeePlugins/*.jar;
-                           rm -r -f ' + baseFolder +  'global/modules/*.jar''', ignoreError: true
+                execute 'rm -r -f ' + baseFolder +  'global/bukkitPlugins/*.jar;' +
+                        'rm -r -f ' + baseFolder +  'bungee_proxy_*/plugins/MinecraftlyBungee*.jar;' +
+                        'rm -r -f ' + baseFolder +  'global/modules/*.jar', ignoreError: true
 
                 for (Project project : subprojects) {
                     def outputDir = new File(project.buildDir, "libs");
@@ -368,19 +369,22 @@ task('deployForTesting') {
                     assert outputFiles.length == 1, 'There must be exactly 1 output JAR for each module.'
 
                     File sourceFile = outputFiles[0];
-                    String targetLocation = baseFolder;
+                    List<String> targetLocations = new ArrayList<>()
 
                     if (project.getName().equals("core-bukkit")) {
-                        targetLocation += "global/bukkitPlugins/"
+                        targetLocations.add(baseFolder + 'global/bukkitPlugins/')
                     } else if (project.getName().equals("core-bungee")) {
-                        targetLocation += "global/bungeePlugins/"
+                        targetLocations.add(baseFolder + 'bungee_proxy_1/plugins/')
+                        targetLocations.add(baseFolder + 'bungee_proxy_2/plugins/')
                     } else if (project.getName().startsWith("module-")) {
-                        targetLocation += "global/modules/"
+                        targetLocations.add(baseFolder + 'global/modules/')
                     } else {
                         continue;
                     }
 
-                    put from: sourceFile.path, into: targetLocation
+                    for (String targetLocation : targetLocations) {
+                        put from: sourceFile.path, into: targetLocation
+                    }
                 }
 
                 if (System.getenv().hasProperty('startServers') ? startServers : true) { // allows disabling of this feature

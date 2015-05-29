@@ -1,5 +1,6 @@
 package com.minecraftly.core.bungee.handlers.module;
 
+import com.google.gson.JsonObject;
 import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.imaginarycode.minecraft.redisbungee.events.PubSubMessageEvent;
@@ -60,7 +61,8 @@ public class TpaHandler implements Runnable, Listener {
             sender.sendMessage(new ComponentBuilder("You may not teleport to yourself.").color(ChatColor.RED).create());
         } else {
             UUID targetUUID = redisBungeeAPI.getUuidFromName(targetName);
-            redisBungeeAPI.sendChannelMessage(CHANNEL_NEW_TPA_REQUEST, sender.getUniqueId() + "," + targetUUID);
+            JsonObject jsonData = toJsonObject(sender.getUniqueId(), sender.getName(), targetUUID, targetName);
+            redisBungeeAPI.sendChannelMessage(CHANNEL_NEW_TPA_REQUEST, plugin.getGson().toJson(jsonData));
 
             sender.sendMessage(new ComponentBuilder("Request successfully sent to ").color(ChatColor.GREEN)
                             .append(targetName).color(ChatColor.GOLD)
@@ -71,32 +73,33 @@ public class TpaHandler implements Runnable, Listener {
     }
 
     @Command(aliases = "tpaccept", desc = "Accept a teleport request from a player.", usage = "<player>", min = 1, max = 1)
-    public void acceptTpaRequest(ProxiedPlayer sender, String inputName) {
-        String targetName = BungeeUtilities.matchRedisPlayer(inputName);
+    public void acceptTpaRequest(ProxiedPlayer teleportTarget, String initiatorNameInput) {
+        String initiatorName = BungeeUtilities.matchRedisPlayer(initiatorNameInput);
 
-        if (targetName == null) {
-            sender.sendMessage(new ComponentBuilder("Couldn't find a player by the name of ").color(ChatColor.RED)
-                    .append(inputName).color(ChatColor.GOLD)
-                    .append(".").color(ChatColor.RED)
-                    .create()
+        if (initiatorName == null) {
+            teleportTarget.sendMessage(new ComponentBuilder("Couldn't find a player by the name of ").color(ChatColor.RED)
+                            .append(initiatorNameInput).color(ChatColor.GOLD)
+                            .append(".").color(ChatColor.RED)
+                            .create()
             );
         } else {
-            final UUID senderUUID = sender.getUniqueId();
-            UUID targetUUID = redisBungeeAPI.getUuidFromName(targetName);
+            final UUID teleportTargetUUID = teleportTarget.getUniqueId();
+            UUID initiatorUUID = redisBungeeAPI.getUuidFromName(initiatorName);
 
-            Map.Entry<UUID, UUID> searchQuery = new AbstractMap.SimpleImmutableEntry<>(targetUUID, senderUUID);
+            Map.Entry<UUID, UUID> searchQuery = new AbstractMap.SimpleImmutableEntry<>(initiatorUUID, teleportTargetUUID);
             Long timeCreated = tpaRequests.get(searchQuery);
 
             if (timeCreated == null || System.currentTimeMillis() > timeCreated + TimeUnit.SECONDS.toMillis(EXPIRE_SECONDS)) {
-                sender.sendMessage(new ComponentBuilder("There are no teleport requests to accept (expired?).").color(ChatColor.RED).create());
+                teleportTarget.sendMessage(new ComponentBuilder("There are no teleport requests to accept (expired?).").color(ChatColor.RED).create());
             } else {
-                sender.sendMessage(new ComponentBuilder("Teleporting ").color(ChatColor.GREEN)
-                                .append(targetName).color(ChatColor.GOLD)
+                teleportTarget.sendMessage(new ComponentBuilder("Teleporting ").color(ChatColor.GREEN)
+                                .append(initiatorName).color(ChatColor.GOLD)
                                 .append(" to you.").color(ChatColor.GREEN)
                                 .create()
                 );
 
-                redisBungeeAPI.sendChannelMessage(CHANNEL_TPA_ACCEPT, senderUUID + "," + targetUUID);
+                JsonObject jsonData = toJsonObject(initiatorUUID, initiatorName, teleportTargetUUID, teleportTarget.getName());
+                redisBungeeAPI.sendChannelMessage(CHANNEL_TPA_ACCEPT, plugin.getGson().toJson(jsonData));
             }
 
             tpaRequests.remove(searchQuery);
@@ -123,43 +126,43 @@ public class TpaHandler implements Runnable, Listener {
     @EventHandler
     public void onPubSubMessage(PubSubMessageEvent e) {
         String channel = e.getChannel();
-        String message = e.getMessage();
+        JsonObject jsonObject = plugin.getGson().fromJson(e.getMessage(), JsonObject.class);
+
+        JsonObject initiatorData = jsonObject.getAsJsonObject("initiator");
+        String initiatorName = initiatorData.get("name").getAsString();
+        UUID initiatorUUID = UUID.fromString(initiatorData.get("uuid").getAsString());
+
+        JsonObject teleportTargetData = jsonObject.getAsJsonObject("teleportTarget");
+        String teleportTargetName = teleportTargetData.get("name").getAsString();
+        final UUID teleportTargetUUID = UUID.fromString(teleportTargetData.get("uuid").getAsString());
 
         if (channel.equals(CHANNEL_NEW_TPA_REQUEST)) {
-            String[] split = message.split(",");
-            UUID targetUUID = UUID.fromString(split[1]);
-            ProxiedPlayer target = plugin.getProxy().getPlayer(targetUUID);
+            ProxiedPlayer target = plugin.getProxy().getPlayer(teleportTargetUUID);
 
             if (target != null) {
-                UUID senderUUID = UUID.fromString(split[0]);
-                String senderName = redisBungeeAPI.getNameFromUuid(senderUUID);
-                tpaRequests.put(new AbstractMap.SimpleImmutableEntry<>(senderUUID, target.getUniqueId()), System.currentTimeMillis());
+                tpaRequests.put(new AbstractMap.SimpleImmutableEntry<>(initiatorUUID, target.getUniqueId()), System.currentTimeMillis());
 
-                target.sendMessage(new ComponentBuilder(senderName).color(ChatColor.GOLD)
+                target.sendMessage(new ComponentBuilder(initiatorName).color(ChatColor.GOLD)
                                 .append(" has sent you a teleport request.\nUse ").color(ChatColor.AQUA)
-                                .append("/tpaccept " + senderName).color(ChatColor.GOLD)
+                                .append("/tpaccept " + initiatorName).color(ChatColor.GOLD)
                                 .append(" to accept.").color(ChatColor.AQUA)
                                 .create()
                 );
             }
         } else if (channel.equals(CHANNEL_TPA_ACCEPT)) {
-            String[] split = message.split(",");
-            UUID targetUUID = UUID.fromString(split[1]);
-            final ProxiedPlayer target = plugin.getProxy().getPlayer(targetUUID);
+            final ProxiedPlayer target = plugin.getProxy().getPlayer(initiatorUUID);
 
             if (target != null) {
-                final UUID senderUUID = UUID.fromString(split[0]);
-                String senderName = redisBungeeAPI.getNameFromUuid(senderUUID);
-                ServerInfo senderServer = redisBungeeAPI.getServerFor(senderUUID);
+                ServerInfo senderServer = redisBungeeAPI.getServerFor(teleportTargetUUID);
 
                 target.sendMessage(new ComponentBuilder("Teleporting you to ").color(ChatColor.GREEN)
-                                .append(senderName).color(ChatColor.GOLD)
+                                .append(teleportTargetName).color(ChatColor.GOLD)
                                 .append(".").color(ChatColor.GREEN)
                                 .create()
                 );
 
                 if (target.getServer().equals(senderServer)) {
-                    gateway.sendPacket(target, new PacketTeleport(senderUUID));
+                    gateway.sendPacket(target, new PacketTeleport(teleportTargetUUID));
                 } else {
                     target.connect(senderServer, new Callback<Boolean>() {
                         @Override
@@ -168,7 +171,7 @@ public class TpaHandler implements Runnable, Listener {
                                 plugin.getProxy().getScheduler().schedule(plugin, new Runnable() {
                                     @Override
                                     public void run() {
-                                        gateway.sendPacket(target, new PacketTeleport(senderUUID));
+                                        gateway.sendPacket(target, new PacketTeleport(teleportTargetUUID));
                                     }
                                 }, 2, TimeUnit.SECONDS);
                             }
@@ -177,5 +180,21 @@ public class TpaHandler implements Runnable, Listener {
                 }
             }
         }
+    }
+
+    public JsonObject toJsonObject(UUID initiatorUUID, String initiatorName, UUID targetUUID, String targetName) { // todo move to util class for other command
+        JsonObject requestData = new JsonObject();
+
+        JsonObject initiatorDetails = new JsonObject();
+        initiatorDetails.addProperty("uuid", initiatorUUID.toString());
+        initiatorDetails.addProperty("name", initiatorName);
+        requestData.add("initiator", initiatorDetails);
+
+        JsonObject teleportTarget = new JsonObject();
+        teleportTarget.addProperty("uuid", targetUUID.toString());
+        teleportTarget.addProperty("name", targetName);
+        requestData.add("teleportTarget", teleportTarget);
+
+        return requestData;
     }
 }

@@ -1,5 +1,6 @@
 package com.minecraftly.core.bungee;
 
+import com.google.gson.Gson;
 import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import net.md_5.bungee.api.ProxyServer;
@@ -19,4 +20,6 @@ public interface MinecraftlyBungeeCore {
     Configuration getConfiguration();
 
     RedisBungeeAPI getRedisBungeeAPI();
+
+    Gson getGson();
 }

@@ -1,5 +1,6 @@
 package com.minecraftly.core.bungee;
 
+import com.google.gson.Gson;
 import com.ikeirnez.pluginmessageframework.bungeecord.BungeeGatewayProvider;
 import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.ikeirnez.pluginmessageframework.gateway.ProxySide;
@@ -42,6 +43,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
     private CommandManager commandManager;
     private ProxyGateway<ProxiedPlayer, ServerInfo> gateway;
     private RedisBungeeAPI redisBungeeAPI;
+    private Gson gson = new Gson();
 
     @Override
     public void onEnable() {
@@ -130,6 +132,11 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
     @Override
     public RedisBungeeAPI getRedisBungeeAPI() {
         return redisBungeeAPI;
+    }
+
+    @Override
+    public Gson getGson() {
+        return gson;
     }
 
     @Command(aliases = "mclybungeetestcommand", desc = "A test command.")

@@ -1,5 +1,7 @@
 package com.minecraftly.core.bungee.handlers.module;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.gson.JsonObject;
 import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
@@ -126,6 +128,8 @@ public class TpaHandler implements Runnable, Listener {
     @EventHandler
     public void onPubSubMessage(PubSubMessageEvent e) {
         String channel = e.getChannel();
+        if (!channel.equals(CHANNEL_NEW_TPA_REQUEST) && !channel.equals(CHANNEL_TPA_ACCEPT)) return;
+
         JsonObject jsonObject = plugin.getGson().fromJson(e.getMessage(), JsonObject.class);
 
         JsonObject initiatorData = jsonObject.getAsJsonObject("initiator");
@@ -183,6 +187,11 @@ public class TpaHandler implements Runnable, Listener {
     }
 
     public JsonObject toJsonObject(UUID initiatorUUID, String initiatorName, UUID targetUUID, String targetName) { // todo move to util class for other command
+        checkNotNull(initiatorUUID);
+        checkNotNull(initiatorName);
+        checkNotNull(targetUUID);
+        checkNotNull(targetName);
+
         JsonObject requestData = new JsonObject();
 
         JsonObject initiatorDetails = new JsonObject();

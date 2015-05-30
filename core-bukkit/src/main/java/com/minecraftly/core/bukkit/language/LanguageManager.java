@@ -1,5 +1,7 @@
 package com.minecraftly.core.bukkit.language;
 
+import com.minecraftly.core.bukkit.config.DataValue;
+
 import java.util.Map;
 
 /**
@@ -8,11 +10,11 @@ import java.util.Map;
 public interface LanguageManager {
     void reload();
 
-    Map<String, LanguageValue> getLanguageValues();
+    Map<String, DataValue<String>> getLanguageValues();
 
-    void registerAll(Map<String, LanguageValue> languageValues);
+    void registerAll(Map<String, DataValue<String>> languageValues);
 
-    void register(String key, LanguageValue languageValue);
+    void register(String key, DataValue<String> dataValue);
 
     String getRaw(String key);
 

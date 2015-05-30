@@ -5,7 +5,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
 import com.minecraftly.core.bukkit.language.LanguageManager;
-import com.minecraftly.core.bukkit.language.LanguageValue;
+import com.minecraftly.core.bukkit.config.DataValue;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.packets.survivalworlds.PacketPlayerWorld;
 import com.minecraftly.modules.survivalworlds.data.DataStore;
@@ -51,11 +51,11 @@ public class PlayerListener implements Listener {
         this.languageManager = module.getBukkitPlugin().getLanguageManager();
         this.dataStore = module.getDataStore();
 
-        languageManager.registerAll(new HashMap<String, LanguageValue>() {{
-            put(LANGUAGE_LOADING_WORLD, new LanguageValue(module, "&bOne moment whilst we load that home."));
-            put(LANGUAGE_WELCOME_OWNER, new LanguageValue(module, "&aWelcome back to your home, &6%s&a."));
-            put(LANGUAGE_WELCOME_GUEST, new LanguageValue(module, "&aWelcome to &6%s&a's home, they will have to grant you permission before you can modify blocks."));
-            put(LANGUAGE_LOAD_FAILED, new LanguageValue(module, "&cWe were unable to load your home, please contact a member of staff."));
+        languageManager.registerAll(new HashMap<String, DataValue<String>>() {{
+            put(LANGUAGE_LOADING_WORLD, new DataValue<>(module, "&bOne moment whilst we load that home."));
+            put(LANGUAGE_WELCOME_OWNER, new DataValue<>(module, "&aWelcome back to your home, &6%s&a."));
+            put(LANGUAGE_WELCOME_GUEST, new DataValue<>(module, "&aWelcome to &6%s&a's home, they will have to grant you permission before you can modify blocks."));
+            put(LANGUAGE_LOAD_FAILED, new DataValue<>(module, "&cWe were unable to load your home, please contact a member of staff."));
         }});
     }
 

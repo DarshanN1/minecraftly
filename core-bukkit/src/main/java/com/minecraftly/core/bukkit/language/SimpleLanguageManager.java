@@ -1,5 +1,8 @@
 package com.minecraftly.core.bukkit.language;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.minecraftly.core.bukkit.config.DataValue;
 import com.minecraftly.core.bukkit.utilities.ConfigManager;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -10,8 +13,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 /**
  * Created by Keir on 20/03/2015.
  */
@@ -19,7 +20,7 @@ public class SimpleLanguageManager implements LanguageManager {
 
     public ConfigManager configManager;
     public FileConfiguration config;
-    public Map<String, LanguageValue> languageValues = new ConcurrentHashMap<>();
+    public Map<String, DataValue<String>> languageValues = new ConcurrentHashMap<>();
     private Logger logger; // todo do we need this?
 
     public SimpleLanguageManager(Logger logger, File languageFile) throws IOException {
@@ -48,7 +49,7 @@ public class SimpleLanguageManager implements LanguageManager {
         configManager.reloadConfig();
         this.config = configManager.getConfig();
 
-        for (Map.Entry<String, LanguageValue> entry : languageValues.entrySet()) {
+        for (Map.Entry<String, DataValue<String>> entry : languageValues.entrySet()) {
             String key = entry.getKey();
 
             if (config.contains(key)) {
@@ -58,25 +59,25 @@ public class SimpleLanguageManager implements LanguageManager {
     }
 
     @Override
-    public Map<String, LanguageValue> getLanguageValues() {
+    public Map<String, DataValue<String>> getLanguageValues() {
         return new HashMap<>(languageValues);
     }
 
     @Override
-    public void registerAll(Map<String, LanguageValue> languageValues) {
-        for (Map.Entry<String, LanguageValue> entry : languageValues.entrySet()) {
+    public void registerAll(Map<String, DataValue<String>> languageValues) {
+        for (Map.Entry<String, DataValue<String>> entry : languageValues.entrySet()) {
             register(entry.getKey(), entry.getValue());
         }
     }
 
     @Override
-    public void register(String key, LanguageValue languageValue) {
-        languageValues.put(key, languageValue);
+    public void register(String key, DataValue<String> dataValue) {
+        languageValues.put(key, dataValue);
 
         if (config.contains(key)) {
-            languageValue.setValue(config.getString(key));
+            dataValue.setValue(config.getString(key));
         } else {
-            config.set(key, languageValue.getValue());
+            config.set(key, dataValue.getValue());
         }
     }
 
@@ -93,8 +94,8 @@ public class SimpleLanguageManager implements LanguageManager {
 
     @Override
     public void save() {
-        for (Map.Entry<String, LanguageValue> entry : languageValues.entrySet()) {
-            config.set(entry.getKey(), entry.getValue().unformattedValue);
+        for (Map.Entry<String, DataValue<String>> entry : languageValues.entrySet()) {
+            config.set(entry.getKey(), entry.getValue().getUntouchedValue());
         }
 
         configManager.saveConfig();

@@ -31,8 +31,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class TpaHandler implements Runnable, Listener {
 
-    public static final String CHANNEL_NEW_TPA_REQUEST = "TpaRequest";
-    public static final String CHANNEL_TPA_ACCEPT = "TpaAccept";
+    public static final String CHANNEL_NEW_TPA_REQUEST = "mcly-TpaRequest";
+    public static final String CHANNEL_TPA_ACCEPT = "mcly-TpaAccept";
 
     private MclyCoreBungeePlugin plugin;
     private ProxyGateway<ProxiedPlayer, ServerInfo> gateway;

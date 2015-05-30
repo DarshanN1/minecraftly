@@ -37,6 +37,7 @@ public class DataValue<T> {
         return value;
     }
 
+    @SuppressWarnings("unchecked")
     public void setValue(T value) {
         if (value == null) {
             this.untouchedValue = getDefaultValue();
@@ -45,7 +46,7 @@ public class DataValue<T> {
         }
 
         if (this.value instanceof String) {
-            this.value = (T) BukkitUtilities.translateAlternateColorCodes('&', (String) this.untouchedValue);
+            this.value = (T) BukkitUtilities.translateAlternateColorCodes('&', (String) this.untouchedValue); // this is legal
         }
     }
 

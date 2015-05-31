@@ -383,7 +383,8 @@ task('deployForTesting') {
                     List<String> targetLocations = new ArrayList<>()
 
                     if (project.getName().equals("core-bukkit")) {
-                        targetLocations.add(baseFolder + 'global/bukkitPlugins/')
+                        targetLocations.add(baseFolder + 'slave_1/plugins/')
+                        targetLocations.add(baseFolder + 'slave_2/plugins/')
                     } else if (project.getName().equals("core-bungee")) {
                         targetLocations.add(baseFolder + 'bungee_proxy_1/plugins/')
                         targetLocations.add(baseFolder + 'bungee_proxy_2/plugins/')

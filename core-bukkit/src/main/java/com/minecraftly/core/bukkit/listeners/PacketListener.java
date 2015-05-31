@@ -30,7 +30,7 @@ public class PacketListener {
         } else if (locationContainer != null) {
             location = BukkitUtilities.getLocation(locationContainer);
         } else {
-            throw new UnsupportedOperationException("Don't know how to handle a teleport packet with 2 null parameters.");
+            throw new UnsupportedOperationException("Don't know how to handle a teleport packet with all null parameters.");
         }
 
         player.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);

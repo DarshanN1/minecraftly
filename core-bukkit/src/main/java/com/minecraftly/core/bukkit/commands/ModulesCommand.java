@@ -1,14 +1,13 @@
 package com.minecraftly.core.bukkit.commands;
 
 import com.minecraftly.core.bukkit.MinecraftlyCore;
-import com.minecraftly.core.bukkit.language.LanguageValue;
+import com.minecraftly.core.bukkit.config.ConfigWrapper;
 import com.minecraftly.core.bukkit.language.LanguageManager;
+import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.module.Module;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
-import com.minecraftly.core.bukkit.config.ConfigWrapper;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -86,14 +85,8 @@ public class ModulesCommand {
     @Command(aliases = "cleanup", desc = "Cleanup leftover junk from updated or removed modules", max = 0)
     @Require("com.minecraftly.core.modules.cleanup")
     public void cleanup(CommandSender sender, MinecraftlyCore minecraftlyCore, LanguageManager languageManager) {
-        if (!(languageManager instanceof LanguageManager)) {
-            sender.sendMessage(ChatColor.RED + "LanguageManager is not an instance of SimpleLanguageManager (this really shouldn't happen!)."); // todo convert to exception
-            return;
-        }
-
-        LanguageManager sLanguageManager = (LanguageManager) languageManager;
-        sLanguageManager.save();
-        FileConfiguration languageConfig = sLanguageManager.config;
+        languageManager.save();
+        FileConfiguration languageConfig = languageManager.config;
 
         File backupFile = new File(minecraftlyCore.getBackupsDirectory(), "language-" + BukkitUtilities.TIMESTAMP_FORMAT.format(new Date()) + ".yml");
         ConfigWrapper backupConfigWrapper = new ConfigWrapper(backupFile);
@@ -102,7 +95,7 @@ public class ModulesCommand {
 
         for (String key : languageConfig.getKeys(true)) {
             if (!languageConfig.isConfigurationSection(key)) {
-                if (sLanguageManager.getRaw(key) == null) {
+                if (languageManager.getRaw(key) == null) {
                     String value = languageConfig.getString(key);
                     backupConfig.set(key, value);
                     languageConfig.set(key, null);
@@ -130,7 +123,9 @@ public class ModulesCommand {
         }
 
         sender.sendMessage(languageManager.get(LANG_CLEANUP_COMPLETE, count));
-        sLanguageManager.configWrapper.saveConfig();
+        languageManager.configWrapper.saveConfig();
+
+        // todo cleanup config
 
         if (backupConfig.getKeys(true).size() > 0) {
             backupConfigWrapper.saveConfig();

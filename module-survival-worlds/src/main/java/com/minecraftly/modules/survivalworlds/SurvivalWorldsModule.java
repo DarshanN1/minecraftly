@@ -2,6 +2,7 @@ package com.minecraftly.modules.survivalworlds;
 
 import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
 import com.minecraftly.core.bukkit.MinecraftlyCore;
+import com.minecraftly.core.bukkit.config.DataValue;
 import com.minecraftly.core.bukkit.module.Module;
 import com.minecraftly.core.bukkit.config.ConfigWrapper;
 import com.minecraftly.core.packets.survivalworlds.PacketNoLongerHosting;
@@ -27,13 +28,12 @@ public class SurvivalWorldsModule extends Module implements Listener {
 
     private static SurvivalWorldsModule instance;
 
+    public static final String LANGUAGE_KEY_PREFIX = "module.survivalWorlds";
+    public static final String WORLD_NAME_PREFIX = ""; // disable prefix
+
     public static SurvivalWorldsModule getInstance() {
         return instance;
     }
-
-    public static final String LANGUAGE_KEY_PREFIX = "module.survivalWorlds";
-
-    public static final String WORLD_NAME_PREFIX = ""; // disable prefix
 
     public static String getWorldName(UUID uuid) {
         return WORLD_NAME_PREFIX + uuid;
@@ -45,6 +45,8 @@ public class SurvivalWorldsModule extends Module implements Listener {
 
     public final Map<UUID, World> playerWorlds = new HashMap<>();
     public final Map<World, ConfigWrapper> worldConfigs = new HashMap<>();
+
+    public DataValue<String> CFG_GLOBAL_DIR = new DataValue<>(this, "../../../../global/mcly_homes/", String.class);
 
     public MinecraftlyCore getBukkitPlugin() {
         return bukkitPlugin;
@@ -64,7 +66,9 @@ public class SurvivalWorldsModule extends Module implements Listener {
         this.bukkitPlugin = bukkitPlugin;
         this.gateway = bukkitPlugin.getGateway();
 
-        File survivalWorldsDirectory = new File(bukkitPlugin.getGeneralDataDirectory(), "survival-worlds");
+        bukkitPlugin.getConfigManager().register("homes.global-data-dir", CFG_GLOBAL_DIR);
+
+        File survivalWorldsDirectory = new File(bukkitPlugin.getGeneralDataDirectory(), CFG_GLOBAL_DIR.getValue());
         File globalPlayersDirectory = new File(survivalWorldsDirectory, "global-data");
         globalPlayersDirectory.mkdirs();
 

@@ -47,6 +47,8 @@ public class DataValue<T> {
 
         if (this.value instanceof String) {
             this.value = (T) BukkitUtilities.translateAlternateColorCodes('&', (String) this.untouchedValue); // this is legal
+        } else {
+            this.value = value;
         }
     }
 

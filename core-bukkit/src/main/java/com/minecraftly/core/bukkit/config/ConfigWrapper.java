@@ -1,4 +1,4 @@
-package com.minecraftly.core.bukkit.utilities;
+package com.minecraftly.core.bukkit.config;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -11,12 +11,12 @@ import java.io.InputStreamReader;
 /**
  * Helper class written by Keir Nellyer (GitHub @iKeirNez)
  */
-public class ConfigManager {
+public class ConfigWrapper {
 
     private final File configFile;
     private FileConfiguration config;
 
-    public ConfigManager(File configFile) {
+    public ConfigWrapper(File configFile) {
         this.configFile = configFile;
     }
 

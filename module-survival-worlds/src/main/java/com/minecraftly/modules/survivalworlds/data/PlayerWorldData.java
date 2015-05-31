@@ -1,7 +1,7 @@
 package com.minecraftly.modules.survivalworlds.data;
 
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
-import com.minecraftly.core.bukkit.utilities.ConfigManager;
+import com.minecraftly.core.bukkit.config.ConfigWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -17,7 +17,7 @@ import java.util.UUID;
 public class PlayerWorldData implements PlayerData {
 
     private final UUID uuid;
-    private final ConfigManager worldPlayerData;
+    private final ConfigWrapper worldPlayerData;
 
     private Location lastLocation;
     private Location bedLocation;
@@ -35,7 +35,7 @@ public class PlayerWorldData implements PlayerData {
 
     protected PlayerWorldData(UUID uuid, File worldPlayerDataFile) {
         this.uuid = uuid;
-        this.worldPlayerData = new ConfigManager(worldPlayerDataFile);
+        this.worldPlayerData = new ConfigWrapper(worldPlayerDataFile);
 
         if (worldPlayerDataFile.exists()) {
             loadFromFile();

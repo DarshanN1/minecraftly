@@ -1,12 +1,11 @@
 package com.minecraftly.core.bukkit.commands;
 
 import com.minecraftly.core.bukkit.MinecraftlyCore;
+import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.language.LanguageManager;
-import com.minecraftly.core.bukkit.config.DataValue;
-import com.minecraftly.core.bukkit.language.SimpleLanguageManager;
 import com.minecraftly.core.bukkit.module.Module;
-import com.minecraftly.core.bukkit.utilities.ConfigManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
+import com.minecraftly.core.bukkit.config.ConfigWrapper;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;
 import org.bukkit.ChatColor;
@@ -45,16 +44,16 @@ public class ModulesCommand {
         languageManager = plugin.getLanguageManager();
 
         //noinspection serial
-        languageManager.registerAll(new HashMap<String, DataValue<String>>() {{
-            put(LANG_LOADED_MODULES, new DataValue<>(plugin, "&bLoaded modules: "));
-            put(LANG_LOADED_MODULES_SEPARATOR, new DataValue<>(plugin, "&7, "));
-            put(LANG_LOADED_MODULE_ENABLED_PREFIX, new DataValue<>(plugin, "&a"));
-            put(LANG_LOADED_MODULE_DISABLED_PREFIX, new DataValue<>(plugin, "&c"));
-            put(LANG_NO_MODULES, new DataValue<>(plugin, "&cThere are no currently loaded modules."));
+        languageManager.registerAll(new HashMap<String, LanguageValue>() {{
+            put(LANG_LOADED_MODULES, new LanguageValue(plugin, "&bLoaded modules: "));
+            put(LANG_LOADED_MODULES_SEPARATOR, new LanguageValue(plugin, "&7, "));
+            put(LANG_LOADED_MODULE_ENABLED_PREFIX, new LanguageValue(plugin, "&a"));
+            put(LANG_LOADED_MODULE_DISABLED_PREFIX, new LanguageValue(plugin, "&c"));
+            put(LANG_NO_MODULES, new LanguageValue(plugin, "&cThere are no currently loaded modules."));
 
-            put(LANG_FOUND_UNUSED_LANG_HEADER, new DataValue<>(plugin, "&bThe following keys and associated values have been found to be unused.\n&bThey will be backed up and then removed from the main language file."));
-            put(LANG_CLEANUP_COMPLETE, new DataValue<>(plugin, "&6%s &bunused language values were cleaned."));
-            put(LANG_CLEANUP_COMPLETE_BACKUP, new DataValue<>(plugin, "&bBackup file saved to: &6%s"));
+            put(LANG_FOUND_UNUSED_LANG_HEADER, new LanguageValue(plugin, "&bThe following keys and associated values have been found to be unused.\n&bThey will be backed up and then removed from the main language file."));
+            put(LANG_CLEANUP_COMPLETE, new LanguageValue(plugin, "&6%s &bunused language values were cleaned."));
+            put(LANG_CLEANUP_COMPLETE_BACKUP, new LanguageValue(plugin, "&bBackup file saved to: &6%s"));
         }});
     }
 
@@ -87,18 +86,18 @@ public class ModulesCommand {
     @Command(aliases = "cleanup", desc = "Cleanup leftover junk from updated or removed modules", max = 0)
     @Require("com.minecraftly.core.modules.cleanup")
     public void cleanup(CommandSender sender, MinecraftlyCore minecraftlyCore, LanguageManager languageManager) {
-        if (!(languageManager instanceof SimpleLanguageManager)) {
+        if (!(languageManager instanceof LanguageManager)) {
             sender.sendMessage(ChatColor.RED + "LanguageManager is not an instance of SimpleLanguageManager (this really shouldn't happen!)."); // todo convert to exception
             return;
         }
 
-        SimpleLanguageManager sLanguageManager = (SimpleLanguageManager) languageManager;
+        LanguageManager sLanguageManager = (LanguageManager) languageManager;
         sLanguageManager.save();
         FileConfiguration languageConfig = sLanguageManager.config;
 
         File backupFile = new File(minecraftlyCore.getBackupsDirectory(), "language-" + BukkitUtilities.TIMESTAMP_FORMAT.format(new Date()) + ".yml");
-        ConfigManager backupConfigManager = new ConfigManager(backupFile);
-        FileConfiguration backupConfig = backupConfigManager.getConfig();
+        ConfigWrapper backupConfigWrapper = new ConfigWrapper(backupFile);
+        FileConfiguration backupConfig = backupConfigWrapper.getConfig();
         int count = 0;
 
         for (String key : languageConfig.getKeys(true)) {
@@ -131,10 +130,10 @@ public class ModulesCommand {
         }
 
         sender.sendMessage(languageManager.get(LANG_CLEANUP_COMPLETE, count));
-        sLanguageManager.configManager.saveConfig();
+        sLanguageManager.configWrapper.saveConfig();
 
         if (backupConfig.getKeys(true).size() > 0) {
-            backupConfigManager.saveConfig();
+            backupConfigWrapper.saveConfig();
             sender.sendMessage(languageManager.get(LANG_CLEANUP_COMPLETE_BACKUP, backupFile.getPath()));
         } else { // if nothing was cleaned (backed up), delete backup
             backupFile.delete();

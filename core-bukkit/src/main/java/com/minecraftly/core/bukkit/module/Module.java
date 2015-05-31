@@ -3,7 +3,6 @@ package com.minecraftly.core.bukkit.module;
 import com.minecraftly.core.ContentOwner;
 import com.minecraftly.core.bukkit.MclyCoreBukkitPlugin;
 import com.minecraftly.core.bukkit.MinecraftlyCore;
-import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.sk89q.intake.fluent.DispatcherNode;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
@@ -34,9 +33,6 @@ public abstract class Module implements ContentOwner {
     }
 
     protected void registerCommands(DispatcherNode dispatcherNode) {
-    }
-
-    protected void registerLanguageValues(LanguageManager languageManager) {
     }
 
     final void init(Logger logger, ModuleProperties moduleProperties, File jarFile) {

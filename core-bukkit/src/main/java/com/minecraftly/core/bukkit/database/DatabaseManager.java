@@ -8,7 +8,6 @@ import org.apache.commons.dbutils.QueryRunner;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,16 +27,6 @@ public class DatabaseManager {
 
     private HikariDataSource dataSource;
     private QueryRunner queryRunner;
-
-    public DatabaseManager(Logger logger, Map<String, Object> data) {
-        this(logger,
-                (String) data.get("host"),
-                (String) data.get("username"),
-                (String) data.get("password"),
-                (String) data.get("database"),
-                (int) data.get("port"),
-                (String) data.get("prefix"));
-    }
 
     public DatabaseManager(Logger logger, String host, String username, String password, String database, int port, String prefix) {
         checkNotNull(logger);

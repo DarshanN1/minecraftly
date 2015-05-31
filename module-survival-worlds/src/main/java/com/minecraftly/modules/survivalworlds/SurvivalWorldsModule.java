@@ -3,7 +3,7 @@ package com.minecraftly.modules.survivalworlds;
 import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
 import com.minecraftly.core.bukkit.MinecraftlyCore;
 import com.minecraftly.core.bukkit.module.Module;
-import com.minecraftly.core.bukkit.utilities.ConfigManager;
+import com.minecraftly.core.bukkit.config.ConfigWrapper;
 import com.minecraftly.core.packets.survivalworlds.PacketNoLongerHosting;
 import com.minecraftly.modules.survivalworlds.data.DataStore;
 import org.bukkit.Bukkit;
@@ -44,7 +44,7 @@ public class SurvivalWorldsModule extends Module implements Listener {
     private DataStore dataStore;
 
     public final Map<UUID, World> playerWorlds = new HashMap<>();
-    public final Map<World, ConfigManager> worldConfigs = new HashMap<>();
+    public final Map<World, ConfigWrapper> worldConfigs = new HashMap<>();
 
     public MinecraftlyCore getBukkitPlugin() {
         return bukkitPlugin;
@@ -137,8 +137,8 @@ public class SurvivalWorldsModule extends Module implements Listener {
         UUID ownerUUID = getWorldOwnerUUID(world);
 
         if (ownerUUID != null) {
-            ConfigManager configManager = worldConfigs.get(world);
-            if (configManager != null) {
+            ConfigWrapper configWrapper = worldConfigs.get(world);
+            if (configWrapper != null) {
                 worldConfigs.remove(world);
             }
 
@@ -150,9 +150,9 @@ public class SurvivalWorldsModule extends Module implements Listener {
 
     @EventHandler
     public void onWorldSave(WorldSaveEvent e) { // save world config when world is saved
-        ConfigManager configManager = worldConfigs.get(e.getWorld());
-        if (configManager != null) {
-            configManager.saveConfig();
+        ConfigWrapper configWrapper = worldConfigs.get(e.getWorld());
+        if (configWrapper != null) {
+            configWrapper.saveConfig();
         }
     }
 

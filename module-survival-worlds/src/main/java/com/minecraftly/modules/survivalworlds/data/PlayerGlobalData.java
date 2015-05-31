@@ -1,6 +1,6 @@
 package com.minecraftly.modules.survivalworlds.data;
 
-import com.minecraftly.core.bukkit.utilities.ConfigManager;
+import com.minecraftly.core.bukkit.config.ConfigWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -19,14 +19,14 @@ import java.util.UUID;
 public class PlayerGlobalData implements PlayerData {
 
     private final UUID uuid;
-    protected final ConfigManager globalPlayerData;
+    protected final ConfigWrapper globalPlayerData;
 
     private final ItemStack[] inventoryContents = new ItemStack[InventoryType.PLAYER.getDefaultSize()];
     private final ItemStack[] enderChestContents = new ItemStack[InventoryType.ENDER_CHEST.getDefaultSize()];
 
     protected PlayerGlobalData(UUID uuid, File globalPlayerDataFile) {
         this.uuid = uuid;
-        this.globalPlayerData = new ConfigManager(globalPlayerDataFile);
+        this.globalPlayerData = new ConfigWrapper(globalPlayerDataFile);
 
         if (globalPlayerDataFile.exists()) {
             loadFromFile();

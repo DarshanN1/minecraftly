@@ -3,7 +3,7 @@ package com.minecraftly.modules.world;
 import com.google.common.collect.ImmutableList;
 import com.minecraftly.core.bukkit.MinecraftlyCore;
 import com.minecraftly.core.bukkit.module.Module;
-import com.minecraftly.core.bukkit.utilities.ConfigManager;
+import com.minecraftly.core.bukkit.config.ConfigWrapper;
 import com.sk89q.intake.Parameter;
 import com.sk89q.intake.SettableDescription;
 import com.sk89q.intake.SettableParameter;
@@ -22,20 +22,20 @@ import java.util.List;
  */
 public class WorldModule extends Module {
 
-    private ConfigManager configManager;
+    private ConfigWrapper configWrapper;
     private List<String> loadedWorlds = new ArrayList<>();
 
     @Override
     protected void onEnable(MinecraftlyCore plugin) {
-        configManager = new ConfigManager(new File(plugin.getGeneralDataDirectory(), "loaded-worlds.yml"));
-        loadedWorlds = configManager.getConfig().getStringList("loadedWorlds");
+        configWrapper = new ConfigWrapper(new File(plugin.getGeneralDataDirectory(), "loaded-worlds.yml"));
+        loadedWorlds = configWrapper.getConfig().getStringList("loadedWorlds");
         loadWorlds();
     }
 
     @Override
     protected void onDisable(MinecraftlyCore plugin) {
-        configManager.getConfig().set("loadedWorlds", loadedWorlds);
-        configManager.saveConfig();
+        configWrapper.getConfig().set("loadedWorlds", loadedWorlds);
+        configWrapper.saveConfig();
     }
 
     @Override

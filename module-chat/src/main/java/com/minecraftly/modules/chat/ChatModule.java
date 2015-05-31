@@ -1,6 +1,7 @@
 package com.minecraftly.modules.chat;
 
 import com.minecraftly.core.bukkit.MinecraftlyCore;
+import com.minecraftly.core.bukkit.config.DataValue;
 import com.minecraftly.core.bukkit.module.Module;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import org.bukkit.entity.Player;
@@ -13,10 +14,11 @@ import java.util.Set;
 
 public class ChatModule extends Module implements Listener {
 
-    public static final int CHAT_RADIUS = 100;
+    public DataValue<Integer> CFG_LOCAL_CHAT_RADIUS = new DataValue<>(this, 100, Integer.class);
 
     @Override
     protected void onEnable(MinecraftlyCore plugin) {
+        plugin.getConfigManager().register("chat.local-radius", CFG_LOCAL_CHAT_RADIUS);
         registerListener(this);
     }
 
@@ -26,7 +28,7 @@ public class ChatModule extends Module implements Listener {
         Set<Player> recipients = e.getRecipients();
         recipients.clear();
         recipients.add(player); // not sure if this is required :/
-        recipients.addAll(BukkitUtilities.getNearbyPlayers(player.getLocation(), CHAT_RADIUS));
+        recipients.addAll(BukkitUtilities.getNearbyPlayers(player.getLocation(), CFG_LOCAL_CHAT_RADIUS.getValue()));
     }
 
 }

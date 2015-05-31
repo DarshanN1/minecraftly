@@ -8,7 +8,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -60,7 +60,7 @@ public class SimpleLanguageManager implements LanguageManager {
 
     @Override
     public Map<String, DataValue<String>> getLanguageValues() {
-        return new HashMap<>(languageValues);
+        return Collections.unmodifiableMap(languageValues);
     }
 
     @Override

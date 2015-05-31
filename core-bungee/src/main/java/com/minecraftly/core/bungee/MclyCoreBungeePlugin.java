@@ -8,7 +8,7 @@ import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.minecraftly.core.MinecraftlyCommon;
 import com.minecraftly.core.Utilities;
-import com.minecraftly.core.bungee.handlers.module.PreQuitHandler;
+import com.minecraftly.core.bungee.handlers.PreSwitchHandler;
 import com.minecraftly.core.bungee.handlers.module.SpawnHandler;
 import com.minecraftly.core.bungee.handlers.module.SurvivalWorldsHandler;
 import com.minecraftly.core.bungee.handlers.module.TpaHandler;
@@ -45,6 +45,8 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
     private RedisBungeeAPI redisBungeeAPI;
     private Gson gson = new Gson();
 
+    private PreSwitchHandler preSwitchHandler;
+
     @Override
     public void onEnable() {
         configurationFile = new File(getDataFolder(), "config.yml");
@@ -66,10 +68,10 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
         SurvivalWorldsHandler survivalWorldsHandler = new SurvivalWorldsHandler(this);
         TpaHandler tpaHandler = new TpaHandler(this);
-        PreQuitHandler preQuitHandler = new PreQuitHandler(this);
+        preSwitchHandler = new PreSwitchHandler(this);
 
         gateway.registerListener(survivalWorldsHandler);
-        gateway.registerListener(preQuitHandler);
+        gateway.registerListener(preSwitchHandler);
 
         commandManager = new CommandManager(this);
         commandManager.builder()
@@ -81,7 +83,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
         pluginManager.registerListener(this, survivalWorldsHandler);
         pluginManager.registerListener(this, tpaHandler);
-        pluginManager.registerListener(this, preQuitHandler);
+        pluginManager.registerListener(this, preSwitchHandler);
 
         TaskScheduler taskScheduler = getProxy().getScheduler();
         taskScheduler.schedule(this, tpaHandler, 5, TimeUnit.MINUTES);
@@ -137,6 +139,10 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
     @Override
     public Gson getGson() {
         return gson;
+    }
+
+    public PreSwitchHandler getPreSwitchHandler() {
+        return preSwitchHandler;
     }
 
     @Command(aliases = "mclybungeetestcommand", desc = "A test command.")

@@ -46,7 +46,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     private ModuleManager moduleManager;
     private PluginManager pluginManager;
     private ServerGateway<Player> gateway;
-    private PreSwitchJobManager preSwitchJobManager = new PreSwitchJobManager();
+    private PreSwitchJobManager preSwitchJobManager;
     private File generalDataDirectory = new File(getDataFolder(), "data");
     private File backupDirectory = new File(getDataFolder(), "backups");
     private boolean skipDisable = false;
@@ -112,8 +112,8 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         }
 
         gateway = BukkitGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, this);
+        preSwitchJobManager = new PreSwitchJobManager(gateway);
         gateway.registerListener(new PacketListener());
-        gateway.registerListener(preSwitchJobManager);
 
         moduleManager.loadModules();
         DispatcherNode dispatcherNode = registerCoreCommands();

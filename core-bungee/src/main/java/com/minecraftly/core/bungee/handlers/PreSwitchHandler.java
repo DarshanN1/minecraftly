@@ -1,8 +1,8 @@
-package com.minecraftly.core.bungee.handlers.module;
+package com.minecraftly.core.bungee.handlers;
 
 import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
 import com.ikeirnez.pluginmessageframework.packet.PrimaryValuePacket;
-import com.minecraftly.core.bungee.MinecraftlyBungeeCore;
+import com.minecraftly.core.bungee.MclyCoreBungeePlugin;
 import com.minecraftly.core.packets.PacketPreSwitch;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
@@ -16,23 +16,45 @@ import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * Handles waiting for server implementation to save before allowing a player to change server.
  */
-public class PreQuitHandler implements Listener {
+public class PreSwitchHandler implements Listener {
 
-    private MinecraftlyBungeeCore plugin;
+    private MclyCoreBungeePlugin plugin;
 
     private Map<UUID, ServerInfo> savingPlayers = new HashMap<>();
     private List<UUID> savedPlayers = new ArrayList<>();
 
-    public PreQuitHandler(MinecraftlyBungeeCore plugin) {
+    private Map<UUID, List<Runnable>> connectJobs = new HashMap<>();
+
+    public PreSwitchHandler(MclyCoreBungeePlugin plugin) {
         this.plugin = plugin;
+    }
+
+    public Map<UUID, List<Runnable>> getConnectJobs() {
+        return Collections.unmodifiableMap(connectJobs);
+    }
+
+    public void addJob(ProxiedPlayer proxiedPlayer, Runnable runnable) {
+        addJob(proxiedPlayer.getUniqueId(), runnable);
+    }
+
+    public void addJob(UUID player, Runnable runnable) {
+        List<Runnable> list = connectJobs.get(player);
+
+        if (list == null) {
+            list = new ArrayList<>();
+        }
+
+        list.add(runnable);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -41,7 +63,7 @@ public class PreQuitHandler implements Listener {
         UUID uuid = player.getUniqueId();
         Server currentServer = player.getServer();
 
-        if (currentServer != null) {
+        if (currentServer != null && currentServer.getInfo() != e.getTarget()) {
             if (!savedPlayers.contains(uuid)) {
                 e.setCancelled(true);
 
@@ -51,14 +73,28 @@ public class PreQuitHandler implements Listener {
                     plugin.getGateway().sendPacket(player, new PrimaryValuePacket<>(PacketPreSwitch.SERVER_SAVE));
                 }
             } else {
+                List<Runnable> jobs = connectJobs.get(uuid);
+
+                if (jobs != null) {
+                    for (Runnable job : jobs) {
+                        try {
+                            job.run();
+                        } catch (Throwable throwable1) {
+                            plugin.getLogger().log(Level.SEVERE, "Failed to run connect job for " + player.getName() + " (" + uuid + ")", throwable1);
+                        }
+                    }
+
+                    connectJobs.remove(uuid);
+                }
+
                 savedPlayers.remove(uuid);
             }
         }
     }
 
     @PacketHandler
-    public void onProxySwitch(ProxiedPlayer player, PacketPreSwitch packet) {
-        UUID uuid = player.getUniqueId();
+    public void onProxySwitch(final ProxiedPlayer player, PacketPreSwitch packet) {
+        final UUID uuid = player.getUniqueId();
 
         switch (packet) {
             default: throw new UnsupportedOperationException("Don't know how to handle: " + packet + ".");

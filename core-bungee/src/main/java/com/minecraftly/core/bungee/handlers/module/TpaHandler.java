@@ -10,7 +10,6 @@ import com.minecraftly.core.bungee.MclyCoreBungeePlugin;
 import com.minecraftly.core.bungee.utilities.BungeeUtilities;
 import com.minecraftly.core.packets.PacketTeleport;
 import com.sk89q.intake.Command;
-import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -154,31 +153,25 @@ public class TpaHandler implements Runnable, Listener {
                 );
             }
         } else if (channel.equals(CHANNEL_TPA_ACCEPT)) {
-            final ProxiedPlayer target = plugin.getProxy().getPlayer(initiatorUUID);
+            final ProxiedPlayer initiator = plugin.getProxy().getPlayer(initiatorUUID);
 
-            if (target != null) {
-                ServerInfo senderServer = redisBungeeAPI.getServerFor(teleportTargetUUID);
+            if (initiator != null) {
+                ServerInfo teleportTargetServer = redisBungeeAPI.getServerFor(teleportTargetUUID);
 
-                target.sendMessage(new ComponentBuilder("Teleporting you to ").color(ChatColor.GREEN)
+                initiator.sendMessage(new ComponentBuilder("Teleporting you to ").color(ChatColor.GREEN)
                                 .append(teleportTargetName).color(ChatColor.GOLD)
                                 .append(".").color(ChatColor.GREEN)
                                 .create()
                 );
 
-                if (target.getServer().equals(senderServer)) {
-                    gateway.sendPacket(target, new PacketTeleport(teleportTargetUUID));
+                if (initiator.getServer().getInfo().equals(teleportTargetServer)) {
+                    gateway.sendPacket(initiator, new PacketTeleport(teleportTargetUUID));
                 } else {
-                    target.connect(senderServer, new Callback<Boolean>() {
+                    initiator.connect(teleportTargetServer);
+                    plugin.getPreSwitchHandler().addJob(initiator, new Runnable() {
                         @Override
-                        public void done(Boolean success, Throwable throwable) {
-                            if (success) {
-                                plugin.getProxy().getScheduler().schedule(plugin, new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        gateway.sendPacket(target, new PacketTeleport(teleportTargetUUID));
-                                    }
-                                }, 2, TimeUnit.SECONDS);
-                            }
+                        public void run() {
+                            gateway.sendPacket(initiator, new PacketTeleport(teleportTargetUUID));
                         }
                     });
                 }

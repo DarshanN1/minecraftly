@@ -1,6 +1,8 @@
 package com.minecraftly.core.bukkit;
 
+import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
 import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
+import com.ikeirnez.pluginmessageframework.packet.PrimaryValuePacket;
 import com.minecraftly.core.Callback;
 import com.minecraftly.core.packets.PacketPreSwitch;
 import org.bukkit.entity.Player;
@@ -14,7 +16,13 @@ import java.util.List;
  */
 public class PreSwitchJobManager {
 
+    private ServerGateway<Player> gateway;
     private List<Callback<Player>> jobs = new ArrayList<>();
+
+    public PreSwitchJobManager(ServerGateway<Player> gateway) {
+        this.gateway = gateway;
+        this.gateway.registerListener(this);
+    }
 
     public List<Callback<Player>> getJobs() {
         return Collections.unmodifiableList(jobs);
@@ -30,18 +38,17 @@ public class PreSwitchJobManager {
 
     public void executeJobs(Player player) {
         for (Callback<Player> task : jobs) {
-            task.call(player);
+            task.call(player); // todo execute async?
         }
     }
 
     @PacketHandler
     public void onPlayerPreSwitch(Player player, PacketPreSwitch packetType) {
-        System.out.println("PRESWITCH RECEIVED"); // todo remove
-
         switch (packetType) {
             default: throw new UnsupportedOperationException("Don't know how to handle: " + packetType + ".");
             case SERVER_SAVE:
                 executeJobs(player);
+                gateway.sendPacket(new PrimaryValuePacket<>(PacketPreSwitch.PROXY_SWITCH));
                 break;
         }
     }

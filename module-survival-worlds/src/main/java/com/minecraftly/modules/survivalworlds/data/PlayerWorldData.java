@@ -1,9 +1,8 @@
 package com.minecraftly.modules.survivalworlds.data;
 
-import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.bukkit.config.ConfigWrapper;
+import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -30,8 +29,6 @@ public class PlayerWorldData implements PlayerData {
     private float exhaustion;
     private float saturation;
     private float fallDistance;
-
-    private GameMode gameMode;
 
     protected PlayerWorldData(UUID uuid, File worldPlayerDataFile) {
         this.uuid = uuid;
@@ -91,10 +88,6 @@ public class PlayerWorldData implements PlayerData {
         return fallDistance;
     }
 
-    public GameMode getGameMode() {
-        return gameMode;
-    }
-
     @Override
     public void loadFromFile() {
         worldPlayerData.reloadConfig();
@@ -111,8 +104,6 @@ public class PlayerWorldData implements PlayerData {
         exhaustion = configuration.getInt("exhaustion");
         saturation = configuration.getInt("saturation");
         fallDistance = configuration.getInt("fallDistance");
-
-        gameMode = GameMode.valueOf(configuration.getString("gameMode"));
     }
 
     @Override
@@ -136,8 +127,6 @@ public class PlayerWorldData implements PlayerData {
         configuration.set("saturation", saturation);
         configuration.set("fallDistance", fallDistance);
 
-        configuration.set("gameMode", gameMode.name());
-
         worldPlayerData.saveConfig();
     }
 
@@ -153,8 +142,6 @@ public class PlayerWorldData implements PlayerData {
         player.setExhaustion(exhaustion);
         player.setSaturation(saturation);
         player.setFallDistance(fallDistance);
-
-        player.setGameMode(gameMode);
     }
 
     @Override
@@ -170,8 +157,6 @@ public class PlayerWorldData implements PlayerData {
         exhaustion = player.getExhaustion();
         saturation = player.getSaturation();
         fallDistance = player.getFallDistance();
-
-        gameMode = player.getGameMode();
     }
 
 }

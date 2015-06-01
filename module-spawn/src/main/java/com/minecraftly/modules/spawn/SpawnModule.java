@@ -23,15 +23,28 @@ import java.util.Set;
 
 public class SpawnModule extends Module implements Listener {
 
+    private MinecraftlyCore plugin;
+
+    private World spawnWorld = null;
+
     @Override
     protected void onEnable(MinecraftlyCore plugin) {
+        this.plugin = plugin;
         registerListener(this);
+    }
+
+    public World getSpawnWorld() {
+        if (spawnWorld == null) {
+            spawnWorld = Bukkit.getWorlds().get(0);
+        }
+
+        return spawnWorld;
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player player = e.getPlayer();
-        player.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
+        player.teleport(getSpawnWorld().getSpawnLocation());
         makePlayerDisabled(player, player.getWorld());
     }
 
@@ -41,14 +54,11 @@ public class SpawnModule extends Module implements Listener {
         World to = e.getTo().getWorld();
         World from = e.getFrom().getWorld();
 
-        if (!to.equals(from)) {
-            World spawnWorld = Bukkit.getWorlds().get(0);
+        World spawnWorld = getSpawnWorld();
 
+        if (!to.equals(from)) {
             if (to.equals(spawnWorld)) {
                 makePlayerDisabled(player, spawnWorld);
-
-                player.getInventory().clear();
-                player.getEnderChest().clear();
             } else if (from.equals(spawnWorld)) {
                 player.removePotionEffect(PotionEffectType.BLINDNESS);
                 player.removePotionEffect(PotionEffectType.NIGHT_VISION);
@@ -79,7 +89,7 @@ public class SpawnModule extends Module implements Listener {
         }
     }
 
-    private void makePlayerDisabled(Player player, World world) { // lol
+    private void makePlayerDisabled(final Player player, final World world) { // lol
         for (Player player1 : world.getPlayers()) {
             if (player != player1) {
                 player.hidePlayer(player1);
@@ -92,6 +102,16 @@ public class SpawnModule extends Module implements Listener {
         player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 250, true, false));
         player.setWalkSpeed(0);
         player.setGameMode(GameMode.ADVENTURE);
+
+        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+            @Override
+            public void run() {
+                if (player.getWorld() == world) { // check player hasn't changed world
+                    player.getInventory().clear();
+                    player.getEnderChest().clear();
+                }
+            }
+        }, 10L);
     }
 
     @Override

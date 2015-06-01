@@ -67,12 +67,16 @@ public class LanguageManager {
     }
 
     public void register(String key, LanguageValue languageValue) {
-        languageValues.put(key, languageValue);
-
-        if (config.contains(key)) {
-            languageValue.setValue(config.getString(key));
+        if (languageValue.getHandler() != null) {
+            if (languageValue.getHandler() != this) {
+                throw new UnsupportedOperationException("Data value (" + key + ") cannot be handled by more then 1 config manager.");
+            }
         } else {
-            config.set(key, languageValue.getValue());
+            languageValues.put(key, languageValue);
+
+            if (config.contains(key)) {
+                languageValue.setValue(config.getString(key));
+            }
         }
     }
 

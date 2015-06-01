@@ -1,5 +1,7 @@
 package com.minecraftly.modules.survivalworlds;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -31,10 +33,13 @@ public enum WorldDimension {
     }
 
     public boolean matches(String worldName) {
+        checkNotNull(worldName);
         return worldName.endsWith(suffix);
     }
 
     public String getBaseName(String worldName) {
+        checkNotNull(worldName);
+
         for (WorldDimension worldDimension : values()) {
             if (worldDimension.matches(worldName)) {
                 return worldName.substring(0, worldName.length() - suffix.length());
@@ -44,15 +49,18 @@ public enum WorldDimension {
         return worldName;
     }
 
-    public String convertTo(String string) {
-        return getBaseName(string) + suffix;
+    public String convertTo(String baseWorldName) {
+        checkNotNull(baseWorldName);
+        return getBaseName(baseWorldName) + suffix;
     }
 
     public World convertTo(World world) {
+        checkNotNull(world);
         return Bukkit.getWorld(convertTo(world.getName()));
     }
 
     public static String getBaseWorldName(String worldName) {
+        checkNotNull(worldName);
         String returnWorldName = worldName;
 
         for (WorldDimension worldDimension : values()) {
@@ -66,11 +74,13 @@ public enum WorldDimension {
     }
 
     public static World getBaseWorld(World world) {
+        checkNotNull(world);
         World baseWorld = Bukkit.getWorld(getBaseWorldName(world.getName()));
         return baseWorld != null ? baseWorld : world;
     }
 
     public static List<Player> getPlayersAllDimensions(World baseWorld) {
+        checkNotNull(baseWorld);
         List<Player> players = new ArrayList<>(baseWorld.getPlayers());
 
         for (WorldDimension worldDimension : WorldDimension.values()) {

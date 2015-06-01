@@ -103,6 +103,8 @@ public class PreSwitchHandler implements Listener {
                     savedPlayers.add(uuid);
                     player.connect(savingPlayers.get(uuid));
                     savingPlayers.remove(uuid);
+                } else {
+                    plugin.getLogger().warning("Received " + packet + " for player " + player.getName() + " when they aren't due to switch server.");
                 }
 
                 break;

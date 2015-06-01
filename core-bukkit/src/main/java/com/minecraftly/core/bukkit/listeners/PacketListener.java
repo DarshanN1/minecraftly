@@ -29,6 +29,10 @@ public class PacketListener {
             }
         } else if (locationContainer != null) {
             location = BukkitUtilities.getLocation(locationContainer);
+
+            if (location.getWorld() == null) {
+                throw new IllegalArgumentException("Invalid spawn location, world '" + locationContainer.getWorld() + "' doesn't exist.");
+            }
         } else {
             throw new UnsupportedOperationException("Don't know how to handle a teleport packet with all null parameters.");
         }

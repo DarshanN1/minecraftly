@@ -18,12 +18,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.HashMap;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -177,6 +179,17 @@ public class PlayerListener implements Listener {
                     e.setRespawnLocation(BukkitUtilities.getSafeLocation(world.getSpawnLocation()));
                 }
             }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerChat(AsyncPlayerChatEvent e) {
+        World world = WorldDimension.getBaseWorld(e.getPlayer().getWorld());
+
+        if (module.isHomeWorld(world)) {
+            Set<Player> recipients = e.getRecipients();
+            recipients.clear();
+            recipients.addAll(WorldDimension.getPlayersAllDimensions(world));
         }
     }
 

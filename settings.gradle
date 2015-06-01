@@ -6,6 +6,6 @@ include 'core-bungee'
 
 include 'module-world'
 include 'module-chat'
-include 'module-survival-worlds'
+include 'module-home-worlds'
 include 'module-spawn'
 

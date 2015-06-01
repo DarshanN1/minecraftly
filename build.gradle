@@ -279,9 +279,9 @@ project(':module-chat') {
     }
 }
 
-project(':module-survival-worlds') {
-    ext.cleanName = 'Survival Worlds'
-    group = parent.getGroup() + '.modules.survivalworlds'
+project(':module-home-worlds') {
+    ext.cleanName = 'Home Worlds'
+    group = parent.getGroup() + '.modules.homeworlds'
     version = '1.0-SNAPSHOT'
 
     dependencies {

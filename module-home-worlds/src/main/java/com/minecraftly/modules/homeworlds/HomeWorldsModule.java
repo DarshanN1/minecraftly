@@ -1,4 +1,4 @@
-package com.minecraftly.modules.survivalworlds;
+package com.minecraftly.modules.homeworlds;
 
 import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
 import com.minecraftly.core.bukkit.MinecraftlyCore;
@@ -6,7 +6,7 @@ import com.minecraftly.core.bukkit.config.DataValue;
 import com.minecraftly.core.bukkit.module.Module;
 import com.minecraftly.core.bukkit.config.ConfigWrapper;
 import com.minecraftly.core.packets.survivalworlds.PacketNoLongerHosting;
-import com.minecraftly.modules.survivalworlds.data.DataStore;
+import com.minecraftly.modules.homeworlds.data.DataStore;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -24,14 +24,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class SurvivalWorldsModule extends Module implements Listener {
+public class HomeWorldsModule extends Module implements Listener {
 
-    private static SurvivalWorldsModule instance;
+    private static HomeWorldsModule instance;
 
-    public static final String LANGUAGE_KEY_PREFIX = "module.survivalWorlds";
+    public static final String LANGUAGE_KEY_PREFIX = "module.homeWorlds";
     public static final String WORLD_NAME_PREFIX = ""; // disable prefix
 
-    public static SurvivalWorldsModule getInstance() {
+    public static HomeWorldsModule getInstance() {
         return instance;
     }
 

@@ -1,4 +1,4 @@
-package com.minecraftly.modules.survivalworlds;
+package com.minecraftly.modules.homeworlds;
 
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
@@ -8,8 +8,8 @@ import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.packets.survivalworlds.PacketPlayerWorld;
-import com.minecraftly.modules.survivalworlds.data.DataStore;
-import com.minecraftly.modules.survivalworlds.data.PlayerWorldData;
+import com.minecraftly.modules.homeworlds.data.DataStore;
+import com.minecraftly.modules.homeworlds.data.PlayerWorldData;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class PlayerListener implements Listener {
 
-    public static final String LANGUAGE_KEY_PREFIX = SurvivalWorldsModule.LANGUAGE_KEY_PREFIX;
+    public static final String LANGUAGE_KEY_PREFIX = HomeWorldsModule.LANGUAGE_KEY_PREFIX;
 
     public static final String LANGUAGE_LOADING_WORLD = LANGUAGE_KEY_PREFIX + ".loadingWorld";
     public static final String LANGUAGE_WELCOME_OWNER = LANGUAGE_KEY_PREFIX + ".welcomeOwner";
@@ -41,12 +41,12 @@ public class PlayerListener implements Listener {
     public static final String LANGUAGE_ERROR_KEY_PREFIX = LANGUAGE_KEY_PREFIX + ".error";
     public static final String LANGUAGE_LOAD_FAILED = LANGUAGE_ERROR_KEY_PREFIX + ".loadFailed";
 
-    private SurvivalWorldsModule module;
+    private HomeWorldsModule module;
     private LanguageManager languageManager;
     private DataStore dataStore;
     private Cache<UUID, UUID> joinQueue = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.SECONDS).build();
 
-    public PlayerListener(final SurvivalWorldsModule module) {
+    public PlayerListener(final HomeWorldsModule module) {
         this.module = module;
         this.languageManager = module.getBukkitPlugin().getLanguageManager();
         this.dataStore = module.getDataStore();

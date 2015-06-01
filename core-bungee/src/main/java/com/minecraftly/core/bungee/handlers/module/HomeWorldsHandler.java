@@ -24,7 +24,7 @@ import java.util.UUID;
 /**
  * Created by Keir on 29/04/2015.
  */
-public class SurvivalWorldsHandler implements Listener {
+public class HomeWorldsHandler implements Listener {
 
     private final MinecraftlyBungeeCore minecraftlyBungeeCore;
     private final Map<ServerInfo, List<UUID>> playerServerMap = new HashMap<>();
@@ -32,7 +32,7 @@ public class SurvivalWorldsHandler implements Listener {
     private final String survivalWorldsServerPrefix = "survivalworlds-"; // todo make configurable
     private final int maxWorldsPerServer = 10; // todo make configurable
 
-    public SurvivalWorldsHandler(MinecraftlyBungeeCore minecraftlyBungeeCore) {
+    public HomeWorldsHandler(MinecraftlyBungeeCore minecraftlyBungeeCore) {
         this.minecraftlyBungeeCore = minecraftlyBungeeCore;
 
         for (Map.Entry<String, ServerInfo> entry : minecraftlyBungeeCore.getProxy().getServers().entrySet()) {

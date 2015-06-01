@@ -1,4 +1,4 @@
-package com.minecraftly.modules.survivalworlds.data;
+package com.minecraftly.modules.homeworlds.data;
 
 import org.bukkit.entity.Player;
 

@@ -1,10 +1,10 @@
-package com.minecraftly.modules.survivalworlds.data;
+package com.minecraftly.modules.homeworlds.data;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
-import com.minecraftly.modules.survivalworlds.SurvivalWorldsModule;
-import com.minecraftly.modules.survivalworlds.WorldDimension;
+import com.minecraftly.modules.homeworlds.HomeWorldsModule;
+import com.minecraftly.modules.homeworlds.WorldDimension;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -29,14 +29,14 @@ public class DataStore implements Listener {
 
     private final String WORLD_PLAYER_DIR_NAME = "mcly-player-data";
 
-    private final SurvivalWorldsModule module;
+    private final HomeWorldsModule module;
     private final File globalPlayerDirectory;
 
     // World UUID, Player UUID, Data
     private final Table<UUID, UUID, PlayerWorldData> worldPlayerDataTable = HashBasedTable.create();
     private final Map<UUID, PlayerGlobalData> globalPlayerDataMap = new HashMap<>();
 
-    public DataStore(final SurvivalWorldsModule module, File globalPlayerDirectory) {
+    public DataStore(final HomeWorldsModule module, File globalPlayerDirectory) {
         if (module == null) {
             throw new IllegalArgumentException("Module cannot be null.");
         }

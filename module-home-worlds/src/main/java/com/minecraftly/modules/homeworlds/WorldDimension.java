@@ -1,4 +1,4 @@
-package com.minecraftly.modules.survivalworlds;
+package com.minecraftly.modules.homeworlds;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

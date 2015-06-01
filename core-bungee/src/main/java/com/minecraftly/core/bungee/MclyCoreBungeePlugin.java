@@ -10,7 +10,7 @@ import com.minecraftly.core.MinecraftlyCommon;
 import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bungee.handlers.PreSwitchHandler;
 import com.minecraftly.core.bungee.handlers.module.SpawnHandler;
-import com.minecraftly.core.bungee.handlers.module.SurvivalWorldsHandler;
+import com.minecraftly.core.bungee.handlers.module.HomeWorldsHandler;
 import com.minecraftly.core.bungee.handlers.module.TpaHandler;
 import com.sk89q.intake.Command;
 import lc.vq.exhaust.bungee.command.CommandManager;
@@ -67,22 +67,22 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         gateway = BungeeGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
         redisBungeeAPI = RedisBungee.getApi();
 
-        SurvivalWorldsHandler survivalWorldsHandler = new SurvivalWorldsHandler(this);
+        HomeWorldsHandler homeWorldsHandler = new HomeWorldsHandler(this);
         TpaHandler tpaHandler = new TpaHandler(this);
         preSwitchHandler = new PreSwitchHandler(this);
 
-        gateway.registerListener(survivalWorldsHandler);
+        gateway.registerListener(homeWorldsHandler);
         gateway.registerListener(preSwitchHandler);
 
         commandManager = new CommandManager(this);
         commandManager.builder()
                 .registerMethods(this)
                 .registerMethods(new SpawnHandler(this))
-                .registerMethods(survivalWorldsHandler)
+                .registerMethods(homeWorldsHandler)
                 .registerMethods(tpaHandler);
         commandManager.build();
 
-        pluginManager.registerListener(this, survivalWorldsHandler);
+        pluginManager.registerListener(this, homeWorldsHandler);
         pluginManager.registerListener(this, tpaHandler);
         pluginManager.registerListener(this, preSwitchHandler);
 

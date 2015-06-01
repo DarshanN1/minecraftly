@@ -1,4 +1,4 @@
-package com.minecraftly.modules.survivalworlds.data;
+package com.minecraftly.modules.homeworlds.data;
 
 import com.minecraftly.core.bukkit.config.ConfigWrapper;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;

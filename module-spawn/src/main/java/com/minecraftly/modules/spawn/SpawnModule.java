@@ -139,7 +139,7 @@ public class SpawnModule extends Module implements Listener {
                     player.getEnderChest().clear();
                 }
             }
-        }, 10L);
+        }, 1L);
     }
 
     @Override

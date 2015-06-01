@@ -48,14 +48,6 @@ public class SurvivalWorldsModule extends Module implements Listener {
 
     public DataValue<String> CFG_GLOBAL_DIR = new DataValue<>(this, "../../../../global/mcly_homes/", String.class);
 
-    public MinecraftlyCore getBukkitPlugin() {
-        return bukkitPlugin;
-    }
-
-    public DataStore getDataStore() {
-        return dataStore;
-    }
-
     @Override
     protected void onLoad(MinecraftlyCore plugin) {
         instance = this;
@@ -95,6 +87,14 @@ public class SurvivalWorldsModule extends Module implements Listener {
         instance = null;
     }
 
+    public MinecraftlyCore getBukkitPlugin() {
+        return bukkitPlugin;
+    }
+
+    public DataStore getDataStore() {
+        return dataStore;
+    }
+
     public UUID getWorldOwner(World world) {
         world = WorldDimension.getBaseWorld(world);
         String name = world.getName();
@@ -115,7 +115,7 @@ public class SurvivalWorldsModule extends Module implements Listener {
         return playerWorlds.containsKey(worldUUID);
     }
 
-    public boolean isSurvivalWorld(World world) {
+    public boolean isHomeWorld(World world) {
         return playerWorlds.values().contains(world);
     }
 

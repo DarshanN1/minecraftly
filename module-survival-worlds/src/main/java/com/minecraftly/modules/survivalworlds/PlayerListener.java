@@ -133,7 +133,7 @@ public class PlayerListener implements Listener {
         if (!from.equals(to)) {
             checkWorldForUnloadDelayed(from);
 
-            if (module.isSurvivalWorld(to)) {
+            if (module.isHomeWorld(to)) {
                 final UUID owner = module.getWorldOwner(to);
 
                 if (player.getUniqueId().equals(owner)) {
@@ -158,7 +158,7 @@ public class PlayerListener implements Listener {
         Player player = e.getPlayer();
         World world = WorldDimension.getBaseWorld(player.getWorld());
 
-        if (module.isSurvivalWorld(world)) {
+        if (module.isHomeWorld(world)) {
             PlayerWorldData playerWorldData = dataStore.getPlayerWorldData(world, player);
             if (playerWorldData != null) {
                 // todo can't help but think this could all be shortened
@@ -190,7 +190,7 @@ public class PlayerListener implements Listener {
     }
 
     public void checkWorldForUnload(World world) {
-        if (module.isSurvivalWorld(world) && WorldDimension.getPlayersAllDimensions(world).size() == 0) {
+        if (module.isHomeWorld(world) && WorldDimension.getPlayersAllDimensions(world).size() == 0) {
             Bukkit.unloadWorld(world, true);
 
             for (WorldDimension worldDimension : WorldDimension.values()) {

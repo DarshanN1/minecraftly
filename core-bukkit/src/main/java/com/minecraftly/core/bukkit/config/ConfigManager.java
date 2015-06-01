@@ -156,7 +156,7 @@ public class ConfigManager {
         FileConfiguration configuration = configWrapper.getConfig();
 
         for (Map.Entry<String, DataValue> entry : values.entrySet()) {
-            configuration.set(entry.getKey(), entry.getValue().getValue());
+            configuration.set(entry.getKey(), entry.getValue().getUntouchedValue());
         }
 
         configWrapper.saveConfig();

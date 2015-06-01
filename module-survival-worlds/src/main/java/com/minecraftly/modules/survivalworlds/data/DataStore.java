@@ -3,15 +3,16 @@ package com.minecraftly.modules.survivalworlds.data;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.minecraftly.core.Callback;
+import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.modules.survivalworlds.SurvivalWorldsModule;
 import com.minecraftly.modules.survivalworlds.WorldDimension;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
@@ -35,7 +36,7 @@ public class DataStore implements Listener {
     private final Table<UUID, UUID, PlayerWorldData> worldPlayerDataTable = HashBasedTable.create();
     private final Map<UUID, PlayerGlobalData> globalPlayerDataMap = new HashMap<>();
 
-    public DataStore(SurvivalWorldsModule module, File globalPlayerDirectory) {
+    public DataStore(final SurvivalWorldsModule module, File globalPlayerDirectory) {
         if (module == null) {
             throw new IllegalArgumentException("Module cannot be null.");
         }
@@ -52,19 +53,23 @@ public class DataStore implements Listener {
         this.globalPlayerDirectory = globalPlayerDirectory;
         module.registerListener(this);
 
-        module.getBukkitPlugin().getPreSwitchJobManager().addJob(new Callback<Player>() {
+        module.getBukkitPlugin().getPlayerQuitJobManager().addJob(new Callback<Player>() {
             @Override
             public void call(Player player) {
-                PlayerGlobalData playerGlobalData = getPlayerGlobalData(player);
-                if (playerGlobalData != null) {
-                    playerGlobalData.saveToFile();
-                }
-
                 World world = WorldDimension.getBaseWorld(player.getWorld());
-                PlayerWorldData playerWorldData = getPlayerWorldData(world, player);
-                if (playerWorldData != null) {
+
+                if (module.isHomeWorld(world)) {
+                    PlayerGlobalData playerGlobalData = getPlayerGlobalData(player);
+                    playerGlobalData.copyFromPlayer(player);
+                    playerGlobalData.saveToFile();
+                    unloadPlayerGlobalData(player);
+
+                    PlayerWorldData playerWorldData = getPlayerWorldData(world, player);
                     playerWorldData.copyFromPlayer(player);
                     playerWorldData.saveToFile();
+                    unloadPlayerWorldData(world, player);
+
+                    player.teleport(BukkitUtilities.getSafeLocation(Bukkit.getWorlds().get(0).getSpawnLocation()));
                 }
             }
         });
@@ -137,8 +142,13 @@ public class DataStore implements Listener {
         World fromWorld = from.getWorld();
         World toWorld = to.getWorld();
 
+        boolean fromWorldHome = module.isHomeWorld(fromWorld);
+        boolean toWorldHome = module.isHomeWorld(toWorld);
+
+        PlayerGlobalData playerGlobalData = getPlayerGlobalData(player);
+
         if (fromWorld != toWorld) {
-            if (module.isSurvivalWorld(fromWorld)) {
+            if (fromWorldHome) {
                 PlayerWorldData playerWorldData = getPlayerWorldData(fromWorld, player);
 
                 if (playerWorldData != null) {
@@ -148,8 +158,12 @@ public class DataStore implements Listener {
                 }
             }
 
-            if (module.isSurvivalWorld(toWorld)) {
+            if (toWorldHome) {
                 PlayerWorldData playerWorldData = getPlayerWorldData(toWorld, player);
+
+                if (playerGlobalData != null && !fromWorldHome) {
+                    playerGlobalData.copyToPlayer(player);
+                }
 
                 if (playerWorldData != null) {
                     playerWorldData.copyToPlayer(player);
@@ -168,25 +182,6 @@ public class DataStore implements Listener {
     @EventHandler
     public void onWorldUnload(WorldUnloadEvent e) {
         worldPlayerDataTable.row(e.getWorld().getUID()).clear();
-    }
-
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent e) {
-        Player player = e.getPlayer();
-        World world = WorldDimension.getBaseWorld(player.getWorld());
-        PlayerGlobalData playerGlobalData = getPlayerGlobalData(e.getPlayer());
-
-        if (playerGlobalData != null) {
-            playerGlobalData.copyFromPlayer(player);
-            unloadPlayerGlobalData(player);
-        }
-
-        if (module.isSurvivalWorld(world)) {
-            PlayerWorldData playerWorldData = getPlayerWorldData(world, player);
-            if (playerWorldData != null) {
-                unloadPlayerWorldData(world, player);
-            }
-        }
     }
 
 }

@@ -33,5 +33,5 @@ public interface MinecraftlyCore extends Plugin, ContentOwner {
 
     File getBackupsDirectory();
 
-    PreSwitchJobManager getPreSwitchJobManager();
+    PlayerQuitJobManager getPlayerQuitJobManager();
 }

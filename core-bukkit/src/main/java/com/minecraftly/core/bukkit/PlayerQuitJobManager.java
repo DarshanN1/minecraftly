@@ -64,7 +64,7 @@ public class PlayerQuitJobManager implements Listener {
             default: throw new UnsupportedOperationException("Don't know how to handle: " + packetType + ".");
             case SERVER_SAVE:
                 executeJobs(player);
-                gateway.sendPacket(new PrimaryValuePacket<>(PacketPreSwitch.PROXY_SWITCH));
+                gateway.sendPacket(player, new PrimaryValuePacket<>(PacketPreSwitch.PROXY_SWITCH));
                 break;
         }
     }

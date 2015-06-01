@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 /**
  * Manages storing an executing of pre switch jobs
  */
-public class PlayerQuitJobManager implements Listener {
+public class PlayerSwitchJobManager implements Listener {
 
     private static final int TOLERANCE_SECONDS = 20;
 
@@ -32,7 +32,7 @@ public class PlayerQuitJobManager implements Listener {
     private Map<UUID, Long> preSwitchJobExecuteTimes = new HashMap<>();
     private List<Consumer<Player>> jobs = new ArrayList<>();
 
-    public PlayerQuitJobManager(Plugin plugin, ServerGateway<Player> gateway) {
+    public PlayerSwitchJobManager(Plugin plugin, ServerGateway<Player> gateway) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
         this.gateway = gateway;
         this.gateway.registerListener(this);

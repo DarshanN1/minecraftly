@@ -1,5 +1,6 @@
 package com.minecraftly.modules.world;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.minecraftly.core.bukkit.MinecraftlyCore;
 import com.minecraftly.core.bukkit.module.Module;
@@ -29,7 +30,7 @@ public class WorldModule extends Module {
     protected void onEnable(MinecraftlyCore plugin) {
         configWrapper = new ConfigWrapper(new File(plugin.getGeneralDataDirectory(), "loaded-worlds.yml"));
         loadedWorlds = configWrapper.getConfig().getStringList("loadedWorlds");
-        loadWorlds();
+        Bukkit.getScheduler().runTaskLater(plugin, WorldModule.this::loadWorlds, 1L); // run after worlds are loaded
     }
 
     @Override
@@ -65,8 +66,8 @@ public class WorldModule extends Module {
     }
 
     public World loadWorld(String worldName) {
-        World world = Bukkit.createWorld(new WorldCreator(worldName));
-        return world;
+        Preconditions.checkNotNull(worldName);
+        return Bukkit.createWorld(new WorldCreator(worldName));
     }
 
     public void addStartupLoadTask(World world) {

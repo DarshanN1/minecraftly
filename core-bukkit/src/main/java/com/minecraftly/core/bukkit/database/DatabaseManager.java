@@ -60,7 +60,7 @@ public class DatabaseManager {
         hikariConfig.addDataSourceProperty("user", username);
         hikariConfig.addDataSourceProperty("password", password);
 
-        logger.info("Connecting to host '" + getHost() + "'");
+        logger.info("Connecting to database on host '" + host + "'.");
         dataSource = new HikariDataSource(hikariConfig);
         queryRunner = new QueryRunner(dataSource);
     }
@@ -88,27 +88,4 @@ public class DatabaseManager {
         return null;
     }
 
-    public String getHost() {
-        return host;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getDatabase() {
-        return database;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getPrefix() {
-        return prefix;
-    }
 }

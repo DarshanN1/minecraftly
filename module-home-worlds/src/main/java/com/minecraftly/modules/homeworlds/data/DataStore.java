@@ -53,7 +53,7 @@ public class DataStore implements Listener {
         this.globalPlayerDirectory = globalPlayerDirectory;
         module.registerListener(this);
 
-        module.getBukkitPlugin().getPlayerQuitJobManager().addJob(new Consumer<Player>() {
+        module.getBukkitPlugin().getPlayerSwitchJobManager().addJob(new Consumer<Player>() {
             @Override
             public void accept(Player player) {
                 World world = WorldDimension.getBaseWorld(player.getWorld());

@@ -7,13 +7,14 @@ import com.minecraftly.core.MinecraftlyCommon;
 import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bukkit.commands.MinecraftlyCommand;
 import com.minecraftly.core.bukkit.commands.ModulesCommand;
-import com.minecraftly.core.bukkit.config.DataValue;
 import com.minecraftly.core.bukkit.config.ConfigManager;
+import com.minecraftly.core.bukkit.config.DataValue;
 import com.minecraftly.core.bukkit.database.DatabaseManager;
 import com.minecraftly.core.bukkit.internal.intake.MinecraftlyBinding;
 import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.listeners.PacketListener;
 import com.minecraftly.core.bukkit.module.ModuleManager;
+import com.minecraftly.core.bukkit.user.UserListener;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.bukkit.utilities.PrefixedLogger;
@@ -34,7 +35,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Created by Keir on 08/03/2015.
@@ -50,7 +50,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     private ModuleManager moduleManager;
     private PluginManager pluginManager;
     private ServerGateway<Player> gateway;
-    private PlayerQuitJobManager playerQuitJobManager;
+    private PlayerSwitchJobManager playerSwitchJobManager;
     private File generalDataDirectory = new File(getDataFolder(), "data");
     private File backupDirectory = new File(getDataFolder(), "backups");
     private boolean skipDisable = false;
@@ -115,16 +115,12 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         Utilities.createDirectory(generalDataDirectory);
         Utilities.createDirectory(backupDirectory);
 
-        try {
-            connectDatabase();
-        } catch (Throwable e) {
-            getLogger().log(Level.SEVERE, "Error connecting to database, disabling plugin...");
-            skipDisable = true;
-            pluginManager.disablePlugin(this);
-            return;
-        }
+        gateway = BukkitGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, this);
+        playerSwitchJobManager = new PlayerSwitchJobManager(this, gateway);
+        gateway.registerListener(new PacketListener());
 
-        userManager = new UserManager(BukkitUtilities.getLogger(this, UserManager.class, "User Manager"), databaseManager);
+        userManager = new UserManager(BukkitUtilities.getLogger(this, UserManager.class, "User Manager"), this::getDatabaseManager);
+        UserListener.initialize(this, userManager, playerSwitchJobManager);
 
         try {
             moduleManager = new ModuleManager(getLogger(), getName(), new File(getDataFolder(), "modules"));
@@ -133,10 +129,6 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
             pluginManager.disablePlugin(this);
             return;
         }
-
-        gateway = BukkitGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, this);
-        playerQuitJobManager = new PlayerQuitJobManager(this, gateway);
-        gateway.registerListener(new PacketListener());
 
         moduleManager.loadModules();
         DispatcherNode dispatcherNode = registerCoreCommands();
@@ -167,21 +159,6 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         return dispatcherNode;
     }
 
-    private void connectDatabase() {
-        Logger databaseLogger = new PrefixedLogger(DatabaseManager.class.getName(), "[" + getName() + ": Database] ", getLogger());
-        databaseManager = new DatabaseManager(
-                databaseLogger,
-                CFG_DB_HOST.getValue(),
-                CFG_DB_USER.getValue(),
-                CFG_DB_PASS.getValue(),
-                CFG_DB_DATABASE.getValue(),
-                CFG_DB_PORT.getValue(),
-                CFG_DB_PREFIX.getValue()
-        );
-
-        databaseManager.connect();
-    }
-
     @Override
     public void onDisable() {
         if (!skipDisable) {
@@ -189,9 +166,12 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
 
             // absolute last tasks
             userManager.unloadAll();
-            databaseManager.disconnect();
             languageManager.save();
             configManager.save();
+
+            if (databaseManager != null) {
+                databaseManager.disconnect();
+            }
         }
 
         instance = null;
@@ -215,6 +195,25 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
 
     @Override
     public DatabaseManager getDatabaseManager() {
+        if (databaseManager == null) {
+            databaseManager = new DatabaseManager(
+                    new PrefixedLogger(DatabaseManager.class.getName(), "[" + getName() + ": Database] ", getLogger()),
+                    CFG_DB_HOST.getValue(),
+                    CFG_DB_USER.getValue(),
+                    CFG_DB_PASS.getValue(),
+                    CFG_DB_DATABASE.getValue(),
+                    CFG_DB_PORT.getValue(),
+                    CFG_DB_PREFIX.getValue()
+            );
+
+            try {
+                databaseManager.connect();
+            } catch (Throwable throwable) {
+                getLogger().log(Level.SEVERE, "Error connecting to database: " + throwable.getMessage());
+                throw throwable;
+            }
+        }
+
         return databaseManager;
     }
 
@@ -249,8 +248,8 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     }
 
     @Override
-    public PlayerQuitJobManager getPlayerQuitJobManager() {
-        return playerQuitJobManager;
+    public PlayerSwitchJobManager getPlayerSwitchJobManager() {
+        return playerSwitchJobManager;
     }
 
     @Override

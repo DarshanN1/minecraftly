@@ -1,9 +1,21 @@
 package com.minecraftly.core.bukkit.user;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.minecraftly.core.bukkit.user.modularisation.SingletonUserData;
+import com.minecraftly.core.bukkit.user.modularisation.UserData;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.lang.ref.SoftReference;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -13,6 +25,8 @@ public class User {
 
     private final UUID uuid;
     private SoftReference<Player> playerSoftReference;
+
+    private Map<Class<? extends UserData>, Set<UserData>> attachedUserData = new HashMap<>(); // map with class as key prevents duplicate values
 
     public User(UUID uuid) {
         this.uuid = uuid;
@@ -37,5 +51,54 @@ public class User {
     public boolean isOnline() {
         Player player = getPlayer();
         return player != null && player.isOnline();
+    }
+
+    public Collection<UserData> getAttachedUserData() {
+        List<UserData> userDataList = new ArrayList<>();
+        attachedUserData.values().forEach(userDataList::addAll);
+        return Collections.unmodifiableList(userDataList);
+    }
+
+    /**
+     * Attaches a {@link UserData} to this user.
+     *
+     * @param userData the data to attach
+     * @throws IllegalArgumentException thrown if an attempt is made to attach data to this instance that is not owned by the instance
+     * @throws UnsupportedOperationException thrown if an attempt is made to register multiple instances of a {@link SingletonUserData} class.
+     */
+    public void attachUserData(UserData userData) throws IllegalArgumentException, UnsupportedOperationException {
+        checkNotNull(userData);
+
+        if (userData.getUser() != this) {
+            throw new IllegalArgumentException("Cannot attach user data which is not owned by this user instance.");
+        }
+
+        Set<UserData> userDataList = attachedUserData.get(userData.getClass());
+
+        if (userDataList == null) {
+            userDataList = new HashSet<>();
+            attachedUserData.put(userData.getClass(), userDataList);
+        }
+
+        if (userData instanceof SingletonUserData && userDataList.size() > 0) {
+            throw new UnsupportedOperationException("Attempted to add multiple instances of a singleton user data class.");
+        }
+
+        userDataList.add(userData);
+    }
+
+    public <T extends SingletonUserData> T getSingletonUserData(Class<T> clazz) {
+        List<T> userDataList = getUserData(clazz);
+
+        if (userDataList.size() > 1) {
+            throw new IllegalStateException("Singleton user data class has multiple instances.");
+        }
+
+        return userDataList.size() > 0 ? userDataList.get(0) : null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends UserData> List<T> getUserData(Class<T> clazz) {
+        return Collections.unmodifiableList(new ArrayList<>((Set<T>) attachedUserData.get(clazz)));
     }
 }

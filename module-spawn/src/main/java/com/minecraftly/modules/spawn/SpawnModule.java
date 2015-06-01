@@ -1,6 +1,7 @@
 package com.minecraftly.modules.spawn;
 
 import com.minecraftly.core.bukkit.MinecraftlyCore;
+import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.module.Module;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
@@ -24,12 +25,13 @@ import java.util.Set;
 public class SpawnModule extends Module implements Listener {
 
     private MinecraftlyCore plugin;
-
+    private LanguageValue languageNobodyCanHearYou = new LanguageValue(this, "&cNobody can hear you.");
     private World spawnWorld = null;
 
     @Override
     protected void onEnable(MinecraftlyCore plugin) {
         this.plugin = plugin;
+        plugin.getLanguageManager().register("module.spawn.chat.nobodyCanHearYou", languageNobodyCanHearYou);
         registerListener(this);
     }
 
@@ -77,6 +79,7 @@ public class SpawnModule extends Module implements Listener {
 
         if (player.getWorld() == spawnWorld) {
             recipients.clear();
+            languageNobodyCanHearYou.send(player);
         } else {
             Iterator<Player> iterator = recipients.iterator();
 

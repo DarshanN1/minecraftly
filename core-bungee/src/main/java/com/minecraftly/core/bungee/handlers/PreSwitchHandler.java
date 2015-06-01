@@ -11,6 +11,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.ServerConnectEvent;
+import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
@@ -52,6 +53,7 @@ public class PreSwitchHandler implements Listener {
 
         if (list == null) {
             list = new ArrayList<>();
+            connectJobs.put(player, list);
         }
 
         list.add(runnable);
@@ -72,24 +74,29 @@ public class PreSwitchHandler implements Listener {
                     player.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("Please wait whilst we save your data...").color(ChatColor.AQUA).create());
                     plugin.getGateway().sendPacket(player, new PrimaryValuePacket<>(PacketPreSwitch.SERVER_SAVE));
                 }
-            } else {
-                List<Runnable> jobs = connectJobs.get(uuid);
-
-                if (jobs != null) {
-                    for (Runnable job : jobs) {
-                        try {
-                            job.run();
-                        } catch (Throwable throwable1) {
-                            plugin.getLogger().log(Level.SEVERE, "Failed to run connect job for " + player.getName() + " (" + uuid + ")", throwable1);
-                        }
-                    }
-
-                    connectJobs.remove(uuid);
-                }
-
-                savedPlayers.remove(uuid);
             }
         }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onServerConnected(ServerConnectedEvent e) {
+        ProxiedPlayer proxiedPlayer = e.getPlayer();
+        UUID uuid = proxiedPlayer.getUniqueId();
+        List<Runnable> jobs = connectJobs.get(uuid);
+
+        if (jobs != null) {
+            for (Runnable job : jobs) {
+                try {
+                    job.run();
+                } catch (Throwable throwable1) {
+                    plugin.getLogger().log(Level.SEVERE, "Failed to run connect job for " + proxiedPlayer.getName() + " (" + uuid + ")", throwable1);
+                }
+            }
+
+            connectJobs.remove(uuid);
+        }
+
+        savedPlayers.remove(uuid);
     }
 
     @PacketHandler

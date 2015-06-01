@@ -83,7 +83,7 @@ public class SurvivalWorldsHandler implements Listener {
     }
 
     public void sendWorldPacket(ServerInfo serverInfo, ProxiedPlayer proxiedPlayer, UUID ownerUUID) {
-        minecraftlyBungeeCore.getGateway().sendPacketServer(serverInfo, new PacketPlayerWorld(proxiedPlayer.getUniqueId(), ownerUUID));
+        minecraftlyBungeeCore.getGateway().sendPacketServer(serverInfo, new PacketPlayerWorld(proxiedPlayer.getUniqueId(), ownerUUID), true);
     }
 
     @Nullable

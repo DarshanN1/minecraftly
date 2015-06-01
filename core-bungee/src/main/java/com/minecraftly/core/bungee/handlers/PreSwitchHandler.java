@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
 /**
@@ -34,29 +35,29 @@ public class PreSwitchHandler implements Listener {
     private Map<UUID, ServerInfo> savingPlayers = new HashMap<>();
     private List<UUID> savedPlayers = new ArrayList<>();
 
-    private Map<UUID, List<Runnable>> connectJobs = new HashMap<>();
+    private Map<UUID, List<Consumer<Server>>> connectJobs = new HashMap<>();
 
     public PreSwitchHandler(MclyCoreBungeePlugin plugin) {
         this.plugin = plugin;
     }
 
-    public Map<UUID, List<Runnable>> getConnectJobs() {
+    public Map<UUID, List<Consumer<Server>>> getConnectJobs() {
         return Collections.unmodifiableMap(connectJobs);
     }
 
-    public void addJob(ProxiedPlayer proxiedPlayer, Runnable runnable) {
-        addJob(proxiedPlayer.getUniqueId(), runnable);
+    public void addJob(ProxiedPlayer proxiedPlayer, Consumer<Server> consumer) {
+        addJob(proxiedPlayer.getUniqueId(), consumer);
     }
 
-    public void addJob(UUID player, Runnable runnable) {
-        List<Runnable> list = connectJobs.get(player);
+    public void addJob(UUID player, Consumer<Server> consumer) {
+        List<Consumer<Server>> list = connectJobs.get(player);
 
         if (list == null) {
             list = new ArrayList<>();
             connectJobs.put(player, list);
         }
 
-        list.add(runnable);
+        list.add(consumer);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -82,12 +83,12 @@ public class PreSwitchHandler implements Listener {
     public void onServerConnected(ServerConnectedEvent e) {
         ProxiedPlayer proxiedPlayer = e.getPlayer();
         UUID uuid = proxiedPlayer.getUniqueId();
-        List<Runnable> jobs = connectJobs.get(uuid);
+        List<Consumer<Server>> jobs = connectJobs.get(uuid);
 
         if (jobs != null) {
-            for (Runnable job : jobs) {
+            for (Consumer<Server> consumer : jobs) {
                 try {
-                    job.run();
+                    consumer.accept(e.getServer());
                 } catch (Throwable throwable1) {
                     plugin.getLogger().log(Level.SEVERE, "Failed to run connect job for " + proxiedPlayer.getName() + " (" + uuid + ")", throwable1);
                 }

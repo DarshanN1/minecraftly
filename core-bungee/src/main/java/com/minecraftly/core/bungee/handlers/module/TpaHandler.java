@@ -15,6 +15,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
@@ -34,7 +35,7 @@ public class TpaHandler implements Runnable, Listener {
     public static final String CHANNEL_TPA_ACCEPT = "mcly-TpaAccept";
 
     private MclyCoreBungeePlugin plugin;
-    private ProxyGateway<ProxiedPlayer, ServerInfo> gateway;
+    private ProxyGateway<ProxiedPlayer, Server, ServerInfo> gateway;
     private RedisBungeeAPI redisBungeeAPI;
     private int EXPIRE_SECONDS = 60;
 
@@ -168,11 +169,8 @@ public class TpaHandler implements Runnable, Listener {
                     gateway.sendPacket(initiator, new PacketTeleport(teleportTargetUUID));
                 } else {
                     initiator.connect(teleportTargetServer);
-                    plugin.getPreSwitchHandler().addJob(initiator, new Runnable() {
-                        @Override
-                        public void run() {
-                            gateway.sendPacket(initiator, new PacketTeleport(teleportTargetUUID));
-                        }
+                    plugin.getPreSwitchHandler().addJob(initiator, serverConnection -> {
+                        gateway.sendPacketServer(serverConnection, new PacketTeleport(teleportTargetUUID));
                     });
                 }
             }

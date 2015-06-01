@@ -3,7 +3,6 @@ package com.minecraftly.core.bukkit;
 import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
 import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
 import com.ikeirnez.pluginmessageframework.packet.PrimaryValuePacket;
-import com.minecraftly.core.Callback;
 import com.minecraftly.core.packets.PacketPreSwitch;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -19,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * Manages storing an executing of pre switch jobs
@@ -30,7 +30,7 @@ public class PlayerQuitJobManager implements Listener {
     private ServerGateway<Player> gateway;
 
     private Map<UUID, Long> preSwitchJobExecuteTimes = new HashMap<>();
-    private List<Callback<Player>> jobs = new ArrayList<>();
+    private List<Consumer<Player>> jobs = new ArrayList<>();
 
     public PlayerQuitJobManager(Plugin plugin, ServerGateway<Player> gateway) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -38,21 +38,21 @@ public class PlayerQuitJobManager implements Listener {
         this.gateway.registerListener(this);
     }
 
-    public List<Callback<Player>> getJobs() {
+    public List<Consumer<Player>> getJobs() {
         return Collections.unmodifiableList(jobs);
     }
 
-    public void addJob(Callback<Player> task) {
+    public void addJob(Consumer<Player> task) {
         jobs.add(task);
     }
 
-    public void removeJob(Callback<Player> task) {
+    public void removeJob(Consumer<Player> task) {
         jobs.remove(task);
     }
 
     public void executeJobs(Player player) {
-        for (Callback<Player> task : jobs) {
-            task.call(player); // todo execute async?
+        for (Consumer<Player> task : jobs) {
+            task.accept(player); // todo execute async?
         }
 
         preSwitchJobExecuteTimes.put(player.getUniqueId(), System.currentTimeMillis());

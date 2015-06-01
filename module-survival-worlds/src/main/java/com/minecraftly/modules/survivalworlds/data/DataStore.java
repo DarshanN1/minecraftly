@@ -2,7 +2,6 @@ package com.minecraftly.modules.survivalworlds.data;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
-import com.minecraftly.core.Callback;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.modules.survivalworlds.SurvivalWorldsModule;
 import com.minecraftly.modules.survivalworlds.WorldDimension;
@@ -21,6 +20,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * Created by Keir on 03/05/2015.
@@ -53,9 +53,9 @@ public class DataStore implements Listener {
         this.globalPlayerDirectory = globalPlayerDirectory;
         module.registerListener(this);
 
-        module.getBukkitPlugin().getPlayerQuitJobManager().addJob(new Callback<Player>() {
+        module.getBukkitPlugin().getPlayerQuitJobManager().addJob(new Consumer<Player>() {
             @Override
-            public void call(Player player) {
+            public void accept(Player player) {
                 World world = WorldDimension.getBaseWorld(player.getWorld());
 
                 if (module.isHomeWorld(world)) {
@@ -174,9 +174,7 @@ public class DataStore implements Listener {
 
     @EventHandler
     public void onWorldSave(WorldSaveEvent e) {
-        for (PlayerWorldData playerWorldData : worldPlayerDataTable.row(e.getWorld().getUID()).values()) {
-            playerWorldData.saveToFile();
-        }
+        worldPlayerDataTable.row(e.getWorld().getUID()).values().forEach(PlayerWorldData::saveToFile);
     }
 
     @EventHandler

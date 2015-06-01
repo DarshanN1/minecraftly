@@ -41,8 +41,8 @@ subprojects {
     apply plugin: 'rebel'
     apply plugin: 'com.github.johnrengelman.shadow'
 
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
     ext.cleanName = getName()
 
@@ -317,7 +317,7 @@ subprojects { // this needs done after projects have been initialized
 
 idea {
     project {
-        languageLevel = '1.7'
+        languageLevel = '1.8'
     }
 }
 

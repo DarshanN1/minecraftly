@@ -18,7 +18,7 @@ public class PacketListener {
 
     @PacketHandler
     public void onPacketTeleport(Player player, PacketTeleport packetTeleport) {
-        Location location = null;
+        Location location;
         UUID playerUUID = packetTeleport.getPlayerUUID();
         LocationContainer locationContainer = packetTeleport.getLocationContainer();
 
@@ -26,18 +26,24 @@ public class PacketListener {
             Player target = Bukkit.getPlayer(playerUUID);
             if (target != null) {
                 location = target.getLocation();
+            } else {
+                throw new IllegalArgumentException("Invalid teleport location, player '" + playerUUID + "' is not connected to this instance.");
             }
         } else if (locationContainer != null) {
             location = BukkitUtilities.getLocation(locationContainer);
 
             if (location.getWorld() == null) {
-                throw new IllegalArgumentException("Invalid spawn location, world '" + locationContainer.getWorld() + "' doesn't exist.");
+                throw new IllegalArgumentException("Invalid teleport location, world '" + locationContainer.getWorld() + "' doesn't exist.");
             }
         } else {
             throw new UnsupportedOperationException("Don't know how to handle a teleport packet with all null parameters.");
         }
 
-        player.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+        if (location != null) {
+            player.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+        } else {
+            throw new UnsupportedOperationException("Attempted teleport to null location.");
+        }
     }
 
 }

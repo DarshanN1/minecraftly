@@ -18,6 +18,7 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
@@ -41,7 +42,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
     private Configuration configuration;
 
     private CommandManager commandManager;
-    private ProxyGateway<ProxiedPlayer, ServerInfo> gateway;
+    private ProxyGateway<ProxiedPlayer, Server, ServerInfo> gateway;
     private RedisBungeeAPI redisBungeeAPI;
     private Gson gson = new Gson();
 
@@ -122,7 +123,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
     }
 
     @Override
-    public ProxyGateway<ProxiedPlayer, ServerInfo> getGateway() {
+    public ProxyGateway<ProxiedPlayer, Server, ServerInfo> getGateway() {
         return gateway;
     }
 

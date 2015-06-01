@@ -8,10 +8,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -88,6 +90,18 @@ public class SpawnModule extends Module implements Listener {
                 if (recipient.getWorld() == spawnWorld) {
                     iterator.remove();
                 }
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerDamage(EntityDamageEvent e) {
+        if (e.getEntityType() == EntityType.PLAYER) {
+            Player player = (Player) e.getEntity();
+            World world = player.getWorld();
+
+            if (world == getSpawnWorld()) {
+                e.setCancelled(true);
             }
         }
     }

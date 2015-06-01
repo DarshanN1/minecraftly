@@ -18,6 +18,9 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.Iterator;
+import java.util.Set;
+
 public class SpawnModule extends Module implements Listener {
 
     @Override
@@ -43,6 +46,9 @@ public class SpawnModule extends Module implements Listener {
 
             if (to.equals(spawnWorld)) {
                 makePlayerDisabled(player, spawnWorld);
+
+                player.getInventory().clear();
+                player.getEnderChest().clear();
             } else if (from.equals(spawnWorld)) {
                 player.removePotionEffect(PotionEffectType.BLINDNESS);
                 player.removePotionEffect(PotionEffectType.NIGHT_VISION);
@@ -55,7 +61,22 @@ public class SpawnModule extends Module implements Listener {
 
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerChat(AsyncPlayerChatEvent e) {
-        // todo
+        Set<Player> recipients = e.getRecipients();
+        Player player = e.getPlayer();
+        World spawnWorld = Bukkit.getWorlds().get(0);
+
+        if (player.getWorld() == spawnWorld) {
+            recipients.clear();
+        } else {
+            Iterator<Player> iterator = recipients.iterator();
+
+            while (iterator.hasNext()) {
+                Player recipient = iterator.next();
+                if (recipient.getWorld() == spawnWorld) {
+                    iterator.remove();
+                }
+            }
+        }
     }
 
     private void makePlayerDisabled(Player player, World world) { // lol

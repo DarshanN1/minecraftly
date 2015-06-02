@@ -1,0 +1,3 @@
+name: @project.cleanName@
+version: @project.version@
+main: @project.group@.ReadOnlyWorldsModule

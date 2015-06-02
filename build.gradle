@@ -301,6 +301,17 @@ project(':module-spawn') {
     }
 }
 
+project(':module-read-only-worlds') {
+    project.ext.cleanName = 'Read-Only Worlds'
+    group = parent.getGroup() + '.modules.readonlyworlds'
+    version = '1.0-SNAPSHOT'
+
+    dependencies {
+        compile group: 'org.spigotmc', name: 'spigot-api', version: parent.ext.bukkitVersion
+        compile project(':core-bukkit')
+    }
+}
+
 subprojects { // this needs done after projects have been initialized
     def cleanName = project.ext.cleanName
     archivesBaseName = cleanName

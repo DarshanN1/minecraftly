@@ -29,7 +29,7 @@ public class VoidGenerator extends ChunkGenerator {
 
     @Override
     public Location getFixedSpawnLocation(World world, Random random) {
-        return new Location(world, 264, BASE_LEVEL + 3, 264); // spawn a few higher to prevent falling through floor
+        return new Location(world, 264, BASE_LEVEL + 2, 264); // spawn a few higher to prevent falling through floor
     }
 
     @Override

@@ -36,9 +36,10 @@ public class PlayerListener implements Listener {
 
     public static final String LANGUAGE_KEY_PREFIX = HomeWorldsModule.LANGUAGE_KEY_PREFIX;
 
-    public static final String LANGUAGE_LOADING_WORLD = LANGUAGE_KEY_PREFIX + ".loadingWorld";
-    public static final String LANGUAGE_WELCOME_OWNER = LANGUAGE_KEY_PREFIX + ".welcomeOwner";
-    public static final String LANGUAGE_WELCOME_GUEST = LANGUAGE_KEY_PREFIX + ".welcomeGuest";
+    public static final String LANGUAGE_LOADING_OWNER = LANGUAGE_KEY_PREFIX + ".loading.owner";
+    public static final String LANGUAGE_LOADING_GUEST = LANGUAGE_KEY_PREFIX + ".loading.guest";
+    public static final String LANGUAGE_WELCOME_OWNER = LANGUAGE_KEY_PREFIX + ".welcome.owner";
+    public static final String LANGUAGE_WELCOME_GUEST = LANGUAGE_KEY_PREFIX + ".welcome.guest";
 
     public static final String LANGUAGE_ERROR_KEY_PREFIX = LANGUAGE_KEY_PREFIX + ".error";
     public static final String LANGUAGE_LOAD_FAILED = LANGUAGE_ERROR_KEY_PREFIX + ".loadFailed";
@@ -54,7 +55,8 @@ public class PlayerListener implements Listener {
         this.dataStore = module.getDataStore();
 
         languageManager.registerAll(new HashMap<String, LanguageValue>() {{
-            put(LANGUAGE_LOADING_WORLD, new LanguageValue(module, "&bOne moment whilst we load that home."));
+            put(LANGUAGE_LOADING_OWNER, new LanguageValue(module, "&bOne moment whilst we load your home."));
+            put(LANGUAGE_LOADING_GUEST, new LanguageValue(module, "&bOne moment whilst we load that home."));
             put(LANGUAGE_WELCOME_OWNER, new LanguageValue(module, "&aWelcome back to your home, &6%s&a."));
             put(LANGUAGE_WELCOME_GUEST, new LanguageValue(module, "&aWelcome to &6%s&a's home, they will have to grant you permission before you can modify blocks."));
             put(LANGUAGE_LOAD_FAILED, new LanguageValue(module, "&cWe were unable to load your home, please contact a member of staff."));
@@ -92,7 +94,11 @@ public class PlayerListener implements Listener {
 
     public void joinWorld(Player player, UUID worldUUID) {
         if (!module.isWorldLoaded(worldUUID)) {
-            player.sendMessage(languageManager.get(LANGUAGE_LOADING_WORLD));
+            if (player.getUniqueId().equals(worldUUID)) {
+                player.sendMessage(languageManager.get(LANGUAGE_LOADING_OWNER));
+            } else {
+                player.sendMessage(languageManager.get(LANGUAGE_LOADING_GUEST));
+            }
         }
 
         joinWorld(player, module.getWorld(worldUUID));

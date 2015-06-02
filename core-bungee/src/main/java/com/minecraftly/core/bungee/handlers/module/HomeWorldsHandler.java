@@ -5,9 +5,8 @@ import com.minecraftly.core.bungee.MinecraftlyBungeeCore;
 import com.minecraftly.core.packets.survivalworlds.PacketNoLongerHosting;
 import com.minecraftly.core.packets.survivalworlds.PacketPlayerWorld;
 import com.sk89q.intake.Command;
-import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
@@ -29,7 +28,7 @@ public class HomeWorldsHandler implements Listener {
     private final MinecraftlyBungeeCore minecraftlyBungeeCore;
     private final Map<ServerInfo, List<UUID>> playerServerMap = new HashMap<>();
 
-    private final String survivalWorldsServerPrefix = "survivalworlds-"; // todo make configurable
+    private final String survivalWorldsServerPrefix = "homes-"; // todo make configurable
     private final int maxWorldsPerServer = 10; // todo make configurable
 
     public HomeWorldsHandler(MinecraftlyBungeeCore minecraftlyBungeeCore) {
@@ -37,7 +36,7 @@ public class HomeWorldsHandler implements Listener {
 
         for (Map.Entry<String, ServerInfo> entry : minecraftlyBungeeCore.getProxy().getServers().entrySet()) {
             if (entry.getKey().startsWith(survivalWorldsServerPrefix)) {
-                playerServerMap.put(entry.getValue(), new ArrayList<UUID>());
+                playerServerMap.put(entry.getValue(), new ArrayList<>());
             }
         }
     }
@@ -66,19 +65,17 @@ public class HomeWorldsHandler implements Listener {
 
             if (!proxiedPlayer.getServer().getInfo().equals(serverInfo)) { // only connect if not already connected
                 final ServerInfo finalServerInfo = serverInfo;
-                proxiedPlayer.connect(serverInfo, new Callback<Boolean>() {
-                    @Override
-                    public void done(Boolean success, Throwable throwable) {
-                        if (success) {
-                            playerServerMap.get(finalServerInfo).add(ownerUUID);
-                        }
-                    }
+                minecraftlyBungeeCore.getPreSwitchHandler().addJob(proxiedPlayer, server -> {
+                    playerServerMap.get(finalServerInfo).add(ownerUUID);
                 });
+
+                proxiedPlayer.connect(serverInfo);
             }
         } else {
-            TextComponent message = new TextComponent("There are currently no free slave servers to host your world."); // todo translatable
-            message.setColor(ChatColor.RED);
-            proxiedPlayer.sendMessage(message);
+            proxiedPlayer.sendMessage(new ComponentBuilder("There are currently no free servers to host your home.") // todo translatable
+                    .color(ChatColor.RED)
+                    .create()
+            );
         }
     }
 

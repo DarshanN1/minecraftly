@@ -142,6 +142,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         return gson;
     }
 
+    @Override
     public PreSwitchHandler getPreSwitchHandler() {
         return preSwitchHandler;
     }

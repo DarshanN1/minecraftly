@@ -104,7 +104,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         }
 
         try {
-            languageManager = new LanguageManager(BukkitUtilities.getLogger(this, LanguageManager.class, "Language"), new File(getDataFolder(), "language_en.yml"));
+            languageManager = new LanguageManager(BukkitUtilities.getLogger(this, LanguageManager.class, "Language"), new File(getDataFolder(), "language.yml"));
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "Error whilst initializing language manager.", e);
             skipDisable = true;

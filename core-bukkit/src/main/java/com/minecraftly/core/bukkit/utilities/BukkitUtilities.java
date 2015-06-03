@@ -162,7 +162,7 @@ public class BukkitUtilities {
      * @param radius the radius a player has to be in to get returned
      * @return all players within the radius
      */
-    public static List<Player> getNearbyPlayers(Location location, int radius) {
+    public static List<Player> getNearbyPlayers(Location location, int radius) { // todo un-needed?
         List<Player> players = new ArrayList<>();
         int radiusSquared = radius * radius;
 

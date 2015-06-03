@@ -5,7 +5,6 @@ include 'core-bukkit'
 include 'core-bungee'
 
 include 'module-world'
-include 'module-chat'
 include 'module-home-worlds'
 include 'module-spawn'
 include 'module-read-only-worlds'

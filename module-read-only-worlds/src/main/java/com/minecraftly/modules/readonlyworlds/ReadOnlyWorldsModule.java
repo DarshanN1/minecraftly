@@ -41,8 +41,10 @@ public class ReadOnlyWorldsModule extends Module implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent e) {
-        langBreakWarning.send(e.getPlayer());
-        e.setCancelled(true);
+        if (e.getBlock().getWorld() == readOnlyWorld) {
+            langBreakWarning.send(e.getPlayer());
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

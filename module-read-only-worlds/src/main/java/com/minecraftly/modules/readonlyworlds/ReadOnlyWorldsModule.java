@@ -36,17 +36,13 @@ public class ReadOnlyWorldsModule extends Module implements Listener {
     // todo remove "? extends", this was to workaround a bug in the Java 8 compiler
     // https://bugs.openjdk.java.net/browse/JDK-8044053
     private final DataValue<? extends List<String>> readOnlyWorlds = new DataValue<>(this, Collections.singletonList("world"), List.class);
-    private final DataValue<Integer> breakWarningDelay = new DataValue<>(this, 60 * 5, Integer.class);
-
     private final LanguageValue langBreakWarning = new LanguageValue(this, "&cThis world may not be modified, it is a read-only world.");
 
     @Override
     protected void onEnable(MinecraftlyCore plugin) {
+        String parentKey = "module.readOnlyWorlds";
         ConfigManager configManager = plugin.getConfigManager();
-        String parentKey = "module.read-only-worlds";
         configManager.register(parentKey + ".worlds", readOnlyWorlds);
-        configManager.register(parentKey + ".blockBreakWarningDelay", breakWarningDelay);
-
         plugin.getLanguageManager().register(parentKey + ".breakWarning", langBreakWarning);
 
         registerListener(this);

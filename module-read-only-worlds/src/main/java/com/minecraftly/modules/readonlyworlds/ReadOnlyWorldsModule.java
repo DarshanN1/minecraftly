@@ -1,8 +1,6 @@
 package com.minecraftly.modules.readonlyworlds;
 
 import com.minecraftly.core.bukkit.MinecraftlyCore;
-import com.minecraftly.core.bukkit.config.ConfigManager;
-import com.minecraftly.core.bukkit.config.DataValue;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.module.Module;
 import org.bukkit.Bukkit;
@@ -13,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -22,8 +21,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -33,18 +30,12 @@ public class ReadOnlyWorldsModule extends Module implements Listener {
 
     public static long SESSION_ID = 666;
 
-    // todo remove "? extends", this was to workaround a bug in the Java 8 compiler
-    // https://bugs.openjdk.java.net/browse/JDK-8044053
-    private final DataValue<? extends List<String>> readOnlyWorlds = new DataValue<>(this, Collections.singletonList("world"), List.class);
+    private World readOnlyWorld = null;
     private final LanguageValue langBreakWarning = new LanguageValue(this, "&cThis world may not be modified, it is a read-only world.");
 
     @Override
     protected void onEnable(MinecraftlyCore plugin) {
-        String parentKey = "module.readOnlyWorlds";
-        ConfigManager configManager = plugin.getConfigManager();
-        configManager.register(parentKey + ".worlds", readOnlyWorlds);
-        plugin.getLanguageManager().register(parentKey + ".breakWarning", langBreakWarning);
-
+        plugin.getLanguageManager().register("module.readOnlyWorlds.breakWarning", langBreakWarning);
         registerListener(this);
     }
 
@@ -56,19 +47,31 @@ public class ReadOnlyWorldsModule extends Module implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onWorldSave(WorldSaveEvent e) {
-        String worldName = e.getWorld().getName();
+        World world = e.getWorld();
 
-        if (readOnlyWorlds.getValue().contains(worldName)) {
-            getLogger().severe("World saved (this shouldn't have happened): " + worldName + ".");
+        if (world == readOnlyWorld) {
+            getLogger().severe("World saved (this shouldn't have happened): " + world.getName() + ".");
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onWorldUnload(WorldUnloadEvent e) {
+        if (e.getWorld() == readOnlyWorld) {
+            readOnlyWorld = null;
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onWorldLoad(WorldLoadEvent e) {
         World world = e.getWorld();
-        String worldName = world.getName();
 
-        if (readOnlyWorlds.getValue().contains(worldName)) {
+        if (readOnlyWorld == null && world == Bukkit.getWorlds().get(0)) {
+            readOnlyWorld = world;
+        }
+
+        if (world == readOnlyWorld) {
+            String worldName = world.getName();
+
             try {
                 // look away, deez hax will hurt your eyes
                 Method getHandleMethod = world.getClass().getDeclaredMethod("getHandle");

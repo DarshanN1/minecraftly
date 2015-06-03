@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
@@ -66,6 +67,13 @@ public class ReadOnlyWorldModule extends Module implements Listener {
     public void onWorldUnload(WorldUnloadEvent e) {
         if (e.getWorld() == readOnlyWorld) {
             readOnlyWorld = null;
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onChunkLoad(ChunkLoadEvent e) {
+        if (e.isNewChunk() && e.getWorld() == readOnlyWorld) {
+            e.getChunk().unload(false, false);
         }
     }
 

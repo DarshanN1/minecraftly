@@ -7,14 +7,12 @@ import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.module.Module;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
-import org.bukkit.metadata.FixedMetadataValue;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -26,7 +24,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
@@ -34,22 +31,17 @@ import java.util.logging.Level;
  */
 public class ReadOnlyWorldsModule extends Module implements Listener {
 
-    public static String KEY_LAST_WARNING = "mcly.readOnlyWorlds.lastWarning";
     public static long SESSION_ID = 666;
-
-    private MinecraftlyCore plugin;
 
     // todo remove "? extends", this was to workaround a bug in the Java 8 compiler
     // https://bugs.openjdk.java.net/browse/JDK-8044053
     private final DataValue<? extends List<String>> readOnlyWorlds = new DataValue<>(this, Collections.singletonList("world"), List.class);
     private final DataValue<Integer> breakWarningDelay = new DataValue<>(this, 60 * 5, Integer.class);
 
-    private final LanguageValue langBreakWarning = new LanguageValue(this, "&cWarning: changes to this world aren't saved and will be overwritten on the next reboot.");
+    private final LanguageValue langBreakWarning = new LanguageValue(this, "&cThis world may not be modified, it is a read-only world.");
 
     @Override
     protected void onEnable(MinecraftlyCore plugin) {
-        this.plugin = plugin;
-
         ConfigManager configManager = plugin.getConfigManager();
         String parentKey = "module.read-only-worlds";
         configManager.register(parentKey + ".worlds", readOnlyWorlds);
@@ -60,15 +52,10 @@ public class ReadOnlyWorldsModule extends Module implements Listener {
         registerListener(this);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent e) {
-        Player player = e.getPlayer();
-        long lastWarning = player.hasMetadata(KEY_LAST_WARNING) ? player.getMetadata(KEY_LAST_WARNING).get(0).asLong() : -1;
-
-        if (lastWarning == -1 || lastWarning + TimeUnit.SECONDS.toMillis(breakWarningDelay.getValue()) < System.currentTimeMillis()) {
-            langBreakWarning.send(player);
-            player.setMetadata(KEY_LAST_WARNING, new FixedMetadataValue(plugin, System.currentTimeMillis()));
-        }
+        langBreakWarning.send(e.getPlayer());
+        e.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -99,7 +86,7 @@ public class ReadOnlyWorldsModule extends Module implements Listener {
                 Method getDataManagerMethod = worldServerClass.getMethod("getDataManager");
                 Object dataManager = getDataManagerMethod.invoke(worldServer);
                 Class<?> dataManagerClass = dataManager.getClass();
-                Class<?> worldNbtStorageClass = Class.forName(getPackageName(worldServerClass) + ".WorldNBTStorage");
+                Class<?> worldNbtStorageClass = Class.forName(getPackageNameOfClass(worldServerClass) + ".WorldNBTStorage");
 
                 if (!worldNbtStorageClass.isAssignableFrom(dataManagerClass)) {
                     getLogger().severe("Data manager (" + dataManagerClass.getName() + "), doesn't extend WorldNBTStorage, don't know how to handle.");
@@ -108,7 +95,7 @@ public class ReadOnlyWorldsModule extends Module implements Listener {
 
                 Field sessionIdField = worldNbtStorageClass.getDeclaredField("sessionId");
                 sessionIdField.setAccessible(true);
-                removeFinal(sessionIdField);
+                removeFinalModifier(sessionIdField);
                 sessionIdField.set(dataManager, SESSION_ID);
             } catch (NoSuchFieldException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e1) {
                 getLogger().log(Level.SEVERE, "Exception whilst attempting to make world read-only: " + worldName + ".", e1);
@@ -127,13 +114,13 @@ public class ReadOnlyWorldsModule extends Module implements Listener {
         }
     }
 
-    public static void removeFinal(Field field) throws NoSuchFieldException, IllegalAccessException {
+    public static void removeFinalModifier(Field field) throws NoSuchFieldException, IllegalAccessException {
         Field modifiersField = Field.class.getDeclaredField("modifiers");
         modifiersField.setAccessible(true);
         modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
     }
 
-    public static String getPackageName(Class<?> clazz) {
+    public static String getPackageNameOfClass(Class<?> clazz) {
         String className = clazz.getName();
         return className.substring(0, className.lastIndexOf('.'));
     }

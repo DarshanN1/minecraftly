@@ -279,9 +279,9 @@ project(':module-spawn') {
     }
 }
 
-project(':module-read-only-worlds') {
-    project.ext.cleanName = 'Read-Only Worlds'
-    group = parent.getGroup() + '.modules.readonlyworlds'
+project(':module-read-only-world') {
+    project.ext.cleanName = 'Chat' // viet wants it to be called this
+    group = parent.getGroup() + '.modules.readonlyworld'
     version = '1.0-SNAPSHOT'
 
     dependencies {

@@ -6,4 +6,4 @@ include 'core-bungee'
 
 include 'module-home-worlds'
 include 'module-spawn'
-include 'module-read-only-worlds'
+include 'module-read-only-world'

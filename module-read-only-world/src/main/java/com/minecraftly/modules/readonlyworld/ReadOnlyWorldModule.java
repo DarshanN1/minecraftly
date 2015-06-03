@@ -1,4 +1,4 @@
-package com.minecraftly.modules.readonlyworlds;
+package com.minecraftly.modules.readonlyworld;
 
 import com.minecraftly.core.bukkit.MinecraftlyCore;
 import com.minecraftly.core.bukkit.language.LanguageValue;
@@ -27,7 +27,7 @@ import java.util.logging.Level;
 /**
  * Created by Keir on 02/06/2015.
  */
-public class ReadOnlyWorldsModule extends Module implements Listener {
+public class ReadOnlyWorldModule extends Module implements Listener {
 
     public static long SESSION_ID = 666;
 

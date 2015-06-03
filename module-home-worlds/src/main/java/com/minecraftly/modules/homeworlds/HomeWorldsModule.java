@@ -6,7 +6,9 @@ import com.minecraftly.core.bukkit.config.DataValue;
 import com.minecraftly.core.bukkit.module.Module;
 import com.minecraftly.core.bukkit.config.ConfigWrapper;
 import com.minecraftly.core.packets.survivalworlds.PacketNoLongerHosting;
+import com.minecraftly.modules.homeworlds.command.OwnerCommands;
 import com.minecraftly.modules.homeworlds.data.DataStore;
+import com.sk89q.intake.fluent.DispatcherNode;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -71,6 +73,11 @@ public class HomeWorldsModule extends Module implements Listener {
         gateway.registerListener(playerListener);
         registerListener(this);
         registerListener(playerListener);
+    }
+
+    @Override
+    protected void registerCommands(DispatcherNode dispatcherNode) {
+        dispatcherNode.registerMethods(new OwnerCommands(this));
     }
 
     @Override

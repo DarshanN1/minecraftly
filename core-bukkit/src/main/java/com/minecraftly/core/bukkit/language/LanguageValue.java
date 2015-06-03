@@ -14,8 +14,12 @@ public class LanguageValue extends DataValue<String> {
         super(contentOwner, def, String.class);
     }
 
-    public void send(CommandSender commandSender) {
-        commandSender.sendMessage(getValue());
+    public String getValue(Object... args) {
+        return String.format(super.getValue(), args);
+    }
+
+    public void send(CommandSender commandSender, Object... args) {
+        commandSender.sendMessage(getValue(args));
     }
 
     // make below methods visible to language manager

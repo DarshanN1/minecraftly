@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -37,6 +38,11 @@ public class ReadOnlyWorldsModule extends Module implements Listener {
     protected void onEnable(MinecraftlyCore plugin) {
         plugin.getLanguageManager().register("module.readOnlyWorlds.breakWarning", langBreakWarning);
         registerListener(this);
+
+        List<World> worldList = Bukkit.getWorlds();
+        if (worldList.size() > 0) {
+            readOnlyWorld = worldList.get(0);
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -67,7 +73,7 @@ public class ReadOnlyWorldsModule extends Module implements Listener {
     public void onWorldLoad(WorldLoadEvent e) {
         World world = e.getWorld();
 
-        if (readOnlyWorld == null && world == Bukkit.getWorlds().get(0)) {
+        if (readOnlyWorld == null && world == Bukkit.getWorlds().get(0)) { // todo remove this when MinecraftlyCore loads after worlds
             readOnlyWorld = world;
         }
 

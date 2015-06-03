@@ -11,10 +11,7 @@ import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bungee.handlers.PreSwitchHandler;
 import com.minecraftly.core.bungee.handlers.module.HomeWorldsHandler;
 import com.minecraftly.core.bungee.handlers.module.TpaHandler;
-import com.sk89q.intake.Command;
 import lc.vq.exhaust.bungee.command.CommandManager;
-import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
@@ -75,7 +72,6 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
         commandManager = new CommandManager(this);
         commandManager.builder()
-                .registerMethods(this)
                 .registerMethods(homeWorldsHandler)
                 .registerMethods(tpaHandler);
         commandManager.build();
@@ -143,11 +139,6 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
     @Override
     public PreSwitchHandler getPreSwitchHandler() {
         return preSwitchHandler;
-    }
-
-    @Command(aliases = "mclybungeetestcommand", desc = "A test command.")
-    public void testCommand(CommandSender sender) {
-        sender.sendMessage(new TextComponent("Intake is working in the MinecraftlyCore Bungee plugin :D"));
     }
 
 }

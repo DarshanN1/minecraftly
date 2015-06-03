@@ -9,7 +9,6 @@ import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.minecraftly.core.MinecraftlyCommon;
 import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bungee.handlers.PreSwitchHandler;
-import com.minecraftly.core.bungee.handlers.module.SpawnHandler;
 import com.minecraftly.core.bungee.handlers.module.HomeWorldsHandler;
 import com.minecraftly.core.bungee.handlers.module.TpaHandler;
 import com.sk89q.intake.Command;
@@ -50,8 +49,8 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
     @Override
     public void onEnable() {
-        configurationFile = new File(getDataFolder(), "config.yml");
         Utilities.createDirectory(getDataFolder());
+        configurationFile = new File(getDataFolder(), "config.yml");
         configurationProvider = ConfigurationProvider.getProvider(YamlConfiguration.class);
 
         try {
@@ -77,7 +76,6 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         commandManager = new CommandManager(this);
         commandManager.builder()
                 .registerMethods(this)
-                .registerMethods(new SpawnHandler(this))
                 .registerMethods(homeWorldsHandler)
                 .registerMethods(tpaHandler);
         commandManager.build();

@@ -4,6 +4,7 @@ import com.minecraftly.core.ContentOwner;
 import com.minecraftly.core.bukkit.MclyCoreBukkitPlugin;
 import com.minecraftly.core.bukkit.MinecraftlyCore;
 import com.sk89q.intake.fluent.DispatcherNode;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.generator.ChunkGenerator;
@@ -17,11 +18,15 @@ import java.util.logging.Logger;
  */
 public abstract class Module implements ContentOwner {
 
+    private static String MODULE_LANG_SECTION = "module";
+
     private boolean initialized = false;
     private boolean enabled = false;
     private Logger logger;
     private ModuleProperties moduleProperties;
     private File jarFile;
+
+    private String languageSection;
 
     protected void onLoad(MinecraftlyCore plugin) {
     }
@@ -41,6 +46,8 @@ public abstract class Module implements ContentOwner {
             this.moduleProperties = moduleProperties;
             this.jarFile = jarFile;
             this.initialized = true;
+
+            this.languageSection = MODULE_LANG_SECTION + StringUtils.capitalize(getName().toLowerCase().replace("_", " ").replace("-", " ")).replace(" ", "");
         } else {
             throw new UnsupportedOperationException("This module has already been initialized.");
         }
@@ -85,6 +92,10 @@ public abstract class Module implements ContentOwner {
     @Override
     public final String getName() {
         return moduleProperties.getName();
+    }
+
+    public String getLanguageSection() {
+        return languageSection;
     }
 
     @Override

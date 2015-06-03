@@ -81,12 +81,11 @@ public class LanguageManager {
     }
 
     public String getRaw(String key) {
-        return languageValues.containsKey(key) ? languageValues.get(key).getValue() : null;
+        return languageValues.containsKey(key) ? languageValues.get(key).getValue() : key;
     }
 
     public String get(String key, Object... args) {
-        String message = getRaw(key);
-        return message != null ? String.format(message, args) : key;
+        return languageValues.containsKey(key) ? languageValues.get(key).getValue(args) : key;
     }
 
     public void save() {

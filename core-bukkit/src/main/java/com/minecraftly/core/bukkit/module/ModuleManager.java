@@ -257,7 +257,13 @@ public class ModuleManager {
             Module module = getModule(moduleName);
 
             if (module != null) {
-                id = id.substring(moduleName.length() + (parts.length == 0 ? 0 : 1), id.length()); // strip module name
+                // strip module name
+                if (parts.length > 1) {
+                    id = id.substring(moduleName.length() + 1, id.length());
+                } else {
+                    id = "";
+                }
+
                 chunkGenerator = module.getWorldGenerator(worldName, id);
             }
         }

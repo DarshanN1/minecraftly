@@ -36,10 +36,12 @@ public class PlayerListener implements Listener {
 
     public static final String LANGUAGE_KEY_PREFIX = HomeWorldsModule.LANGUAGE_KEY_PREFIX;
 
+    // todo convert these to language values for easier and faster access
     public static final String LANGUAGE_LOADING_OWNER = LANGUAGE_KEY_PREFIX + ".loading.owner";
     public static final String LANGUAGE_LOADING_GUEST = LANGUAGE_KEY_PREFIX + ".loading.guest";
     public static final String LANGUAGE_WELCOME_OWNER = LANGUAGE_KEY_PREFIX + ".welcome.owner";
     public static final String LANGUAGE_WELCOME_GUEST = LANGUAGE_KEY_PREFIX + ".welcome.guest";
+    public static final String LANGUAGE_WELCOME_BOTH = LANGUAGE_KEY_PREFIX + ".welcome.both";
 
     public static final String LANGUAGE_ERROR_KEY_PREFIX = LANGUAGE_KEY_PREFIX + ".error";
     public static final String LANGUAGE_LOAD_FAILED = LANGUAGE_ERROR_KEY_PREFIX + ".loadFailed";
@@ -59,6 +61,7 @@ public class PlayerListener implements Listener {
             put(LANGUAGE_LOADING_GUEST, new LanguageValue(module, "&bOne moment whilst we load that home."));
             put(LANGUAGE_WELCOME_OWNER, new LanguageValue(module, "&aWelcome back to your home, &6%s&a."));
             put(LANGUAGE_WELCOME_GUEST, new LanguageValue(module, "&aWelcome to &6%s&a's home, they will have to grant you permission before you can modify blocks."));
+            put(LANGUAGE_WELCOME_BOTH, new LanguageValue(module, "&aYou can go back to chat mode by typing &6%s/chat&a."));
             put(LANGUAGE_LOAD_FAILED, new LanguageValue(module, "&cWe were unable to load your home, please contact a member of staff."));
         }});
     }
@@ -147,6 +150,7 @@ public class PlayerListener implements Listener {
                 if (player.getUniqueId().equals(owner)) {
                     player.setGameMode(GameMode.SURVIVAL);
                     player.sendMessage(languageManager.get(LANGUAGE_WELCOME_OWNER, player.getDisplayName()));
+                    player.sendMessage(languageManager.get(LANGUAGE_WELCOME_BOTH));
                 } else {
                     player.setGameMode(GameMode.ADVENTURE);
 
@@ -154,6 +158,7 @@ public class PlayerListener implements Listener {
                         @Override
                         public void run() {
                             player.sendMessage(languageManager.get(LANGUAGE_WELCOME_GUEST, Bukkit.getOfflinePlayer(owner).getName()));
+                            player.sendMessage(languageManager.get(LANGUAGE_WELCOME_BOTH));
                         }
                     });
                 }

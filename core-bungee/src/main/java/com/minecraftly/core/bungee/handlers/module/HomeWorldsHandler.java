@@ -28,17 +28,11 @@ public class HomeWorldsHandler implements Listener {
     private final MinecraftlyBungeeCore minecraftlyBungeeCore;
     private final Map<ServerInfo, List<UUID>> playerServerMap = new HashMap<>();
 
-    private final String survivalWorldsServerPrefix = "homes-"; // todo make configurable
     private final int maxWorldsPerServer = 10; // todo make configurable
 
     public HomeWorldsHandler(MinecraftlyBungeeCore minecraftlyBungeeCore) {
         this.minecraftlyBungeeCore = minecraftlyBungeeCore;
-
-        for (Map.Entry<String, ServerInfo> entry : minecraftlyBungeeCore.getProxy().getServers().entrySet()) {
-            if (entry.getKey().startsWith(survivalWorldsServerPrefix)) {
-                playerServerMap.put(entry.getValue(), new ArrayList<>());
-            }
-        }
+        minecraftlyBungeeCore.getProxy().getServers().values().forEach(serverInfo -> playerServerMap.put(serverInfo, new ArrayList<>()));
     }
 
     @Command(aliases = "home", desc = "Teleport's the sender to their world")

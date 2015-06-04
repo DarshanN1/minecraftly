@@ -3,8 +3,10 @@ package com.minecraftly.modules.spawn;
 import com.minecraftly.core.bukkit.MinecraftlyCore;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.module.Module;
+import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -16,6 +18,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -33,6 +36,20 @@ public class SpawnModule extends Module implements Listener {
         this.plugin = plugin;
         plugin.getLanguageManager().register("module.spawn.chat.nobodyCanHearYou", languageNobodyCanHearYou);
         registerListener(this);
+    }
+
+    @Override
+    public ChunkGenerator getWorldGenerator(String worldName, String id) {
+        Validate.notEmpty(id, "Generator settings missing.");
+
+        String[] parts = id.split(",");
+        String materialName = parts.length > 0 ? parts[0] : id;
+        Material material = Material.matchMaterial(materialName);
+        Validate.notNull(material, "Invalid material type: " + materialName);
+        Validate.isTrue(material.isBlock(), material + " is not a block (likely an item).");
+        Validate.isTrue(material.isSolid(), material + " is not a solid block (players will fall through this).");
+
+        return new OldChatWorldGenerator(material);
     }
 
     public World getChatWorld() {

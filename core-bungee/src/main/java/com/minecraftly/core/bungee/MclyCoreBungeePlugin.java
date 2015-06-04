@@ -8,6 +8,7 @@ import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.minecraftly.core.MinecraftlyCommon;
 import com.minecraftly.core.Utilities;
+import com.minecraftly.core.bungee.handlers.MOTDHandler;
 import com.minecraftly.core.bungee.handlers.PreSwitchHandler;
 import com.minecraftly.core.bungee.handlers.module.HomeWorldsHandler;
 import com.minecraftly.core.bungee.handlers.module.TpaHandler;
@@ -79,6 +80,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         pluginManager.registerListener(this, homeWorldsHandler);
         pluginManager.registerListener(this, tpaHandler);
         pluginManager.registerListener(this, preSwitchHandler);
+        pluginManager.registerListener(this, new MOTDHandler(this));
 
         TaskScheduler taskScheduler = getProxy().getScheduler();
         taskScheduler.schedule(this, tpaHandler, 5, TimeUnit.MINUTES);

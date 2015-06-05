@@ -47,7 +47,7 @@ public abstract class Module implements ContentOwner {
             this.jarFile = jarFile;
             this.initialized = true;
 
-            this.languageSection = MODULE_LANG_SECTION + StringUtils.capitalize(getName().toLowerCase().replace("_", " ").replace("-", " ")).replace(" ", "");
+            this.languageSection = MODULE_LANG_SECTION + "." + StringUtils.capitalize(getName().toLowerCase().replace("_", " ").replace("-", " ")).replace(" ", "");
         } else {
             throw new UnsupportedOperationException("This module has already been initialized.");
         }

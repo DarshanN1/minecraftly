@@ -1,11 +1,12 @@
 package com.minecraftly.core.bungee.handlers;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 import com.minecraftly.core.bungee.MclyCoreBungeePlugin;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -31,39 +32,34 @@ public class MOTDHandler implements Listener {
 
         if (!this.motdFile.exists()) {
             try {
-                BaseComponent[] defaultMotd = new ComponentBuilder(
-                        "This is the first chat message line.")
-                            .color(ChatColor.AQUA)
+                BaseComponent[] defaultMotd = new ComponentBuilder("Welcome to Minecraftly Homes.").color(ChatColor.AQUA)
                         .append("\n")
-                        .append("This is the second chat message line.")
-                            .color(ChatColor.AQUA)
-                            .bold(true)
-                        .append("\n")
-                        .append("Now lets have some fun!")
-                            .color(ChatColor.GOLD)
-                        .append("\n")
-                        .append("Clickable link with hover text: ")
-                            .color(ChatColor.AQUA)
-                            .append("here")
-                                .color(ChatColor.GOLD)
-                                .event(new HoverEvent(
-                                        HoverEvent.Action.SHOW_TEXT,
-                                        new ComponentBuilder("This is some hover text!")
-                                                .color(ChatColor.RED)
-                                                .create()))
-                                .event(new ClickEvent(
-                                        ClickEvent.Action.OPEN_URL,
-                                        "http://mc.ly"
-                                ))
+                        .append("Type ").color(ChatColor.AQUA)
+                            .append("/m").color(ChatColor.GOLD)
+                                .event(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/m "))
+                            .append(" to message other players.").color(ChatColor.AQUA)
+                            .append("\n")
+                        .append("MEOW rank can type ").color(ChatColor.AQUA)
+                            .append("/g").color(ChatColor.GOLD)
+                                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/g"))
+                            .append(" for global chat.").color(ChatColor.AQUA)
+                            .append("\n")
+                        .append("Type ").color(ChatColor.AQUA)
+                            .append("/home").color(ChatColor.GOLD)
+                                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/home"))
+                            .append(" to go to your home.").color(ChatColor.AQUA)
                         .create();
 
                 this.motdFile.createNewFile();
-                // todo convert to pretty json?
-                Files.write(this.motdFile.toPath(), Collections.singletonList(ComponentSerializer.toString(defaultMotd)));
+                Files.write(this.motdFile.toPath(), Collections.singletonList(prettifyJson(ComponentSerializer.toString(defaultMotd))));
             } catch (IOException e) {
                 this.plugin.getLogger().log(Level.SEVERE, "Couldn't write default motd file.", e);
             }
         }
+    }
+
+    public String prettifyJson(String json) {
+        return new GsonBuilder().setPrettyPrinting().create().toJson(new JsonParser().parse(json));
     }
 
     @EventHandler

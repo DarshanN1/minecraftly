@@ -22,19 +22,25 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
 public class SpawnModule extends Module implements Listener {
 
     private MinecraftlyCore plugin;
-    private LanguageValue languageNobodyCanHearYou = new LanguageValue(this, "&cNobody can hear you.");
     private World chatWorld = null;
+
+    private LanguageValue languageNobodyCanHearYou = new LanguageValue(this, "&cNobody can hear you.");
 
     @Override
     protected void onEnable(MinecraftlyCore plugin) {
         this.plugin = plugin;
-        plugin.getLanguageManager().register("module.spawn.chat.nobodyCanHearYou", languageNobodyCanHearYou);
+
+        plugin.getLanguageManager().registerAll(new HashMap<String, LanguageValue>() {{
+            put(getLanguageSection() + ".chat.nobodyCanHearYou", languageNobodyCanHearYou);
+        }});
+
         registerListener(this);
     }
 
@@ -132,11 +138,9 @@ public class SpawnModule extends Module implements Listener {
     }
 
     private void makePlayerDisabled(final Player player, final World world) { // lol
-        for (Player player1 : world.getPlayers()) {
-            if (player != player1) {
-                player.hidePlayer(player1);
-                player1.hidePlayer(player);
-            }
+        for (Player player1 : player.spigot().getHiddenPlayers()) {
+            player.hidePlayer(player1);
+            player1.hidePlayer(player);
         }
 
         player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 200, true, false));

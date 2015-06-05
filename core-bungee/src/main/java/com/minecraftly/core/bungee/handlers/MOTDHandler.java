@@ -28,7 +28,7 @@ public class MOTDHandler implements Listener {
 
     public MOTDHandler(MclyCoreBungeePlugin plugin) {
         this.plugin = plugin;
-        this.motdFile = new File(plugin.getDataFolder(), "motd.txt");
+        this.motdFile = new File(plugin.getDataFolder(), "motd.json");
 
         if (!this.motdFile.exists()) {
             try {

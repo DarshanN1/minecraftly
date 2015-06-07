@@ -62,7 +62,7 @@ public class PlayerListener implements Listener {
             put(LANGUAGE_LOADING_GUEST, new LanguageValue(module, "&bOne moment whilst we load that home."));
             put(LANGUAGE_WELCOME_OWNER, new LanguageValue(module, "&aWelcome back to your home, &6%s&a."));
             put(LANGUAGE_WELCOME_GUEST, new LanguageValue(module, "&aWelcome to &6%s&a's home, they will have to grant you permission before you can modify blocks."));
-            put(LANGUAGE_WELCOME_BOTH, new LanguageValue(module, "&aYou can go back to chat mode by typing &6%s/chat&a."));
+            put(LANGUAGE_WELCOME_BOTH, new LanguageValue(module, "&aYou can go back to chat mode by typing &6/chat&a."));
             put(LANGUAGE_LOAD_FAILED, new LanguageValue(module, "&cWe were unable to load your home, please contact a member of staff."));
             put(LANGUAGE_OWNER_LEFT, new LanguageValue(module, "&cThe owner of that world left."));
         }});

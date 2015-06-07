@@ -7,7 +7,7 @@ import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
 import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
-import com.minecraftly.core.packets.survivalworlds.PacketPlayerWorld;
+import com.minecraftly.core.packets.survivalworlds.PacketPlayerGotoWorld;
 import com.minecraftly.modules.homeworlds.data.DataStore;
 import com.minecraftly.modules.homeworlds.data.PlayerWorldData;
 import org.bukkit.Bukkit;
@@ -42,6 +42,7 @@ public class PlayerListener implements Listener {
     public static final String LANGUAGE_WELCOME_OWNER = LANGUAGE_KEY_PREFIX + ".welcome.owner";
     public static final String LANGUAGE_WELCOME_GUEST = LANGUAGE_KEY_PREFIX + ".welcome.guest";
     public static final String LANGUAGE_WELCOME_BOTH = LANGUAGE_KEY_PREFIX + ".welcome.both";
+    public static final String LANGUAGE_OWNER_LEFT = LANGUAGE_KEY_PREFIX + ".ownerLeft";
 
     public static final String LANGUAGE_ERROR_KEY_PREFIX = LANGUAGE_KEY_PREFIX + ".error";
     public static final String LANGUAGE_LOAD_FAILED = LANGUAGE_ERROR_KEY_PREFIX + ".loadFailed";
@@ -63,6 +64,7 @@ public class PlayerListener implements Listener {
             put(LANGUAGE_WELCOME_GUEST, new LanguageValue(module, "&aWelcome to &6%s&a's home, they will have to grant you permission before you can modify blocks."));
             put(LANGUAGE_WELCOME_BOTH, new LanguageValue(module, "&aYou can go back to chat mode by typing &6%s/chat&a."));
             put(LANGUAGE_LOAD_FAILED, new LanguageValue(module, "&cWe were unable to load your home, please contact a member of staff."));
+            put(LANGUAGE_OWNER_LEFT, new LanguageValue(module, "&cThe owner of that world left."));
         }});
     }
 
@@ -83,7 +85,7 @@ public class PlayerListener implements Listener {
     }
 
     @PacketHandler
-    public void onPacketJoinWorld(PacketPlayerWorld packet) {
+    public void onPacketJoinWorld(PacketPlayerGotoWorld packet) {
         UUID playerUUID = packet.getPlayer();
         UUID worldUUID = packet.getWorld();
         Player player = Bukkit.getPlayer(playerUUID);
@@ -138,16 +140,21 @@ public class PlayerListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerTeleport(PlayerTeleportEvent e) {
         final Player player = e.getPlayer();
+        UUID uuid = player.getUniqueId();
         World from = WorldDimension.getBaseWorld(e.getFrom().getWorld());
         World to = WorldDimension.getBaseWorld(e.getTo().getWorld());
 
         if (!from.equals(to)) {
             checkWorldForUnloadDelayed(from);
 
+            if (module.isHomeWorld(from) && module.getWorldOwner(from).equals(uuid)) {
+                ownerLeftWorld(player, from);
+            }
+
             if (module.isHomeWorld(to)) {
                 final UUID owner = module.getWorldOwner(to);
 
-                if (player.getUniqueId().equals(owner)) {
+                if (uuid.equals(owner)) {
                     player.setGameMode(GameMode.SURVIVAL);
                     player.sendMessage(languageManager.get(LANGUAGE_WELCOME_OWNER, player.getDisplayName()));
                     player.sendMessage(languageManager.get(LANGUAGE_WELCOME_BOTH));
@@ -220,6 +227,14 @@ public class PlayerListener implements Listener {
             for (WorldDimension worldDimension : WorldDimension.values()) {
                 World world1 = worldDimension.convertTo(world);
                 if (world1 != null) Bukkit.unloadWorld(world1, true);
+            }
+        }
+    }
+
+    public void ownerLeftWorld(Player owner, World world) {
+        for (Player p : world.getPlayers()) {
+            if (p != owner) {
+                p.kickPlayer(languageManager.get(LANGUAGE_OWNER_LEFT)); // player will go to another server (fallback)
             }
         }
     }

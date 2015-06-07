@@ -134,7 +134,16 @@ public class PlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent e) {
-        checkWorldForUnloadDelayed(WorldDimension.getBaseWorld(e.getPlayer().getWorld()));
+        Player player = e.getPlayer();
+        World world = WorldDimension.getBaseWorld(player.getWorld());
+
+        if (module.isHomeWorld(world)) {
+            if (module.getHomeOwner(world).equals(player.getUniqueId())) {
+                ownerLeftWorld(player, world);
+            }
+
+            checkWorldForUnloadDelayed(world);
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -147,12 +156,12 @@ public class PlayerListener implements Listener {
         if (!from.equals(to)) {
             checkWorldForUnloadDelayed(from);
 
-            if (module.isHomeWorld(from) && module.getWorldOwner(from).equals(uuid)) {
+            if (module.isHomeWorld(from) && module.getHomeOwner(from).equals(uuid)) {
                 ownerLeftWorld(player, from);
             }
 
             if (module.isHomeWorld(to)) {
-                final UUID owner = module.getWorldOwner(to);
+                final UUID owner = module.getHomeOwner(to);
 
                 if (uuid.equals(owner)) {
                     player.setGameMode(GameMode.SURVIVAL);

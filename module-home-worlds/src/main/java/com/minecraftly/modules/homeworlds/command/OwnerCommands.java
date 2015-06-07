@@ -62,7 +62,7 @@ public class OwnerCommands {
         World world = WorldDimension.getBaseWorld(sender.getWorld());
 
         if (module.isHomeWorld(world)) {
-            UUID worldOwner = module.getWorldOwner(world);
+            UUID worldOwner = module.getHomeOwner(world);
 
             if (sender.getUniqueId().equals(worldOwner)) {
                 Player target = Bukkit.getPlayer(targetName);

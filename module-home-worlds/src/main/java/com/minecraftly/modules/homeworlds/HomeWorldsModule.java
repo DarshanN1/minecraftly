@@ -102,7 +102,7 @@ public class HomeWorldsModule extends Module implements Listener {
         return dataStore;
     }
 
-    public UUID getWorldOwner(World world) {
+    public UUID getHomeOwner(World world) {
         world = WorldDimension.getBaseWorld(world);
         String name = world.getName();
         UUID uuid = null;

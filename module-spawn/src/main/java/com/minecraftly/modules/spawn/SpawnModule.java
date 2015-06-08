@@ -3,6 +3,8 @@ package com.minecraftly.modules.spawn;
 import com.minecraftly.core.bukkit.MinecraftlyCore;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.module.Module;
+import com.minecraftly.modules.spawn.command.ChatCommand;
+import com.sk89q.intake.fluent.DispatcherNode;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -42,6 +44,11 @@ public class SpawnModule extends Module implements Listener {
         }});
 
         registerListener(this);
+    }
+
+    @Override
+    protected void registerCommands(DispatcherNode dispatcherNode) {
+        dispatcherNode.registerMethods(new ChatCommand());
     }
 
     @Override

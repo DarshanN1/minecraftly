@@ -1,4 +1,4 @@
-package com.minecraftly.core.packets.survivalworlds;
+package com.minecraftly.core.packets.homes;
 
 import com.ikeirnez.pluginmessageframework.packet.StandardPacket;
 

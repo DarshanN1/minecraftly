@@ -7,7 +7,7 @@ import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.user.User;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
-import com.minecraftly.core.packets.survivalworlds.PacketPlayerGotoWorld;
+import com.minecraftly.core.packets.homes.PacketPlayerGotoHome;
 import com.minecraftly.modules.homeworlds.data.world.WorldUserData;
 import com.minecraftly.modules.homeworlds.data.world.WorldUserDataContainer;
 import org.bukkit.Bukkit;
@@ -67,7 +67,7 @@ public class PlayerListener implements Listener, Consumer<Player> {
     }
 
     @PacketHandler
-    public void onPacketJoinWorld(PacketPlayerGotoWorld packet) {
+    public void onPacketJoinWorld(PacketPlayerGotoHome packet) {
         UUID playerUUID = packet.getPlayer();
         UUID worldUUID = packet.getWorld();
         Player player = Bukkit.getPlayer(playerUUID);

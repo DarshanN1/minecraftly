@@ -5,7 +5,7 @@ import com.minecraftly.core.bukkit.MinecraftlyCore;
 import com.minecraftly.core.bukkit.config.ConfigWrapper;
 import com.minecraftly.core.bukkit.module.Module;
 import com.minecraftly.core.bukkit.user.UserManager;
-import com.minecraftly.core.packets.survivalworlds.PacketNoLongerHosting;
+import com.minecraftly.core.packets.homes.PacketNoLongerHosting;
 import com.minecraftly.modules.homeworlds.command.OwnerCommands;
 import com.minecraftly.modules.homeworlds.data.global.GlobalStorageHandler;
 import com.minecraftly.modules.homeworlds.data.world.WorldStorageHandler;

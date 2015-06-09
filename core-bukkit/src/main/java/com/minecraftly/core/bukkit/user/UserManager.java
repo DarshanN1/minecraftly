@@ -4,20 +4,20 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.minecraftly.core.bukkit.database.DatabaseManager;
+import com.minecraftly.core.bukkit.user.modularisation.AutoInitializedData;
 import com.minecraftly.core.bukkit.user.modularisation.DataStorageHandler;
 import com.minecraftly.core.bukkit.user.modularisation.UserData;
-import org.apache.commons.dbutils.QueryRunner;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,33 +27,30 @@ import java.util.logging.Logger;
 public class UserManager {
 
     private final Logger logger;
-    private final Supplier<DatabaseManager> databaseManagerSupplier;
-    private final Supplier<QueryRunner> queryRunnerSupplier = new Supplier<QueryRunner>() {
-        @Override
-        public QueryRunner get() {
-            return databaseManagerSupplier.get().getQueryRunner();
-        }
-    };
 
     private final List<DataStorageHandler> dataStorageHandlers = new ArrayList<>();
     private final Map<UUID, User> loadedUsers = new ConcurrentHashMap<>();
     private final Cache<UUID, User> tempLoadedUsers = CacheBuilder.newBuilder().concurrencyLevel(4).softValues().build();
 
-    public UserManager(Logger logger, Supplier<DatabaseManager> databaseManagerSupplier) {
+    public UserManager(Logger logger) {
         checkNotNull(logger);
-        checkNotNull(databaseManagerSupplier);
         this.logger = logger;
-        this.databaseManagerSupplier = databaseManagerSupplier;
     }
 
     public void addDataStorageHandler(DataStorageHandler dataStorageHandler) {
         dataStorageHandlers.add(dataStorageHandler);
-        dataStorageHandler.initialize(queryRunnerSupplier);
+
+        try {
+            dataStorageHandler.initialize();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Unhandled SQLException whilst initializing data handler: " + dataStorageHandler.getClass().getName() + ".", e);
+            return;
+        }
 
         // if this storage handler is added at runtime (after some players have loaded), initialize them
         for (User user : getAllUsers()) {
             try {
-                initializeStorageHandler(user, dataStorageHandler);
+                autoInitializeData(user, dataStorageHandler);
             } catch (Throwable throwable) {
                 logger.log(Level.SEVERE,
                         "Error whilst initializing storage handler "
@@ -74,17 +71,29 @@ public class UserManager {
         return Collections.unmodifiableList(users);
     }
 
+    public boolean isUserLoaded(UUID uuid) {
+        return loadedUsers.containsKey(uuid) || tempLoadedUsers.asMap().containsKey(uuid);
+    }
+
     public User getUser(OfflinePlayer offlinePlayer) {
-        return getUser(offlinePlayer.getUniqueId());
+        return getUser(offlinePlayer, true);
+    }
+
+    public User getUser(OfflinePlayer offlinePlayer, boolean loadIfNotLoaded) {
+        return getUser(offlinePlayer.getUniqueId(), loadIfNotLoaded);
     }
 
     public User getUser(UUID uuid) {
+        return getUser(uuid, true);
+    }
+
+    public User getUser(UUID uuid, boolean loadIfNotLoaded) {
         User user = tempLoadedUsers.getIfPresent(uuid);
 
         if (user == null) {
             user = loadedUsers.get(uuid);
 
-            if (user == null) {
+            if (user == null && loadIfNotLoaded) {
                 user = load(uuid);
             }
         } else if (user.isOnline()) { // user not null and online
@@ -115,18 +124,28 @@ public class UserManager {
 
     private void load(User user) {
         for (DataStorageHandler dataStorageHandler : dataStorageHandlers) {
-            initializeStorageHandler(user, dataStorageHandler);
+            autoInitializeData(user, dataStorageHandler);
         }
     }
 
-    private void initializeStorageHandler(User user, DataStorageHandler dataStorageHandler) {
-        UserData userData = dataStorageHandler.instantiateUserData(user);
+    private void autoInitializeData(User user, DataStorageHandler dataStorageHandler) {
+        if (dataStorageHandler instanceof AutoInitializedData) {
+            UserData userData = ((AutoInitializedData) dataStorageHandler).autoInitialize(user);
 
-        if (!userData.load(queryRunnerSupplier)) {
-            logger.warning("Error whilst loading " + userData.getClass().getName() + " data for " + user.getUniqueId() + ".");
+            try {
+                if (!userData.isLoaded()) {
+                    userData.load();
+                    Player player = user.getPlayer();
+                    if (player != null) {
+                        userData.apply(player);
+                    }
+
+                    user.attachUserData(userData);
+                }
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "Unhandled SQLException whilst loading '" + user.getUniqueId() + "'.", e);
+            }
         }
-
-        user.attachUserData(userData);
     }
 
     public void unloadAll() {
@@ -152,8 +171,10 @@ public class UserManager {
 
     public void save(User user) {
         for (UserData userData : user.getAttachedUserData()) {
-            if (!userData.save(queryRunnerSupplier)) {
-                logger.warning("Error whilst saving " + userData.getClass().getName() + " data for " + user.getUniqueId() + ".");
+            try {
+                userData.save();
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "Unhandled SQLException whilst saving '" + user.getUniqueId() + "'.", e);
             }
         }
     }

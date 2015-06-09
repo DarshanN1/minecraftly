@@ -2,7 +2,9 @@ package com.minecraftly.core.bukkit.user.modularisation;
 
 import com.minecraftly.core.bukkit.user.User;
 import org.apache.commons.dbutils.QueryRunner;
+import org.bukkit.entity.Player;
 
+import java.sql.SQLException;
 import java.util.function.Supplier;
 
 /**
@@ -11,14 +13,19 @@ import java.util.function.Supplier;
 public abstract class UserData {
 
     private final User user;
+    private final Supplier<QueryRunner> queryRunnerSupplier;
+
+    private boolean loaded = false;
 
     /**
      * Creates a new instance.
      *
      * @param user the user to attach this data to
+     * @param queryRunnerSupplier used to supply a query runner
      */
-    public UserData(User user) {
+    protected UserData(User user, Supplier<QueryRunner> queryRunnerSupplier) {
         this.user = user;
+        this.queryRunnerSupplier = queryRunnerSupplier;
     }
 
     /**
@@ -30,20 +37,72 @@ public abstract class UserData {
         return user;
     }
 
+    protected Supplier<QueryRunner> getQueryRunnerSupplier() {
+        return queryRunnerSupplier;
+    }
+
+    public boolean isLoaded() {
+        return loaded;
+    }
+
+    public void loadAndApply(Player player) {
+        try {
+            load();
+
+            try {
+                apply(player);
+            } catch (Throwable e) {
+                throw new RuntimeException("Error applying player data to player.", e); // todo exception type
+            }
+        } catch (Throwable e) {
+            throw new RuntimeException("Error loading player data from SQL database.", e); // todo exception type
+        }
+    }
+
+    protected void initialLoad() {
+        Player player = getUser().getPlayer();
+
+        if (player == null) {
+            throw new UnsupportedOperationException("Cannot do initial load without player being online.");
+        }
+
+        extractFrom(player);
+    }
+
+    /**
+     * Extracts data from a player and keeps it in the instance.
+     *
+     * @param player the player to extract the data from
+     */
+    public abstract void extractFrom(Player player);
+
     /**
      * Loads data from an SQL database.
-     *
-     * @param queryRunnerSupplier the supplier which provides a means of executing queries.
-     * @return true if data loaded successfully, false if there was a fatal error
      */
-    public abstract boolean load(Supplier<QueryRunner> queryRunnerSupplier);
+    public void load() throws SQLException {
+        if (loaded) {
+            throw new UnsupportedOperationException("Attempted double load of UserData.");
+        }
+
+        loaded = true;
+    }
+
+    /**
+     * Applies loaded data to a player (such as inventory).
+     * This is called after load().
+     *
+     * @param player the player to apply the data to
+     */
+    public abstract void apply(Player player);
 
     /**
      * Saves data to an SQL database.
-     *
-     * @param queryRunnerSupplier the supplier which provides a means of executing queries.
-     * @return true if data saved successfully, false if there was a fatal error
      */
-    public abstract boolean save(Supplier<QueryRunner> queryRunnerSupplier);
+    public void save() throws SQLException {
+        Player player = getUser().getPlayer();
+        if (player != null) {
+            extractFrom(player);
+        }
+    }
 
 }

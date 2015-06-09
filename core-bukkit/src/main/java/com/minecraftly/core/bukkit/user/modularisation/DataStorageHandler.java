@@ -1,8 +1,8 @@
 package com.minecraftly.core.bukkit.user.modularisation;
 
-import com.minecraftly.core.bukkit.user.User;
 import org.apache.commons.dbutils.QueryRunner;
 
+import java.sql.SQLException;
 import java.util.function.Supplier;
 
 /**
@@ -11,11 +11,16 @@ import java.util.function.Supplier;
  */
 public abstract class DataStorageHandler<T extends SingletonUserData> {
 
-    public DataStorageHandler() {
+    private Supplier<QueryRunner> queryRunnerSupplier;
+
+    public DataStorageHandler(Supplier<QueryRunner> queryRunnerSupplier) {
+        this.queryRunnerSupplier = queryRunnerSupplier;
     }
 
-    public abstract void initialize(Supplier<QueryRunner> queryRunnerSupplier);
+    protected Supplier<QueryRunner> getQueryRunnerSupplier() {
+        return queryRunnerSupplier;
+    }
 
-    public abstract T instantiateUserData(User user);
+    public abstract void initialize() throws SQLException;
 
 }

@@ -2,12 +2,13 @@ package com.minecraftly.modules.homeworlds;
 
 import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
 import com.minecraftly.core.bukkit.MinecraftlyCore;
-import com.minecraftly.core.bukkit.config.DataValue;
-import com.minecraftly.core.bukkit.module.Module;
 import com.minecraftly.core.bukkit.config.ConfigWrapper;
+import com.minecraftly.core.bukkit.module.Module;
+import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.packets.survivalworlds.PacketNoLongerHosting;
 import com.minecraftly.modules.homeworlds.command.OwnerCommands;
-import com.minecraftly.modules.homeworlds.data.DataStore;
+import com.minecraftly.modules.homeworlds.data.global.GlobalStorageHandler;
+import com.minecraftly.modules.homeworlds.data.world.WorldStorageHandler;
 import com.sk89q.intake.fluent.DispatcherNode;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -30,25 +31,15 @@ public class HomeWorldsModule extends Module implements Listener {
 
     private static HomeWorldsModule instance;
 
-    public static final String LANGUAGE_KEY_PREFIX = "module.homeWorlds";
-    public static final String WORLD_NAME_PREFIX = ""; // disable prefix
-
     public static HomeWorldsModule getInstance() {
         return instance;
     }
 
-    public static String getWorldName(UUID uuid) {
-        return WORLD_NAME_PREFIX + uuid;
-    }
-
-    private MinecraftlyCore bukkitPlugin;
+    private MinecraftlyCore plugin;
     private ServerGateway<Player> gateway;
-    private DataStore dataStore;
 
     public final Map<UUID, World> playerWorlds = new HashMap<>();
     public final Map<World, ConfigWrapper> worldConfigs = new HashMap<>();
-
-    public DataValue<String> CFG_GLOBAL_DIR = new DataValue<>(this, "../../../../global/mcly_homes/", String.class);
 
     @Override
     protected void onLoad(MinecraftlyCore plugin) {
@@ -56,23 +47,24 @@ public class HomeWorldsModule extends Module implements Listener {
     }
 
     @Override
-    protected void onEnable(MinecraftlyCore bukkitPlugin) {
-        this.bukkitPlugin = bukkitPlugin;
-        this.gateway = bukkitPlugin.getGateway();
-
-        bukkitPlugin.getConfigManager().register("homes.global-data-dir", CFG_GLOBAL_DIR);
-
-        File survivalWorldsDirectory = new File(bukkitPlugin.getGeneralDataDirectory(), CFG_GLOBAL_DIR.getValue());
-        File globalPlayersDirectory = new File(survivalWorldsDirectory, "global-data");
-        globalPlayersDirectory.mkdirs();
-
-        this.dataStore = new DataStore(this, globalPlayersDirectory);
+    protected void onEnable(MinecraftlyCore plugin) {
+        this.plugin = plugin;
+        this.gateway = plugin.getGateway();
 
         PlayerListener playerListener = new PlayerListener(this);
 
-        gateway.registerListener(playerListener);
         registerListener(this);
         registerListener(playerListener);
+        gateway.registerListener(playerListener);
+        plugin.getPlayerSwitchJobManager().addJob(playerListener);
+
+        UserManager userManager = plugin.getUserManager();
+        GlobalStorageHandler globalStorageHandler = new GlobalStorageHandler(this);
+        WorldStorageHandler worldStorageHandler = new WorldStorageHandler(this);
+        userManager.addDataStorageHandler(globalStorageHandler);
+        userManager.addDataStorageHandler(worldStorageHandler);
+        registerListener(globalStorageHandler);
+        registerListener(worldStorageHandler);
     }
 
     @Override
@@ -90,16 +82,12 @@ public class HomeWorldsModule extends Module implements Listener {
             Bukkit.unloadWorld(world, true);
         }
 
-        this.bukkitPlugin = null;
+        this.plugin = null;
         instance = null;
     }
 
-    public MinecraftlyCore getBukkitPlugin() {
-        return bukkitPlugin;
-    }
-
-    public DataStore getDataStore() {
-        return dataStore;
+    public MinecraftlyCore getPlugin() {
+        return plugin;
     }
 
     public UUID getHomeOwner(World world) {
@@ -107,13 +95,9 @@ public class HomeWorldsModule extends Module implements Listener {
         String name = world.getName();
         UUID uuid = null;
 
-        if (name.startsWith(WORLD_NAME_PREFIX)) {
-            name = name.substring(WORLD_NAME_PREFIX.length(), name.length());
-
-            try {
-                uuid = UUID.fromString(name);
-            } catch (IllegalArgumentException ignored) {}
-        }
+        try {
+            uuid = UUID.fromString(name);
+        } catch (IllegalArgumentException ignored) {}
 
         return uuid;
     }
@@ -131,14 +115,10 @@ public class HomeWorldsModule extends Module implements Listener {
         World world = e.getWorld();
         String worldName = world.getName();
 
-        if (worldName.startsWith(WORLD_NAME_PREFIX)) {
-            String uuidString = worldName.substring(WORLD_NAME_PREFIX.length(), worldName.length());
-
-            try {
-                UUID uuid = UUID.fromString(uuidString);
-                playerWorlds.put(uuid, world);
-            } catch (IllegalArgumentException ignored) {
-            }
+        try {
+            UUID uuid = UUID.fromString(worldName);
+            playerWorlds.put(uuid, world);
+        } catch (IllegalArgumentException ignored) { // todo slow?
         }
     }
 
@@ -182,7 +162,7 @@ public class HomeWorldsModule extends Module implements Listener {
         World world = playerWorlds.get(uuid);
 
         if (world == null) {
-            String worldName = getWorldName(uuid);
+            String worldName = uuid.toString();
             world = Bukkit.getWorld(worldName);
 
             if (world == null) {

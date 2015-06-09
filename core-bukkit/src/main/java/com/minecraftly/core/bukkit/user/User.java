@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,7 +25,7 @@ import java.util.UUID;
 public class User {
 
     private final UUID uuid;
-    private SoftReference<Player> playerSoftReference;
+    private SoftReference<Player> playerSoftReference = new SoftReference<Player>(null);
 
     private Map<Class<? extends UserData>, Set<UserData>> attachedUserData = new HashMap<>(); // map with class as key prevents duplicate values
 
@@ -73,21 +74,39 @@ public class User {
             throw new IllegalArgumentException("Cannot attach user data which is not owned by this user instance.");
         }
 
-        Set<UserData> userDataList = attachedUserData.get(userData.getClass());
+        Set<UserData> userDataSet = attachedUserData.get(userData.getClass());
 
-        if (userDataList == null) {
-            userDataList = new HashSet<>();
-            attachedUserData.put(userData.getClass(), userDataList);
+        if (userDataSet == null) {
+            userDataSet = new HashSet<>();
+            attachedUserData.put(userData.getClass(), userDataSet);
         }
 
-        if (userData instanceof SingletonUserData && userDataList.size() > 0) {
+        if (userData instanceof SingletonUserData && userDataSet.size() > 0) {
             throw new UnsupportedOperationException("Attempted to add multiple instances of a singleton user data class.");
         }
 
-        userDataList.add(userData);
+        userDataSet.add(userData);
     }
 
-    public <T extends SingletonUserData> T getSingletonUserData(Class<T> clazz) {
+    public void detachUserData(Class<? extends UserData> clazz) {
+        Iterator<Map.Entry<Class<? extends UserData>, Set<UserData>>> iterator = attachedUserData.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            Map.Entry<Class<? extends UserData>, Set<UserData>> entry = iterator.next();
+
+            if (clazz.isAssignableFrom(entry.getKey())) {
+                System.out.println("Detach " + clazz.getName());
+                iterator.remove();
+            }
+        }
+    }
+
+    public boolean detachUserData(UserData userData) {
+        Set<UserData> userDataSet = attachedUserData.get(userData.getClass());
+        return userDataSet != null && userDataSet.remove(userData);
+    }
+
+    public <T extends UserData> T getSingletonUserData(Class<T> clazz) {
         List<T> userDataList = getUserData(clazz);
 
         if (userDataList.size() > 1) {
@@ -99,6 +118,14 @@ public class User {
 
     @SuppressWarnings("unchecked")
     public <T extends UserData> List<T> getUserData(Class<T> clazz) {
-        return Collections.unmodifiableList(new ArrayList<>((Set<T>) attachedUserData.get(clazz)));
+        Set<T> userDataSet = new HashSet<>();
+
+        for (Map.Entry<Class<? extends UserData>, Set<UserData>> entry : attachedUserData.entrySet()) {
+            if (clazz.isAssignableFrom(entry.getKey())) {
+                userDataSet.addAll((Set<? extends T>) entry.getValue());
+            }
+        }
+
+        return Collections.unmodifiableList(new ArrayList<>(userDataSet));
     }
 }

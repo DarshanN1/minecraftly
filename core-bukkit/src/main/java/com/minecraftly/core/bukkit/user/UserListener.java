@@ -6,9 +6,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
@@ -30,14 +32,27 @@ public class UserListener implements Listener, Consumer<Player> {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerJoin(AsyncPlayerPreLoginEvent e) {
-        if (e.getLoginResult() == AsyncPlayerPreLoginEvent.Result.ALLOWED) {
-            userManager.load(e.getUniqueId());
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        UUID uuid = e.getPlayer().getUniqueId();
+
+        if (!userManager.isUserLoaded(uuid)) {
+            userManager.load(uuid);
         }
     }
 
     @Override
     public void accept(Player player) {
-        userManager.unload(userManager.getUser(player));
+        User user = userManager.getUser(player, false);
+        if (user != null) {
+            userManager.save(user);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerQuit(PlayerQuitEvent e) {
+        User user = userManager.getUser(e.getPlayer(), false);
+        if (user != null) {
+            userManager.unload(user, false);
+        }
     }
 }

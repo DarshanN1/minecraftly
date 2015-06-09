@@ -38,7 +38,7 @@ public class OwnerCommands {
 
         String langPrefix = module.getLanguageSection() + ".command.owner";
 
-        module.getBukkitPlugin().getLanguageManager().registerAll(new HashMap<String, LanguageValue>() {{
+        module.getPlugin().getLanguageManager().registerAll(new HashMap<String, LanguageValue>() {{
             put(langPrefix + ".notOwner", langNotOwner);
             put(langPrefix + ".notInHome", langNotInHome);
             put(langPrefix + ".attemptSelf", langAttemptSelf);

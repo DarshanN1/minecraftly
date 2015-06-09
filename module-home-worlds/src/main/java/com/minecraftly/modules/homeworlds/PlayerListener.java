@@ -1,15 +1,15 @@
 package com.minecraftly.modules.homeworlds;
 
 import com.google.common.base.Preconditions;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
 import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.language.LanguageValue;
+import com.minecraftly.core.bukkit.user.User;
+import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.packets.survivalworlds.PacketPlayerGotoWorld;
-import com.minecraftly.modules.homeworlds.data.DataStore;
-import com.minecraftly.modules.homeworlds.data.PlayerWorldData;
+import com.minecraftly.modules.homeworlds.data.world.WorldUserData;
+import com.minecraftly.modules.homeworlds.data.world.WorldUserDataContainer;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -19,7 +19,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -27,14 +26,14 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * Created by Keir on 24/04/2015.
  */
-public class PlayerListener implements Listener {
+public class PlayerListener implements Listener, Consumer<Player> {
 
-    public static final String LANGUAGE_KEY_PREFIX = HomeWorldsModule.LANGUAGE_KEY_PREFIX;
+    public static final String LANGUAGE_KEY_PREFIX = HomeWorldsModule.getInstance().getLanguageSection();
 
     // todo convert these to language values for easier and faster access
     public static final String LANGUAGE_LOADING_OWNER = LANGUAGE_KEY_PREFIX + ".loading.owner";
@@ -49,13 +48,12 @@ public class PlayerListener implements Listener {
 
     private HomeWorldsModule module;
     private LanguageManager languageManager;
-    private DataStore dataStore;
-    private Cache<UUID, UUID> joinQueue = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.SECONDS).build();
+    private UserManager userManager;
 
     public PlayerListener(final HomeWorldsModule module) {
         this.module = module;
-        this.languageManager = module.getBukkitPlugin().getLanguageManager();
-        this.dataStore = module.getDataStore();
+        this.languageManager = module.getPlugin().getLanguageManager();
+        this.userManager = module.getPlugin().getUserManager();
 
         languageManager.registerAll(new HashMap<String, LanguageValue>() {{
             put(LANGUAGE_LOADING_OWNER, new LanguageValue(module, "&bOne moment whilst we load your home."));
@@ -68,22 +66,6 @@ public class PlayerListener implements Listener {
         }});
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerJoin(PlayerJoinEvent e) {
-        final Player player = e.getPlayer();
-        UUID playerUUID = player.getUniqueId();
-        final UUID worldUUID = joinQueue.getIfPresent(playerUUID);
-
-        if (worldUUID != null) {
-            Bukkit.getScheduler().runTask(module.getBukkitPlugin(), new Runnable() {
-                @Override
-                public void run() {
-                    joinWorld(player, module.getWorld(worldUUID));
-                }
-            });
-        }
-    }
-
     @PacketHandler
     public void onPacketJoinWorld(PacketPlayerGotoWorld packet) {
         UUID playerUUID = packet.getPlayer();
@@ -92,8 +74,6 @@ public class PlayerListener implements Listener {
 
         if (player != null) {
             joinWorld(player, worldUUID);
-        } else if (!playerUUID.equals(worldUUID)) {
-            joinQueue.put(playerUUID, worldUUID);
         }
     }
 
@@ -118,18 +98,24 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        joinQueue.invalidate(playerUUID);
+        WorldUserDataContainer worldUserDataContainer = userManager.getUser(player).getSingletonUserData(WorldUserDataContainer.class);
+        WorldUserData worldUserData = worldUserDataContainer.getOrLoad(module.getHomeOwner(world));
+
+        Location lastLocation = worldUserData.getLastLocation();
+        Location bedLocation = worldUserData.getBedLocation();
         Location spawnLocation;
-        PlayerWorldData playerWorldData = dataStore.getPlayerWorldData(world, player);
 
         // todo util method for player data
-        if (playerWorldData != null && playerWorldData.getLastLocation() != null) {
-            spawnLocation = playerWorldData.getLastLocation();
+        if (lastLocation != null) {
+            spawnLocation = lastLocation;
+        } else if (bedLocation != null) {
+            spawnLocation = bedLocation;
         } else {
             spawnLocation = BukkitUtilities.getSafeLocation(world.getSpawnLocation());
         }
 
         player.teleport(spawnLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+        worldUserData.apply(player);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -170,7 +156,7 @@ public class PlayerListener implements Listener {
                 } else {
                     player.setGameMode(GameMode.ADVENTURE);
 
-                    Bukkit.getScheduler().runTaskAsynchronously(module.getBukkitPlugin(), new Runnable() { // async for getOfflinePlayer
+                    Bukkit.getScheduler().runTaskAsynchronously(module.getPlugin(), new Runnable() { // async for getOfflinePlayer
                         @Override
                         public void run() {
                             player.sendMessage(languageManager.get(LANGUAGE_WELCOME_GUEST, Bukkit.getOfflinePlayer(owner).getName()));
@@ -188,10 +174,12 @@ public class PlayerListener implements Listener {
         World world = WorldDimension.getBaseWorld(player.getWorld());
 
         if (module.isHomeWorld(world)) {
-            PlayerWorldData playerWorldData = dataStore.getPlayerWorldData(world, player);
-            if (playerWorldData != null) {
+            WorldUserDataContainer worldUserDataContainer = userManager.getUser(player).getSingletonUserData(WorldUserDataContainer.class);
+            WorldUserData worldUserData = worldUserDataContainer.get(module.getHomeOwner(world));
+
+            if (worldUserData != null) {
                 // todo can't help but think this could all be shortened
-                Location bedLocation = playerWorldData.getBedLocation();
+                Location bedLocation = worldUserData.getBedLocation();
                 if (bedLocation == null) {
                     bedLocation = player.getBedSpawnLocation();
 
@@ -221,7 +209,7 @@ public class PlayerListener implements Listener {
     }
 
     public void checkWorldForUnloadDelayed(final World world) {
-        Bukkit.getScheduler().runTaskLater(module.getBukkitPlugin(), new Runnable() {
+        Bukkit.getScheduler().runTaskLater(module.getPlugin(), new Runnable() {
             @Override
             public void run() {
                 checkWorldForUnload(world);
@@ -248,4 +236,12 @@ public class PlayerListener implements Listener {
         }
     }
 
+    // fired when player is about to switch server
+    @Override
+    public void accept(Player player) {
+        User user = userManager.getUser(player, false);
+        if (user != null) {
+            userManager.save(user);
+        }
+    }
 }

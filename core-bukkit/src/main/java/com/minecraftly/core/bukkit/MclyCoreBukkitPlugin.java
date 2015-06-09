@@ -23,6 +23,7 @@ import com.sk89q.intake.SettableDescription;
 import com.sk89q.intake.SettableParameter;
 import com.sk89q.intake.fluent.DispatcherNode;
 import lc.vq.exhaust.bukkit.command.CommandManager;
+import org.apache.commons.dbutils.QueryRunner;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -34,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 /**
@@ -60,7 +62,6 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     public DataValue<String> CFG_DB_USER = new DataValue<>(this, "root", String.class);
     public DataValue<String> CFG_DB_PASS = new DataValue<>(this, "", String.class);
     public DataValue<String> CFG_DB_DATABASE = new DataValue<>(this, "minecraftly", String.class);
-    public DataValue<String> CFG_DB_PREFIX = new DataValue<>(this, "mcly_", String.class);
 
     public Map<String, DataValue> configValues = new HashMap<String, DataValue>() {{
         String dbPrefix = "database.";
@@ -70,8 +71,9 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         put(dbPrefix + "username", CFG_DB_USER);
         put(dbPrefix + "password", CFG_DB_PASS);
         put(dbPrefix + "database", CFG_DB_DATABASE);
-        put(dbPrefix + "prefix", CFG_DB_PREFIX);
     }};
+
+    private final Supplier<QueryRunner> queryRunnerSupplier = () -> getDatabaseManager().getQueryRunner();
 
     {
         instance = this;
@@ -119,7 +121,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         playerSwitchJobManager = new PlayerSwitchJobManager(this, gateway);
         gateway.registerListener(new PacketListener());
 
-        userManager = new UserManager(BukkitUtilities.getLogger(this, UserManager.class, "User Manager"), this::getDatabaseManager);
+        userManager = new UserManager(BukkitUtilities.getLogger(this, UserManager.class, "User Manager"));
         UserListener.initialize(this, userManager, playerSwitchJobManager);
 
         try {
@@ -202,8 +204,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
                     CFG_DB_USER.getValue(),
                     CFG_DB_PASS.getValue(),
                     CFG_DB_DATABASE.getValue(),
-                    CFG_DB_PORT.getValue(),
-                    CFG_DB_PREFIX.getValue()
+                    CFG_DB_PORT.getValue()
             );
 
             try {
@@ -255,5 +256,10 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     @Override
     public String getIdentifier() {
         return "core-bukkit"; // todo retrieve from gradle?
+    }
+
+    @Override
+    public Supplier<QueryRunner> getQueryRunnerSupplier() {
+        return queryRunnerSupplier;
     }
 }

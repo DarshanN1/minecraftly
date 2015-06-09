@@ -47,10 +47,10 @@ public class HomeWorldsHandler implements Listener {
     public void playerGotoHome(ServerInfo serverInfo, ProxiedPlayer proxiedPlayer, UUID ownerUUID) {
         ServerInfo hostingServer = worldServerMap.get(ownerUUID);
         if (hostingServer != null && !serverInfo.equals(hostingServer)) {
-            throw new RuntimeException("Attempted to host a home on 2 different instances.");
+            throw new UnsupportedOperationException("Attempted to host a home on 2 different instances.");
         }
 
-        minecraftlyBungeeCore.getGateway().sendPacketServer(serverInfo, new PacketPlayerGotoWorld(proxiedPlayer.getUniqueId(), ownerUUID), true);
+        minecraftlyBungeeCore.getGateway().sendPacket(proxiedPlayer, new PacketPlayerGotoWorld(proxiedPlayer.getUniqueId(), ownerUUID));
     }
 
     public ServerInfo getServerHostingWorld(UUID worldUUID) {

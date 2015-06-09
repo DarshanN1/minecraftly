@@ -7,10 +7,12 @@ import com.minecraftly.core.bukkit.database.DatabaseManager;
 import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.module.ModuleManager;
 import com.minecraftly.core.bukkit.user.UserManager;
+import org.apache.commons.dbutils.QueryRunner;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
+import java.util.function.Supplier;
 
 /**
  * Created by Keir on 20/03/2015.
@@ -34,4 +36,6 @@ public interface MinecraftlyCore extends Plugin, ContentOwner {
     File getBackupsDirectory();
 
     PlayerSwitchJobManager getPlayerSwitchJobManager();
+
+    Supplier<QueryRunner> getQueryRunnerSupplier();
 }

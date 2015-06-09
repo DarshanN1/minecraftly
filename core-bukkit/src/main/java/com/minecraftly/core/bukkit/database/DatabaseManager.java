@@ -17,9 +17,10 @@ import java.util.logging.Logger;
  */
 public class DatabaseManager {
 
+    public static String TABLE_PREFIX = "mcly_";
+
     final String username;
     private final Logger logger;
-    private final String prefix;
     private final String host;
     private final String password;
     private final String database;
@@ -28,16 +29,12 @@ public class DatabaseManager {
     private HikariDataSource dataSource;
     private QueryRunner queryRunner;
 
-    public DatabaseManager(Logger logger, String host, String username, String password, String database, int port, String prefix) {
+    public DatabaseManager(Logger logger, String host, String username, String password, String database, int port) {
         checkNotNull(logger);
         checkNotNull(host);
         checkNotNull(username);
         checkNotNull(password);
         checkNotNull(database);
-
-        if (prefix == null) {
-            prefix = "";
-        }
 
         this.logger = logger;
         this.host = host;
@@ -45,7 +42,6 @@ public class DatabaseManager {
         this.password = password;
         this.database = database;
         this.port = port;
-        this.prefix = prefix;
     }
 
     public void connect() {

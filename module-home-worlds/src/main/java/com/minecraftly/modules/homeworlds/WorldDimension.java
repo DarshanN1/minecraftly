@@ -49,9 +49,9 @@ public enum WorldDimension {
         return worldName;
     }
 
-    public String convertTo(String baseWorldName) {
-        checkNotNull(baseWorldName);
-        return getBaseName(baseWorldName) + suffix;
+    public String convertTo(String worldName) {
+        checkNotNull(worldName);
+        return getBaseName(worldName) + suffix;
     }
 
     public World convertTo(World world) {

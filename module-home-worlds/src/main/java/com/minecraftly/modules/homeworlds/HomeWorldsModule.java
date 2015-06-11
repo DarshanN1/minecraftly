@@ -2,7 +2,6 @@ package com.minecraftly.modules.homeworlds;
 
 import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
 import com.minecraftly.core.bukkit.MinecraftlyCore;
-import com.minecraftly.core.bukkit.config.ConfigWrapper;
 import com.minecraftly.core.bukkit.module.Module;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.packets.homes.PacketNoLongerHosting;
@@ -18,7 +17,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
-import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 
 import javax.annotation.Nullable;
@@ -39,7 +37,6 @@ public class HomeWorldsModule extends Module implements Listener {
     private ServerGateway<Player> gateway;
 
     public final Map<UUID, World> playerWorlds = new HashMap<>();
-    public final Map<World, ConfigWrapper> worldConfigs = new HashMap<>();
 
     @Override
     protected void onLoad(MinecraftlyCore plugin) {
@@ -128,22 +125,9 @@ public class HomeWorldsModule extends Module implements Listener {
         UUID ownerUUID = getWorldOwnerUUID(world);
 
         if (ownerUUID != null) {
-            ConfigWrapper configWrapper = worldConfigs.get(world);
-            if (configWrapper != null) {
-                worldConfigs.remove(world);
-            }
-
             playerWorlds.remove(ownerUUID);
             gateway.sendPacket(new PacketNoLongerHosting(ownerUUID), false); // notify proxy if possible
             getLogger().info("Unloaded world for player: " + ownerUUID);
-        }
-    }
-
-    @EventHandler
-    public void onWorldSave(WorldSaveEvent e) { // save world config when world is saved
-        ConfigWrapper configWrapper = worldConfigs.get(e.getWorld());
-        if (configWrapper != null) {
-            configWrapper.saveConfig();
         }
     }
 

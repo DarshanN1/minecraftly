@@ -4,6 +4,8 @@ import com.minecraftly.core.ContentOwner;
 import com.minecraftly.core.bukkit.config.DataValue;
 import org.bukkit.command.CommandSender;
 
+import java.util.IllegalFormatException;
+
 /**
  * A {@link DataValue} where users are forced to use the {@link String} type.
  * This reduces code for language value handling.
@@ -15,7 +17,15 @@ public class LanguageValue extends DataValue<String> {
     }
 
     public String getValue(Object... args) {
-        return String.format(super.getValue(), args);
+        String value = super.getValue();
+
+        try {
+            value = String.format(value, args);
+        } catch (IllegalFormatException e) {
+            e.printStackTrace(); // todo logger
+        }
+
+        return value;
     }
 
     public void send(CommandSender commandSender, Object... args) {

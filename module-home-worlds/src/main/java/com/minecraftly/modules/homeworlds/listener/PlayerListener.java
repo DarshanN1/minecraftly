@@ -220,12 +220,7 @@ public class PlayerListener implements Listener, Consumer<Player> {
 
     public void checkWorldForUnload(World world) {
         if (module.isHomeWorld(world) && WorldDimension.getPlayersAllDimensions(world).size() == 0) {
-            Bukkit.unloadWorld(world, true);
-
-            for (WorldDimension worldDimension : WorldDimension.values()) {
-                World world1 = worldDimension.convertTo(world);
-                if (world1 != null) Bukkit.unloadWorld(world1, true);
-            }
+            Bukkit.unloadWorld(world, true); // unloads other dimensions too
         }
     }
 

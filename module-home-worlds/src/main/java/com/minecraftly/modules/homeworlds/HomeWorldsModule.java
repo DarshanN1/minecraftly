@@ -22,7 +22,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -119,11 +118,10 @@ public class HomeWorldsModule extends Module implements Listener {
         if (ownerUUID != null) {
             playerWorlds.remove(ownerUUID);
             gateway.sendPacket(new PacketNoLongerHosting(ownerUUID), false); // notify proxy if possible
-            getLogger().info("Unloaded world for player: " + ownerUUID);
+            getLogger().info("Unloaded world for player: " + ownerUUID + ".");
         }
     }
 
-    @Nullable
     public UUID getHomeOwner(World world) {
         for (Map.Entry<UUID, World> entry : playerWorlds.entrySet()) {
             if (entry.getValue().equals(world)) {

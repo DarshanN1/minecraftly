@@ -2,14 +2,16 @@ package com.minecraftly.modules.homeworlds.data.world;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bukkit.database.DatabaseManager;
 import com.minecraftly.core.bukkit.user.User;
 import com.minecraftly.core.bukkit.user.modularisation.SingletonUserData;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
-import com.minecraftly.modules.homeworlds.data.SQLUtils;
+import com.minecraftly.modules.homeworlds.HomeWorldsModule;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -79,9 +81,10 @@ public class WorldUserData extends SingletonUserData implements ResultSetHandler
 
     @Override
     public void extractFrom(Player player) {
-        yamlConfiguration.set("lastLocation", BukkitUtilities.getLocationContainer(player.getLocation()).serialize());
+        Location lastLocation = checkLocation(player.getLocation());
+        yamlConfiguration.set("lastLocation", lastLocation != null ? BukkitUtilities.getLocationContainer(player.getLocation()).serialize() : null);
 
-        Location bedLocation = player.getBedSpawnLocation();
+        Location bedLocation = checkLocation(player.getBedSpawnLocation());
         yamlConfiguration.set("bedLocation", bedLocation != null ? BukkitUtilities.getLocationContainer(bedLocation).serialize() : null);
 
         yamlConfiguration.set("air", player.getRemainingAir());
@@ -92,6 +95,24 @@ public class WorldUserData extends SingletonUserData implements ResultSetHandler
         yamlConfiguration.set("exhaustion", player.getExhaustion());
         yamlConfiguration.set("saturation", player.getSaturation());
         yamlConfiguration.set("fallDistance", player.getFallDistance());
+    }
+
+    private Location checkLocation(Location location) {
+        if (location != null) {
+            World world = location.getWorld();
+
+            if (world != null) {
+                UUID worldOwner = HomeWorldsModule.getInstance().getHomeOwner(world);
+
+                if (worldOwner == null || !worldOwner.equals(getUser().getUniqueId())) {
+                    location = null;
+                }
+            } else {
+                location = null;
+            }
+        }
+
+        return location;
     }
 
     @Override
@@ -124,8 +145,8 @@ public class WorldUserData extends SingletonUserData implements ResultSetHandler
                         DatabaseManager.TABLE_PREFIX
                 ),
                 this,
-                SQLUtils.convertUUID(worldUUID),
-                SQLUtils.convertUUID(getUser().getUniqueId())
+                Utilities.convertToNoDashes(worldUUID),
+                Utilities.convertToNoDashes(getUser().getUniqueId())
         );
 
         if (yamlConfiguration == null) {
@@ -156,8 +177,8 @@ public class WorldUserData extends SingletonUserData implements ResultSetHandler
 
         getQueryRunnerSupplier().get().update(String.format("REPLACE INTO `%sworld_user_data` (`world_uuid`, `user_uuid`, `data`) VALUES (UNHEX(?), UNHEX(?), ?)",
                         DatabaseManager.TABLE_PREFIX),
-                SQLUtils.convertUUID(worldUUID),
-                SQLUtils.convertUUID(getUser().getUniqueId()),
+                Utilities.convertToNoDashes(worldUUID),
+                Utilities.convertToNoDashes(getUser().getUniqueId()),
                 yamlConfiguration.saveToString());
     }
 

@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -55,8 +56,21 @@ public enum WorldDimension {
     }
 
     public World convertTo(World world) {
+        return convertTo(world, false);
+    }
+
+    public World convertTo(World world, boolean create) {
         checkNotNull(world);
-        return Bukkit.getWorld(convertTo(world.getName()));
+        String newWorldName = convertTo(world.getName());
+        World newWorld = Bukkit.getWorld(newWorldName);
+
+        if (create && newWorld == null) {
+            WorldCreator worldCreator = new WorldCreator(newWorldName);
+            worldCreator.environment(getEnvironment());
+            newWorld = Bukkit.createWorld(worldCreator); // todo generate elsewhere?
+        }
+
+        return newWorld;
     }
 
     public static String getBaseWorldName(String worldName) {

@@ -11,7 +11,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.WorldLoadEvent;
-import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 
 import java.io.DataOutputStream;
@@ -51,15 +50,6 @@ public class ReadOnlyWorldModule extends Module implements Listener {
         if (e.getBlock().getWorld() == readOnlyWorld) {
             langBreakWarning.send(e.getPlayer());
             e.setCancelled(true);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onWorldSave(WorldSaveEvent e) {
-        World world = e.getWorld();
-
-        if (world == readOnlyWorld) {
-            getLogger().severe("World saved (this shouldn't have happened): " + world.getName() + ".");
         }
     }
 

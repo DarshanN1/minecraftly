@@ -1,6 +1,7 @@
 package com.minecraftly.modules.homeworlds;
 
 import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
+import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bukkit.MinecraftlyCore;
 import com.minecraftly.core.bukkit.module.Module;
 import com.minecraftly.core.bukkit.user.UserManager;
@@ -87,18 +88,6 @@ public class HomeWorldsModule extends Module implements Listener {
         return plugin;
     }
 
-    public UUID getHomeOwner(World world) {
-        world = WorldDimension.getBaseWorld(world);
-        String name = world.getName();
-        UUID uuid = null;
-
-        try {
-            uuid = UUID.fromString(name);
-        } catch (IllegalArgumentException ignored) {}
-
-        return uuid;
-    }
-
     public boolean isWorldLoaded(UUID worldUUID) {
         return playerWorlds.containsKey(worldUUID);
     }
@@ -113,7 +102,7 @@ public class HomeWorldsModule extends Module implements Listener {
         String worldName = world.getName();
 
         try {
-            UUID uuid = UUID.fromString(worldName);
+            UUID uuid = Utilities.convertFromNoDashes(worldName);
             playerWorlds.put(uuid, world);
         } catch (IllegalArgumentException ignored) { // todo slow?
         }
@@ -122,7 +111,7 @@ public class HomeWorldsModule extends Module implements Listener {
     @EventHandler
     public void onWorldUnload(WorldUnloadEvent e) { // do some cleaning up
         World world = e.getWorld();
-        UUID ownerUUID = getWorldOwnerUUID(world);
+        UUID ownerUUID = getHomeOwner(world);
 
         if (ownerUUID != null) {
             playerWorlds.remove(ownerUUID);
@@ -132,7 +121,7 @@ public class HomeWorldsModule extends Module implements Listener {
     }
 
     @Nullable
-    private UUID getWorldOwnerUUID(World world) {
+    public UUID getHomeOwner(World world) {
         for (Map.Entry<UUID, World> entry : playerWorlds.entrySet()) {
             if (entry.getValue().equals(world)) {
                 return entry.getKey();
@@ -146,12 +135,12 @@ public class HomeWorldsModule extends Module implements Listener {
         World world = playerWorlds.get(uuid);
 
         if (world == null) {
-            String worldName = uuid.toString();
-            world = Bukkit.getWorld(worldName);
+            String uuidString = Utilities.convertToNoDashes(uuid);
+            world = Bukkit.getWorld(uuidString);
 
             if (world == null) {
-                WorldCreator worldCreator = new WorldCreator(worldName);
-                File worldDirectory = new File(Bukkit.getWorldContainer(), worldName);
+                WorldCreator worldCreator = new WorldCreator(uuidString);
+                File worldDirectory = new File(Bukkit.getWorldContainer(), uuidString);
 
                 if (worldDirectory.exists() && worldDirectory.isDirectory()) {
                     world = worldCreator.createWorld(); // this actually loads an existing world

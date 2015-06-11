@@ -1,9 +1,9 @@
 package com.minecraftly.modules.homeworlds.data.global;
 
+import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bukkit.database.DatabaseManager;
 import com.minecraftly.core.bukkit.user.User;
 import com.minecraftly.core.bukkit.user.modularisation.SingletonUserData;
-import com.minecraftly.modules.homeworlds.data.SQLUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.bukkit.ChatColor;
@@ -66,7 +66,7 @@ public class GlobalUserData extends SingletonUserData implements ResultSetHandle
         YamlConfiguration yamlConfiguration = getQueryRunnerSupplier().get().query(
                 String.format("SELECT `data` FROM %sglobal_user_data WHERE `uuid` = UNHEX(?)", DatabaseManager.TABLE_PREFIX),
                 this,
-                SQLUtils.convertUUID(getUser().getUniqueId())
+                Utilities.convertToNoDashes(getUser().getUniqueId())
         );
 
         if (yamlConfiguration == null) {
@@ -121,7 +121,7 @@ public class GlobalUserData extends SingletonUserData implements ResultSetHandle
         getQueryRunnerSupplier().get().update(
                 String.format("REPLACE INTO `%sglobal_user_data`(`uuid`, `data`) VALUES(UNHEX(?), ?)",
                         DatabaseManager.TABLE_PREFIX),
-                SQLUtils.convertUUID(getUser().getUniqueId()),
+                Utilities.convertToNoDashes(getUser().getUniqueId()),
                 yamlConfiguration.saveToString()
         );
     }

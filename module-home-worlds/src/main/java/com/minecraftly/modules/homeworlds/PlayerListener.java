@@ -122,14 +122,13 @@ public class PlayerListener implements Listener, Consumer<Player> {
     public void onPlayerQuit(PlayerQuitEvent e) {
         Player player = e.getPlayer();
         World world = WorldDimension.getBaseWorld(player.getWorld());
+        UUID worldOwner = module.getHomeOwner(world);
 
-        if (module.isHomeWorld(world)) {
-            if (module.getHomeOwner(world).equals(player.getUniqueId())) {
-                ownerLeftWorld(player, world);
-            }
-
-            checkWorldForUnloadDelayed(world);
+        if (worldOwner != null && worldOwner.equals(player.getUniqueId())) {
+            ownerLeftWorld(player, world);
         }
+
+        checkWorldForUnloadDelayed(world);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)

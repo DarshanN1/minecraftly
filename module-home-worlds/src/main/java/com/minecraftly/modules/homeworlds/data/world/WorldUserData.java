@@ -8,6 +8,7 @@ import com.minecraftly.core.bukkit.user.User;
 import com.minecraftly.core.bukkit.user.modularisation.SingletonUserData;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.modules.homeworlds.HomeWorldsModule;
+import com.minecraftly.modules.homeworlds.WorldDimension;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.bukkit.Location;
@@ -102,7 +103,7 @@ public class WorldUserData extends SingletonUserData implements ResultSetHandler
             World world = location.getWorld();
 
             if (world != null) {
-                UUID worldOwner = HomeWorldsModule.getInstance().getHomeOwner(world);
+                UUID worldOwner = HomeWorldsModule.getInstance().getHomeOwner(WorldDimension.getBaseWorld(world));
 
                 if (worldOwner == null || !worldOwner.equals(getUser().getUniqueId())) {
                     location = null;

@@ -88,7 +88,13 @@ public class PlayerListener implements Listener, Consumer<Player> {
             }
         }
 
-        joinWorld(player, module.getWorld(worldUUID));
+        World world = module.getWorld(worldUUID);
+        Bukkit.getScheduler().runTaskLater(module.getPlugin(), new Runnable() {
+            @Override
+            public void run() {
+                joinWorld(player, world);
+            }
+        }, 20L * 2);
     }
 
     public void joinWorld(Player player, World world) {

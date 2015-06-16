@@ -164,10 +164,8 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     @Override
     public void onDisable() {
         if (!skipDisable) {
-            moduleManager.disableModules();
-
-            // absolute last tasks
             userManager.unloadAll();
+            moduleManager.disableModules();
             languageManager.save();
             configManager.save();
 

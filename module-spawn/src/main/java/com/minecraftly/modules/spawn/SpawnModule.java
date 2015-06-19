@@ -48,7 +48,7 @@ public class SpawnModule extends Module implements Listener {
 
     @Override
     protected void registerCommands(DispatcherNode dispatcherNode) {
-        dispatcherNode.registerMethods(new ChatCommand());
+        dispatcherNode.registerMethods(new ChatCommand(this));
     }
 
     @Override

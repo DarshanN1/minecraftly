@@ -33,7 +33,7 @@ public class SpawnModule extends Module implements Listener {
     private MinecraftlyCore plugin;
     private World chatWorld = null;
 
-    private LanguageValue languageNobodyCanHearYou = new LanguageValue(this, "&cNobody can hear you.");
+    private LanguageValue languageNobodyCanHearYou = new LanguageValue("&cNobody can hear you.");
 
     @Override
     protected void onEnable(MinecraftlyCore plugin) {

@@ -37,19 +37,16 @@ public class PlayerListener implements Listener, Consumer<Player> {
 
     public static final String LANGUAGE_KEY_PREFIX = HomeWorldsModule.getInstance().getLanguageSection();
 
-    // todo convert these to language values for easier and faster access
-    public static final String LANGUAGE_LOADING_OWNER = LANGUAGE_KEY_PREFIX + ".loading.owner";
-    public static final String LANGUAGE_LOADING_GUEST = LANGUAGE_KEY_PREFIX + ".loading.guest";
-    public static final String LANGUAGE_WELCOME_OWNER = LANGUAGE_KEY_PREFIX + ".welcome.owner";
-    public static final String LANGUAGE_WELCOME_GUEST = LANGUAGE_KEY_PREFIX + ".welcome.guest";
-    public static final String LANGUAGE_WELCOME_BOTH = LANGUAGE_KEY_PREFIX + ".welcome.both";
-    public static final String LANGUAGE_OWNER_LEFT = LANGUAGE_KEY_PREFIX + ".ownerLeft";
+    private final LanguageValue langLoadingOwner = new LanguageValue("&bOne moment whilst we load your home.");
+    private final LanguageValue langLoadingGuest = new LanguageValue("&bOne moment whilst we load that home.");
+    private final LanguageValue langWelcomeOwner = new LanguageValue("&aWelcome back to your home, &6%s&a.");
+    private final LanguageValue langWelcomeGuest = new LanguageValue("&aWelcome to &6%s&a's home, they will have to grant you permission before you can modify blocks.");
+    private final LanguageValue langWelcomeBoth = new LanguageValue("&aYou can go back to chat mode by typing &6/chat&a.");
+    private final LanguageValue langPlayerJoinedHome = new LanguageValue("&6%s &bhas joined.");
+    private final LanguageValue langPlayerLeftHome = new LanguageValue("&6%s &bhas left.");
 
-    public static final String LANGUAGE_ERROR_KEY_PREFIX = LANGUAGE_KEY_PREFIX + ".error";
-    public static final String LANGUAGE_LOAD_FAILED = LANGUAGE_ERROR_KEY_PREFIX + ".loadFailed";
-
-    private LanguageValue languagePlayerJoinedHome;
-    private LanguageValue languagePlayerLeftHome;
+    private final LanguageValue langLoadFailed = new LanguageValue("&cWe were unable to load your home, please contact a member of staff.");
+    private final LanguageValue langOwnerLeft = new LanguageValue("&cThe owner of that world left.");
 
     private HomeWorldsModule module;
     private LanguageManager languageManager;
@@ -60,19 +57,18 @@ public class PlayerListener implements Listener, Consumer<Player> {
         this.languageManager = module.getPlugin().getLanguageManager();
         this.userManager = module.getPlugin().getUserManager();
 
-        languagePlayerJoinedHome = new LanguageValue(module, "&6%s &bhas joined.");
-        languagePlayerLeftHome = new LanguageValue(module, "&6%s &bhas left.");
-
         languageManager.registerAll(new HashMap<String, LanguageValue>() {{
-            put(LANGUAGE_LOADING_OWNER, new LanguageValue(module, "&bOne moment whilst we load your home."));
-            put(LANGUAGE_LOADING_GUEST, new LanguageValue(module, "&bOne moment whilst we load that home."));
-            put(LANGUAGE_WELCOME_OWNER, new LanguageValue(module, "&aWelcome back to your home, &6%s&a."));
-            put(LANGUAGE_WELCOME_GUEST, new LanguageValue(module, "&aWelcome to &6%s&a's home, they will have to grant you permission before you can modify blocks."));
-            put(LANGUAGE_WELCOME_BOTH, new LanguageValue(module, "&aYou can go back to chat mode by typing &6/chat&a."));
-            put(LANGUAGE_LOAD_FAILED, new LanguageValue(module, "&cWe were unable to load your home, please contact a member of staff."));
-            put(LANGUAGE_OWNER_LEFT, new LanguageValue(module, "&cThe owner of that world left."));
-            put(LANGUAGE_KEY_PREFIX + ".joinedHome", languagePlayerJoinedHome);
-            put(LANGUAGE_KEY_PREFIX + ".leftHome", languagePlayerLeftHome);
+            String prefix = PlayerListener.this.module.getLanguageSection();
+
+            put(prefix + ".loading.owner", langLoadingOwner);
+            put(prefix + ".loading.guest", langLoadingGuest);
+            put(prefix + ".welcome.owner", langWelcomeOwner);
+            put(prefix + ".welcome.guest", langWelcomeGuest);
+            put(prefix + ".welcome.both", langWelcomeBoth);
+            put(prefix + ".joinedHome", langPlayerJoinedHome);
+            put(prefix + ".leftHome", langPlayerLeftHome);
+            put(prefix + ".error.loadFailed", langLoadFailed);
+            put(prefix + ".ownerLeft", langOwnerLeft);
         }});
     }
 
@@ -90,9 +86,9 @@ public class PlayerListener implements Listener, Consumer<Player> {
     public void joinWorld(Player player, UUID worldUUID) {
         if (!module.isWorldLoaded(worldUUID)) {
             if (player.getUniqueId().equals(worldUUID)) {
-                player.sendMessage(languageManager.get(LANGUAGE_LOADING_OWNER));
+                langLoadingOwner.send(player);
             } else {
-                player.sendMessage(languageManager.get(LANGUAGE_LOADING_GUEST));
+                langLoadingGuest.send(player);
             }
         }
 
@@ -110,7 +106,7 @@ public class PlayerListener implements Listener, Consumer<Player> {
         UUID playerUUID = player.getUniqueId();
 
         if (world == null) {
-            player.sendMessage(languageManager.get(LANGUAGE_LOAD_FAILED));
+            langLoadFailed.send(player);
             return;
         }
 
@@ -160,21 +156,21 @@ public class PlayerListener implements Listener, Consumer<Player> {
 
                 if (uuid.equals(owner)) {
                     player.setGameMode(GameMode.SURVIVAL);
-                    player.sendMessage(languageManager.get(LANGUAGE_WELCOME_OWNER, player.getDisplayName()));
-                    player.sendMessage(languageManager.get(LANGUAGE_WELCOME_BOTH));
+                    langWelcomeOwner.send(player);
+                    langWelcomeBoth.send(player);
                 } else {
                     player.setGameMode(GameMode.ADVENTURE);
 
                     Bukkit.getScheduler().runTaskAsynchronously(module.getPlugin(), new Runnable() { // async for getOfflinePlayer
                         @Override
                         public void run() {
-                            player.sendMessage(languageManager.get(LANGUAGE_WELCOME_GUEST, Bukkit.getOfflinePlayer(owner).getName()));
-                            player.sendMessage(languageManager.get(LANGUAGE_WELCOME_BOTH));
+                            langWelcomeGuest.send(player);
+                            langWelcomeBoth.send(player);
                         }
                     });
                 }
 
-                BukkitUtilities.broadcast(WorldDimension.getPlayersAllDimensions(to), player, languagePlayerJoinedHome.getValue(player.getName()));
+                BukkitUtilities.broadcast(WorldDimension.getPlayersAllDimensions(to), player, langPlayerJoinedHome.getValue(player.getName()));
             }
         }
     }
@@ -236,7 +232,7 @@ public class PlayerListener implements Listener, Consumer<Player> {
 
     public void leftWorld(Player player, World baseWorld) {
         if (module.isHomeWorld(baseWorld)) {
-            BukkitUtilities.broadcast(WorldDimension.getPlayersAllDimensions(baseWorld), player, languagePlayerLeftHome.getValue(player.getName()));
+            BukkitUtilities.broadcast(WorldDimension.getPlayersAllDimensions(baseWorld), player, langPlayerLeftHome.getValue(player.getName()));
 
             if (module.getHomeOwner(baseWorld).equals(player.getUniqueId())) {
                 ownerLeftWorld(player, baseWorld);
@@ -247,9 +243,11 @@ public class PlayerListener implements Listener, Consumer<Player> {
     }
 
     public void ownerLeftWorld(Player owner, World world) {
+        Location spawnLocation = Bukkit.getWorlds().get(0).getSpawnLocation();
+
         for (Player p : world.getPlayers()) {
             if (p != owner) {
-                p.kickPlayer(languageManager.get(LANGUAGE_OWNER_LEFT)); // player will go to another server (fallback)
+                p.teleport(spawnLocation, PlayerTeleportEvent.TeleportCause.PLUGIN); // put back in chat mode
             }
         }
     }

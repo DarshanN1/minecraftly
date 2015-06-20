@@ -57,11 +57,11 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     private File backupDirectory = new File(getDataFolder(), "backups");
     private boolean skipDisable = false;
 
-    public DataValue<String> CFG_DB_HOST = new DataValue<>(this, "127.0.0.1", String.class);
-    public DataValue<Integer> CFG_DB_PORT = new DataValue<>(this, 3306, Integer.class);
-    public DataValue<String> CFG_DB_USER = new DataValue<>(this, "root", String.class);
-    public DataValue<String> CFG_DB_PASS = new DataValue<>(this, "", String.class);
-    public DataValue<String> CFG_DB_DATABASE = new DataValue<>(this, "minecraftly", String.class);
+    public DataValue<String> CFG_DB_HOST = new DataValue<>("127.0.0.1", String.class);
+    public DataValue<Integer> CFG_DB_PORT = new DataValue<>(3306, Integer.class);
+    public DataValue<String> CFG_DB_USER = new DataValue<>("root", String.class);
+    public DataValue<String> CFG_DB_PASS = new DataValue<>("", String.class);
+    public DataValue<String> CFG_DB_DATABASE = new DataValue<>("minecraftly", String.class);
 
     public Map<String, DataValue> configValues = new HashMap<String, DataValue>() {{
         String dbPrefix = "database.";
@@ -249,11 +249,6 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     @Override
     public PlayerSwitchJobManager getPlayerSwitchJobManager() {
         return playerSwitchJobManager;
-    }
-
-    @Override
-    public String getIdentifier() {
-        return "core-bukkit"; // todo retrieve from gradle?
     }
 
     @Override

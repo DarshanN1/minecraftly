@@ -1,6 +1,5 @@
 package com.minecraftly.core.bukkit.module;
 
-import com.minecraftly.core.ContentOwner;
 import com.minecraftly.core.bukkit.MclyCoreBukkitPlugin;
 import com.minecraftly.core.bukkit.MinecraftlyCore;
 import com.sk89q.intake.fluent.DispatcherNode;
@@ -16,7 +15,7 @@ import java.util.logging.Logger;
 /**
  * Created by Keir on 09/03/2015.
  */
-public abstract class Module implements ContentOwner {
+public abstract class Module {
 
     private static String MODULE_LANG_SECTION = "module";
 
@@ -89,18 +88,12 @@ public abstract class Module implements ContentOwner {
         }
     }
 
-    @Override
     public final String getName() {
         return moduleProperties.getName();
     }
 
     public String getLanguageSection() {
         return languageSection;
-    }
-
-    @Override
-    public final String getIdentifier() {
-        return getModuleProperties().getIdentifier();
     }
 
     public final void registerListener(Listener listener) {

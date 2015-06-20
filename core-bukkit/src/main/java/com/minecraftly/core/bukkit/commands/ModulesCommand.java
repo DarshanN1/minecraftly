@@ -21,6 +21,7 @@ import java.util.List;
  */
 public class ModulesCommand {
 
+    // todo convert to using LanguageValue instances
     public static final String LANG_KEY_PREFIX = "core.command.modules.";
 
     public static final String LANG_VIEW_KEY_PREFIX = LANG_KEY_PREFIX + "view.";
@@ -44,15 +45,15 @@ public class ModulesCommand {
 
         //noinspection serial
         languageManager.registerAll(new HashMap<String, LanguageValue>() {{
-            put(LANG_LOADED_MODULES, new LanguageValue(plugin, "&bLoaded modules: "));
-            put(LANG_LOADED_MODULES_SEPARATOR, new LanguageValue(plugin, "&7, "));
-            put(LANG_LOADED_MODULE_ENABLED_PREFIX, new LanguageValue(plugin, "&a"));
-            put(LANG_LOADED_MODULE_DISABLED_PREFIX, new LanguageValue(plugin, "&c"));
-            put(LANG_NO_MODULES, new LanguageValue(plugin, "&cThere are no currently loaded modules."));
+            put(LANG_LOADED_MODULES, new LanguageValue("&bLoaded modules: "));
+            put(LANG_LOADED_MODULES_SEPARATOR, new LanguageValue("&7, "));
+            put(LANG_LOADED_MODULE_ENABLED_PREFIX, new LanguageValue("&a"));
+            put(LANG_LOADED_MODULE_DISABLED_PREFIX, new LanguageValue("&c"));
+            put(LANG_NO_MODULES, new LanguageValue("&cThere are no currently loaded modules."));
 
-            put(LANG_FOUND_UNUSED_LANG_HEADER, new LanguageValue(plugin, "&bThe following keys and associated values have been found to be unused.\n&bThey will be backed up and then removed from the main language file."));
-            put(LANG_CLEANUP_COMPLETE, new LanguageValue(plugin, "&6%s &bunused language values were cleaned."));
-            put(LANG_CLEANUP_COMPLETE_BACKUP, new LanguageValue(plugin, "&bBackup file saved to: &6%s"));
+            put(LANG_FOUND_UNUSED_LANG_HEADER, new LanguageValue("&bThe following keys and associated values have been found to be unused.\n&bThey will be backed up and then removed from the main language file."));
+            put(LANG_CLEANUP_COMPLETE, new LanguageValue("&6%s &bunused language values were cleaned."));
+            put(LANG_CLEANUP_COMPLETE_BACKUP, new LanguageValue("&bBackup file saved to: &6%s"));
         }});
     }
 

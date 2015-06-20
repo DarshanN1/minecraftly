@@ -20,25 +20,19 @@ public class OwnerCommands {
 
     private final HomeWorldsModule module;
 
-    private final LanguageValue langNotOwner;
-    private final LanguageValue langNotInHome;
-    private final LanguageValue langAttemptSelf;
-    private final LanguageValue langAlreadyInGameMode;
-    private final LanguageValue langSuccessSender;
-    private final LanguageValue langSuccessTarget;
+    private final LanguageValue langNotOwner = new LanguageValue("&cYou cannot do that here, this is not your home.");
+    private final LanguageValue langNotInHome = new LanguageValue("&cThat player is not in your home.");
+    private final LanguageValue langAttemptSelf = new LanguageValue("&cYou may not set your own game mode.");
+    private final LanguageValue langAlreadyInGameMode = new LanguageValue("&cThat player is already in &6%s &cmode.");
+    private final LanguageValue langSuccessSender = new LanguageValue("&aSuccessfully set &6%s &ato &6%s &amode.");
+    private final LanguageValue langSuccessTarget = new LanguageValue("&aYou have been set to &6%s &amode by &6%s&a.");
 
     public OwnerCommands(HomeWorldsModule module) {
         this.module = module;
-        this.langNotOwner = new LanguageValue(module, "&cYou cannot do that here, this is not your home.");
-        this.langNotInHome = new LanguageValue(module, "&cThat player is not in your home.");
-        this.langAttemptSelf = new LanguageValue(module, "&cYou may not set your own game mode.");
-        this.langAlreadyInGameMode = new LanguageValue(module, "&cThat player is already in &6%s &cmode.");
-        this.langSuccessSender = new LanguageValue(module, "&aSuccessfully set &6%s &ato &6%s &amode.");
-        this.langSuccessTarget = new LanguageValue(module, "&aYou have been set to &6%s &amode by &6%s&a.");
-
-        String langPrefix = module.getLanguageSection() + ".command.owner";
 
         module.getPlugin().getLanguageManager().registerAll(new HashMap<String, LanguageValue>() {{
+            String langPrefix = module.getLanguageSection() + ".command.owner";
+
             put(langPrefix + ".notOwner", langNotOwner);
             put(langPrefix + ".notInHome", langNotInHome);
             put(langPrefix + ".attemptSelf", langAttemptSelf);

@@ -2,7 +2,6 @@ package com.minecraftly.core.bukkit.config;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.minecraftly.core.ContentOwner;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 
 /**
@@ -10,7 +9,6 @@ import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
  */
 public class DataValue<T> {
 
-    private ContentOwner contentOwner;
     private T def;
     private T value;
     private T untouchedValue;
@@ -18,18 +16,12 @@ public class DataValue<T> {
 
     private Object handler = null;
 
-    public DataValue(ContentOwner contentOwner, T def, Class<T> typeClass) {
-        checkNotNull(contentOwner);
+    public DataValue(T def, Class<T> typeClass) {
         checkNotNull(def);
 
-        this.contentOwner = contentOwner;
         this.def = def;
         this.typeClass = typeClass;
         setValue(def);
-    }
-
-    public ContentOwner getContentOwner() {
-        return contentOwner;
     }
 
     public T getDefaultValue() {

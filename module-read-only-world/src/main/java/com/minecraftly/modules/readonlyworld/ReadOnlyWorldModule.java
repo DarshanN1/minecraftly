@@ -32,7 +32,7 @@ public class ReadOnlyWorldModule extends Module implements Listener {
     public static long SESSION_ID = 666;
 
     private World readOnlyWorld = null;
-    private final LanguageValue langBreakWarning = new LanguageValue(this, "&cThis world may not be modified, it is a read-only world.");
+    private final LanguageValue langBreakWarning = new LanguageValue("&cThis world may not be modified, it is a read-only world.");
 
     @Override
     protected void onEnable(MinecraftlyCore plugin) {

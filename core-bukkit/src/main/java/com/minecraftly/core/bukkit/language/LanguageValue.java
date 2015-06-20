@@ -1,6 +1,5 @@
 package com.minecraftly.core.bukkit.language;
 
-import com.minecraftly.core.ContentOwner;
 import com.minecraftly.core.bukkit.config.DataValue;
 import org.bukkit.command.CommandSender;
 
@@ -12,8 +11,8 @@ import java.util.IllegalFormatException;
  */
 public class LanguageValue extends DataValue<String> {
 
-    public LanguageValue(ContentOwner contentOwner, String def) {
-        super(contentOwner, def, String.class);
+    public LanguageValue(String def) {
+        super(def, String.class);
     }
 
     public String getValue(Object... args) {

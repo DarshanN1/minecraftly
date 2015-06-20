@@ -4,6 +4,7 @@ import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bukkit.database.DatabaseManager;
 import com.minecraftly.core.bukkit.user.User;
 import com.minecraftly.core.bukkit.user.modularisation.SingletonUserData;
+import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.bukkit.ChatColor;
@@ -36,9 +37,7 @@ public class GlobalUserData extends SingletonUserData implements ResultSetHandle
         yamlConfiguration = new YamlConfiguration();
 
         PlayerInventory playerInventory = player.getInventory();
-        ConfigurationSection playerInventorySection = yamlConfiguration.isConfigurationSection("playerInventory")
-                ? yamlConfiguration.getConfigurationSection("playerInventory")
-                : yamlConfiguration.createSection("playerInventory");
+        ConfigurationSection playerInventorySection = BukkitUtilities.getOrCreateSection(yamlConfiguration, "playerInventory");
 
         for (int i = 0; i < playerInventory.getSize(); i++) {
             ItemStack itemStack = playerInventory.getItem(i);
@@ -46,9 +45,7 @@ public class GlobalUserData extends SingletonUserData implements ResultSetHandle
         }
 
         Inventory enderInventory = player.getEnderChest();
-        ConfigurationSection enderInventorySection = yamlConfiguration.isConfigurationSection("enderInventory")
-                ? yamlConfiguration.getConfigurationSection("enderInventory")
-                : yamlConfiguration.createSection("enderInventory");
+        ConfigurationSection enderInventorySection = BukkitUtilities.getOrCreateSection(yamlConfiguration, "enderInventory");
 
         for (int i = 0; i < enderInventory.getSize(); i++) {
             ItemStack itemStack = enderInventory.getItem(i);

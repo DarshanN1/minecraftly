@@ -175,4 +175,8 @@ public class BukkitUtilities {
         return players;
     }
 
+    public static ConfigurationSection getOrCreateSection(ConfigurationSection configurationSection, String sectionName) {
+        return configurationSection.contains(sectionName) ? configurationSection.getConfigurationSection(sectionName) : configurationSection.createSection(sectionName);
+    }
+
 }

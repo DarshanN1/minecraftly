@@ -11,6 +11,7 @@ import com.minecraftly.modules.homeworlds.HomeWorldsModule;
 import com.minecraftly.modules.homeworlds.WorldDimension;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
+import org.bukkit.Achievement;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -19,6 +20,8 @@ import org.bukkit.entity.Player;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -80,6 +83,10 @@ public class WorldUserData extends SingletonUserData implements ResultSetHandler
         return yamlConfiguration.getInt("fallDistance");
     }
 
+    public List<String> getAchievements() {
+        return yamlConfiguration.getStringList("achievements");
+    }
+
     @Override
     public void extractFrom(Player player) {
         Location lastLocation = checkLocation(player.getLocation());
@@ -96,6 +103,15 @@ public class WorldUserData extends SingletonUserData implements ResultSetHandler
         yamlConfiguration.set("exhaustion", player.getExhaustion());
         yamlConfiguration.set("saturation", player.getSaturation());
         yamlConfiguration.set("fallDistance", player.getFallDistance());
+
+        List<String> achievements = new ArrayList<>();
+        for (Achievement achievement : Achievement.values()) {
+            if (player.hasAchievement(achievement)) {
+                achievements.add(achievement.name());
+            }
+        }
+
+        yamlConfiguration.set("achievements", achievements);
     }
 
     private Location checkLocation(Location location) {
@@ -135,6 +151,15 @@ public class WorldUserData extends SingletonUserData implements ResultSetHandler
         player.setExhaustion(yamlConfiguration.getInt("exhaustion"));
         player.setSaturation(yamlConfiguration.getInt("saturation"));
         player.setFallDistance(yamlConfiguration.getInt("fallDistance"));
+
+        List<String> achievements = getAchievements();
+        for (Achievement achievement : Achievement.values()) {
+            if (achievements.contains(achievement.name())) {
+                player.awardAchievement(achievement);
+            } else {
+                player.removeAchievement(achievement);
+            }
+        }
     }
 
     @Override

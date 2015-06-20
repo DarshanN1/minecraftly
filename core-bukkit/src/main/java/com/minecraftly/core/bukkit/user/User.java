@@ -95,7 +95,6 @@ public class User {
             Map.Entry<Class<? extends UserData>, Set<UserData>> entry = iterator.next();
 
             if (clazz.isAssignableFrom(entry.getKey())) {
-                System.out.println("Detach " + clazz.getName());
                 iterator.remove();
             }
         }

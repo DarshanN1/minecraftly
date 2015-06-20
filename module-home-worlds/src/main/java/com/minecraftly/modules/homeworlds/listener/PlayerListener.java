@@ -123,7 +123,6 @@ public class PlayerListener implements Listener, Consumer<Player> {
         }
 
         player.teleport(spawnLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
-        worldUserData.apply(player);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -155,6 +154,9 @@ public class PlayerListener implements Listener, Consumer<Player> {
 
             if (module.isHomeWorld(to)) {
                 final UUID owner = module.getHomeOwner(to);
+                WorldUserDataContainer worldUserDataContainer = userManager.getUser(player).getSingletonUserData(WorldUserDataContainer.class);
+                WorldUserData worldUserData = worldUserDataContainer.get(owner);
+                worldUserData.apply(player);
 
                 if (uuid.equals(owner)) {
                     player.setGameMode(GameMode.SURVIVAL);

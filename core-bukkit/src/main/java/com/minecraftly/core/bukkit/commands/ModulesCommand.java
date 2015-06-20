@@ -21,39 +21,36 @@ import java.util.List;
  */
 public class ModulesCommand {
 
-    // todo convert to using LanguageValue instances
-    public static final String LANG_KEY_PREFIX = "core.command.modules.";
-
-    public static final String LANG_VIEW_KEY_PREFIX = LANG_KEY_PREFIX + "view.";
-    public static final String LANG_LOADED_MODULES = LANG_VIEW_KEY_PREFIX + "loadedModules";
-    public static final String LANG_LOADED_MODULES_SEPARATOR = LANG_VIEW_KEY_PREFIX + "separator";
-    public static final String LANG_LOADED_MODULE_ENABLED_PREFIX = LANG_VIEW_KEY_PREFIX + "moduleEnabledPrefix";
-    public static final String LANG_LOADED_MODULE_DISABLED_PREFIX = LANG_VIEW_KEY_PREFIX + "moduleDisabledPrefix";
-    public static final String LANG_NO_MODULES = LANG_VIEW_KEY_PREFIX + "noModules";
-
-    public static final String LANG_CLEANUP_KEY_PREFIX = LANG_KEY_PREFIX + "cleanup.";
-    public static final String LANG_FOUND_UNUSED_LANG_HEADER = LANG_CLEANUP_KEY_PREFIX + "foundUnusedLangHeader";
-    public static final String LANG_CLEANUP_COMPLETE = LANG_CLEANUP_KEY_PREFIX + "cleanupComplete";
-    public static final String LANG_CLEANUP_COMPLETE_BACKUP = LANG_CLEANUP_KEY_PREFIX + "cleanupCompleteBackup";
-
     private MinecraftlyCore plugin;
-    private LanguageManager languageManager;
+
+    private LanguageValue langLoadedModules = new LanguageValue("&bLoaded modules: ");
+    private LanguageValue langLoadedModulesSeparator = new LanguageValue("&7, ");
+    private LanguageValue langLoadedModuleEnabledPrefix = new LanguageValue("&a");
+    private LanguageValue langLoadedModuleDisabledPrefix = new LanguageValue("&c");
+    private LanguageValue langNoModules = new LanguageValue("&cThere are no currently loaded modules.");
+
+    private LanguageValue langFoundUnusedLangHeader = new LanguageValue("&bThe following keys and associated values have been found to be unused.\n&bThey will be backed up and then removed from the main language file.");
+    private LanguageValue langCleanupComplete = new LanguageValue("&6%s &bunused language values were cleaned.");
+    private LanguageValue langCleanupCompletedBackup = new LanguageValue("&bBackup file saved to: &6%s");
 
     public ModulesCommand(final MinecraftlyCore plugin) {
         this.plugin = plugin;
-        languageManager = plugin.getLanguageManager();
 
         //noinspection serial
-        languageManager.registerAll(new HashMap<String, LanguageValue>() {{
-            put(LANG_LOADED_MODULES, new LanguageValue("&bLoaded modules: "));
-            put(LANG_LOADED_MODULES_SEPARATOR, new LanguageValue("&7, "));
-            put(LANG_LOADED_MODULE_ENABLED_PREFIX, new LanguageValue("&a"));
-            put(LANG_LOADED_MODULE_DISABLED_PREFIX, new LanguageValue("&c"));
-            put(LANG_NO_MODULES, new LanguageValue("&cThere are no currently loaded modules."));
+        this.plugin.getLanguageManager().registerAll(new HashMap<String, LanguageValue>() {{
+            String prefix = "core.command.modules";
 
-            put(LANG_FOUND_UNUSED_LANG_HEADER, new LanguageValue("&bThe following keys and associated values have been found to be unused.\n&bThey will be backed up and then removed from the main language file."));
-            put(LANG_CLEANUP_COMPLETE, new LanguageValue("&6%s &bunused language values were cleaned."));
-            put(LANG_CLEANUP_COMPLETE_BACKUP, new LanguageValue("&bBackup file saved to: &6%s"));
+            String viewPrefix = prefix + ".view";
+            put(viewPrefix + ".loadedModules", langLoadedModules);
+            put(viewPrefix + ".separator", langLoadedModulesSeparator);
+            put(viewPrefix + ".moduleEnabledPrefix", langLoadedModuleEnabledPrefix);
+            put(viewPrefix + ".moduleDisabledPrefix", langLoadedModuleDisabledPrefix);
+            put(viewPrefix + ".noModules", langNoModules);
+
+            String cleanupPrefix = prefix + ".cleanup";
+            put(cleanupPrefix + ".foundUnusedLangHeader", langFoundUnusedLangHeader);
+            put(cleanupPrefix + ".cleanupComplete", langCleanupComplete);
+            put(cleanupPrefix + ".cleanupCompleteBackup",langCleanupCompletedBackup );
         }});
     }
 
@@ -64,20 +61,20 @@ public class ModulesCommand {
         List<Module> modules = plugin.getModuleManager().getModules();
 
         if (modules.size() > 0) {
-            stringBuilder.append(languageManager.get(LANG_LOADED_MODULES));
+            stringBuilder.append(langLoadedModules.getValue());
 
             for (int i = 0; i < modules.size(); i++) {
                 Module module = modules.get(i);
-                stringBuilder.append(module.isEnabled() ? languageManager.get(LANG_LOADED_MODULE_ENABLED_PREFIX) :
-                        languageManager.get(LANG_LOADED_MODULE_DISABLED_PREFIX))
+                stringBuilder.append(module.isEnabled() ? langLoadedModuleEnabledPrefix.getValue() :
+                        langLoadedModuleDisabledPrefix.getValue())
                         .append(module.getName());
 
                 if (i != modules.size() - 1) { // if not last item
-                    stringBuilder.append(languageManager.get(LANG_LOADED_MODULES_SEPARATOR));
+                    stringBuilder.append(langLoadedModulesSeparator.getValue());
                 }
             }
         } else {
-            stringBuilder.append(languageManager.get(LANG_NO_MODULES));
+            stringBuilder.append(langNoModules.getValue());
         }
 
         sender.sendMessage(stringBuilder.toString());
@@ -123,14 +120,14 @@ public class ModulesCommand {
             count++;
         }
 
-        sender.sendMessage(languageManager.get(LANG_CLEANUP_COMPLETE, count));
+        langCleanupComplete.send(sender, count);
         languageManager.configWrapper.saveConfig();
 
         // todo cleanup config
 
         if (backupConfig.getKeys(true).size() > 0) {
             backupConfigWrapper.saveConfig();
-            sender.sendMessage(languageManager.get(LANG_CLEANUP_COMPLETE_BACKUP, backupFile.getPath()));
+            langCleanupCompletedBackup.send(sender, backupFile.getPath());
         } else { // if nothing was cleaned (backed up), delete backup
             backupFile.delete();
         }

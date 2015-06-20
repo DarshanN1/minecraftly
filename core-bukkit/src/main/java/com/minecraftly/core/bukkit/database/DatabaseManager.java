@@ -48,7 +48,7 @@ public class DatabaseManager {
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setInitializationFailFast(true);
         hikariConfig.setLeakDetectionThreshold(TimeUnit.SECONDS.toMillis(10));
-        hikariConfig.setMaximumPoolSize(25); // todo adjust
+        hikariConfig.setMaximumPoolSize(10);
         hikariConfig.setDataSourceClassName("com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
         hikariConfig.addDataSourceProperty("serverName", host);
         hikariConfig.addDataSourceProperty("port", port);

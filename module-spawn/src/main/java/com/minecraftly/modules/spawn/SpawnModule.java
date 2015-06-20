@@ -145,7 +145,7 @@ public class SpawnModule extends Module implements Listener {
     }
 
     private void makePlayerDisabled(final Player player, final World world) { // lol
-        for (Player player1 : player.spigot().getHiddenPlayers()) {
+        for (Player player1 : Bukkit.getOnlinePlayers()) {
             player.hidePlayer(player1);
             player1.hidePlayer(player);
         }

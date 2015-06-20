@@ -55,19 +55,19 @@ public class WorldUserData extends SingletonUserData implements ResultSetHandler
                 : null;
     }
 
-    public int getAir() {
+    public int getRemainingAir() {
         return yamlConfiguration.getInt("air");
     }
 
-    public int getFire() {
+    public int getFireTicks() {
         return yamlConfiguration.getInt("fire");
     }
 
-    public int getFood() {
+    public int getFoodLevel() {
         return yamlConfiguration.getInt("food");
     }
 
-    public int getExperience() {
+    public int getTotalExperience() {
         return yamlConfiguration.getInt("experience");
     }
 
@@ -143,14 +143,14 @@ public class WorldUserData extends SingletonUserData implements ResultSetHandler
         player.setBedSpawnLocation(yamlConfiguration.isConfigurationSection("bedLocation")
                 ? BukkitUtilities.getLocation(yamlConfiguration.getConfigurationSection("bedLocation")) : null);
 
-        player.setRemainingAir(yamlConfiguration.getInt("air"));
-        player.setFireTicks(yamlConfiguration.getInt("fire"));
-        player.setFoodLevel(yamlConfiguration.getInt("food"));
-        player.setTotalExperience(yamlConfiguration.getInt("experience"));
+        player.setRemainingAir(getRemainingAir());
+        player.setFireTicks(getFireTicks());
+        player.setFoodLevel(getFoodLevel());
+        player.setTotalExperience(getTotalExperience());
 
-        player.setExhaustion(yamlConfiguration.getInt("exhaustion"));
-        player.setSaturation(yamlConfiguration.getInt("saturation"));
-        player.setFallDistance(yamlConfiguration.getInt("fallDistance"));
+        player.setExhaustion(getExhaustion());
+        player.setSaturation(getSaturation());
+        player.setFallDistance(getFallDistance());
 
         List<String> achievements = getAchievements();
         for (Achievement achievement : Achievement.values()) {

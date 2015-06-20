@@ -7,9 +7,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -154,6 +156,18 @@ public class BukkitUtilities {
 
     public static ConfigurationSection getOrCreateSection(ConfigurationSection configurationSection, String sectionName) {
         return configurationSection.contains(sectionName) ? configurationSection.getConfigurationSection(sectionName) : configurationSection.createSection(sectionName);
+    }
+
+    public static void broadcast(List<Player> playerList, String message) {
+        broadcast(playerList, null, message);
+    }
+
+    public static void broadcast(List<Player> playerList, Player exclude, String message) {
+        for (Player player : playerList) {
+            if (player != exclude) {
+                player.sendMessage(message);
+            }
+        }
     }
 
 }

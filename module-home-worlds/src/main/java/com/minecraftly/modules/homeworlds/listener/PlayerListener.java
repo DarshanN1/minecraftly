@@ -48,6 +48,9 @@ public class PlayerListener implements Listener, Consumer<Player> {
     public static final String LANGUAGE_ERROR_KEY_PREFIX = LANGUAGE_KEY_PREFIX + ".error";
     public static final String LANGUAGE_LOAD_FAILED = LANGUAGE_ERROR_KEY_PREFIX + ".loadFailed";
 
+    private LanguageValue languagePlayerJoinedHome;
+    private LanguageValue languagePlayerLeftHome;
+
     private HomeWorldsModule module;
     private LanguageManager languageManager;
     private UserManager userManager;
@@ -57,6 +60,9 @@ public class PlayerListener implements Listener, Consumer<Player> {
         this.languageManager = module.getPlugin().getLanguageManager();
         this.userManager = module.getPlugin().getUserManager();
 
+        languagePlayerJoinedHome = new LanguageValue(module, "&6%s &bhas joined.");
+        languagePlayerLeftHome = new LanguageValue(module, "&6%s &bhas left.");
+
         languageManager.registerAll(new HashMap<String, LanguageValue>() {{
             put(LANGUAGE_LOADING_OWNER, new LanguageValue(module, "&bOne moment whilst we load your home."));
             put(LANGUAGE_LOADING_GUEST, new LanguageValue(module, "&bOne moment whilst we load that home."));
@@ -65,6 +71,8 @@ public class PlayerListener implements Listener, Consumer<Player> {
             put(LANGUAGE_WELCOME_BOTH, new LanguageValue(module, "&aYou can go back to chat mode by typing &6/chat&a."));
             put(LANGUAGE_LOAD_FAILED, new LanguageValue(module, "&cWe were unable to load your home, please contact a member of staff."));
             put(LANGUAGE_OWNER_LEFT, new LanguageValue(module, "&cThe owner of that world left."));
+            put(LANGUAGE_KEY_PREFIX + ".joinedHome", languagePlayerJoinedHome);
+            put(LANGUAGE_KEY_PREFIX + ".leftHome", languagePlayerLeftHome);
         }});
     }
 
@@ -129,13 +137,7 @@ public class PlayerListener implements Listener, Consumer<Player> {
     public void onPlayerQuit(PlayerQuitEvent e) {
         Player player = e.getPlayer();
         World world = WorldDimension.getBaseWorld(player.getWorld());
-        UUID worldOwner = module.getHomeOwner(world);
-
-        if (worldOwner != null && worldOwner.equals(player.getUniqueId())) {
-            ownerLeftWorld(player, world);
-        }
-
-        checkWorldForUnloadDelayed(world);
+        leftWorld(player, world);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -146,11 +148,7 @@ public class PlayerListener implements Listener, Consumer<Player> {
         World to = WorldDimension.getBaseWorld(e.getTo().getWorld());
 
         if (!from.equals(to)) {
-            checkWorldForUnloadDelayed(from);
-
-            if (module.isHomeWorld(from) && module.getHomeOwner(from).equals(uuid)) {
-                ownerLeftWorld(player, from);
-            }
+            leftWorld(player, from);
 
             if (module.isHomeWorld(to)) {
                 final UUID owner = module.getHomeOwner(to);
@@ -175,6 +173,8 @@ public class PlayerListener implements Listener, Consumer<Player> {
                         }
                     });
                 }
+
+                BukkitUtilities.broadcast(WorldDimension.getPlayersAllDimensions(to), player, languagePlayerJoinedHome.getValue(player.getName()));
             }
         }
     }
@@ -232,6 +232,18 @@ public class PlayerListener implements Listener, Consumer<Player> {
         if (module.isHomeWorld(world) && WorldDimension.getPlayersAllDimensions(world).size() == 0) {
             Bukkit.unloadWorld(world, true); // unloads other dimensions too
         }
+    }
+
+    public void leftWorld(Player player, World baseWorld) {
+        if (module.isHomeWorld(baseWorld)) {
+            BukkitUtilities.broadcast(WorldDimension.getPlayersAllDimensions(baseWorld), player, languagePlayerLeftHome.getValue(player.getName()));
+
+            if (module.getHomeOwner(baseWorld).equals(player.getUniqueId())) {
+                ownerLeftWorld(player, baseWorld);
+            }
+        }
+
+        checkWorldForUnloadDelayed(baseWorld);
     }
 
     public void ownerLeftWorld(Player owner, World world) {

@@ -25,7 +25,7 @@ import java.nio.file.StandardCopyOption
 
 apply plugin: 'idea'
 
-ext.bukkitVersion = '1.8.3-R0.1-SNAPSHOT'
+ext.bukkitVersion = '1.8.7-R0.1-SNAPSHOT'
 ext.bungeeVersion = '1.8-SNAPSHOT'
 ext.exhaustVersion = '1.0.0-SNAPSHOT'
 ext.pmfVersion = '1.0.0-SNAPSHOT'
@@ -175,7 +175,7 @@ project(':core') {
         compile group: 'lc.vq', name: 'exhaust-core', version: exhaustVersion
 
         // HikariCP dependencies
-        compile group: 'com.zaxxer', name: 'HikariCP-java6', version: '2.3.6'
+        compile group: 'com.zaxxer', name: 'HikariCP-java6', version: '2.3.8'
         compile group: 'org.javassist', name: 'javassist', version: '3.19.0-GA'
         compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.10'
         compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.10'

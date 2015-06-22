@@ -11,6 +11,7 @@ import com.minecraftly.modules.homeworlds.data.global.GlobalStorageHandler;
 import com.minecraftly.modules.homeworlds.data.world.WorldStorageHandler;
 import com.minecraftly.modules.homeworlds.listener.DimensionListener;
 import com.minecraftly.modules.homeworlds.listener.PlayerListener;
+import com.minecraftly.modules.homeworlds.listener.WorldMessagesListener;
 import com.sk89q.intake.fluent.DispatcherNode;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -55,6 +56,7 @@ public class HomeWorldsModule extends Module implements Listener {
         registerListener(this);
         registerListener(playerListener);
         registerListener(new DimensionListener(this));
+        registerListener(new WorldMessagesListener(this));
         gateway.registerListener(playerListener);
         plugin.getPlayerSwitchJobManager().addJob(playerListener);
 

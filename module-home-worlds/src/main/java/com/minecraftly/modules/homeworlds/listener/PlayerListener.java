@@ -2,7 +2,6 @@ package com.minecraftly.modules.homeworlds.listener;
 
 import com.google.common.base.Preconditions;
 import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
-import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.user.User;
 import com.minecraftly.core.bukkit.user.UserManager;
@@ -15,6 +14,7 @@ import com.minecraftly.modules.homeworlds.data.world.WorldUserDataContainer;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -35,8 +35,6 @@ import java.util.function.Consumer;
  */
 public class PlayerListener implements Listener, Consumer<Player> {
 
-    public static final String LANGUAGE_KEY_PREFIX = HomeWorldsModule.getInstance().getLanguageSection();
-
     private final LanguageValue langLoadingOwner = new LanguageValue("&bOne moment whilst we load your home.");
     private final LanguageValue langLoadingGuest = new LanguageValue("&bOne moment whilst we load that home.");
     private final LanguageValue langWelcomeOwner = new LanguageValue("&aWelcome back to your home, &6%s&a.");
@@ -46,18 +44,16 @@ public class PlayerListener implements Listener, Consumer<Player> {
     private final LanguageValue langPlayerLeftHome = new LanguageValue("&6%s &bhas left.");
 
     private final LanguageValue langLoadFailed = new LanguageValue("&cWe were unable to load your home, please contact a member of staff.");
-    private final LanguageValue langOwnerLeft = new LanguageValue("&cThe owner of that world left.");
+    private final LanguageValue langOwnerLeft = new LanguageValue("&cThe owner of that home left.");
 
     private HomeWorldsModule module;
-    private LanguageManager languageManager;
     private UserManager userManager;
 
     public PlayerListener(final HomeWorldsModule module) {
         this.module = module;
-        this.languageManager = module.getPlugin().getLanguageManager();
         this.userManager = module.getPlugin().getUserManager();
 
-        languageManager.registerAll(new HashMap<String, LanguageValue>() {{
+        module.getPlugin().getLanguageManager().registerAll(new HashMap<String, LanguageValue>() {{
             String prefix = PlayerListener.this.module.getLanguageSection();
 
             put(prefix + ".loading.owner", langLoadingOwner);
@@ -156,7 +152,7 @@ public class PlayerListener implements Listener, Consumer<Player> {
 
                 if (uuid.equals(owner)) {
                     player.setGameMode(GameMode.SURVIVAL);
-                    langWelcomeOwner.send(player);
+                    langWelcomeOwner.send(player, player.getDisplayName());
                     langWelcomeBoth.send(player);
                 } else {
                     player.setGameMode(GameMode.ADVENTURE);
@@ -164,7 +160,9 @@ public class PlayerListener implements Listener, Consumer<Player> {
                     Bukkit.getScheduler().runTaskAsynchronously(module.getPlugin(), new Runnable() { // async for getOfflinePlayer
                         @Override
                         public void run() {
-                            langWelcomeGuest.send(player);
+                            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(owner);
+
+                            langWelcomeGuest.send(player, offlinePlayer instanceof Player ? ((Player) offlinePlayer).getDisplayName() : offlinePlayer.getName());
                             langWelcomeBoth.send(player);
                         }
                     });

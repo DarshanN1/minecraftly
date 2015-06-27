@@ -74,7 +74,7 @@ public abstract class UserData {
      *
      * @param player the player to extract the data from
      */
-    public abstract void extractFrom(Player player);
+    public void extractFrom(Player player) {}
 
     /**
      * Loads data from an SQL database.
@@ -93,7 +93,7 @@ public abstract class UserData {
      *
      * @param player the player to apply the data to
      */
-    public abstract void apply(Player player);
+    public void apply(Player player) {}
 
     /**
      * Saves data to an SQL database.

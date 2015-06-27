@@ -77,7 +77,7 @@ public class SpawnModule extends Module implements Listener {
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player player = e.getPlayer();
         player.teleport(getChatWorld().getSpawnLocation());
-        makePlayerDisabled(player, player.getWorld());
+        onEnterChatWorld(player, player.getWorld());
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -90,7 +90,7 @@ public class SpawnModule extends Module implements Listener {
 
         if (!to.equals(from)) {
             if (to.equals(spawnWorld)) {
-                makePlayerDisabled(player, spawnWorld);
+                onEnterChatWorld(player, spawnWorld);
             } else if (from.equals(spawnWorld)) {
                 player.removePotionEffect(PotionEffectType.BLINDNESS);
                 player.removePotionEffect(PotionEffectType.NIGHT_VISION);
@@ -140,11 +140,11 @@ public class SpawnModule extends Module implements Listener {
         World world = player.getWorld();
 
         if (world == getChatWorld()) {
-            makePlayerDisabled(player, world);
+            onEnterChatWorld(player, world);
         }
     }
 
-    private void makePlayerDisabled(final Player player, final World world) { // lol
+    private void onEnterChatWorld(final Player player, final World world) { // lol
         for (Player player1 : Bukkit.getOnlinePlayers()) {
             player.hidePlayer(player1);
             player1.hidePlayer(player);

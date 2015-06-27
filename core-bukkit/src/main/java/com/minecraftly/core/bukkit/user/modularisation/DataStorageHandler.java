@@ -21,6 +21,6 @@ public abstract class DataStorageHandler<T extends SingletonUserData> {
         return queryRunnerSupplier;
     }
 
-    public abstract void initialize() throws SQLException;
+    public void initialize() throws SQLException {}
 
 }

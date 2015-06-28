@@ -7,6 +7,8 @@ import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.imaginarycode.minecraft.redisbungee.events.PubSubMessageEvent;
 import com.minecraftly.core.bungee.MclyCoreBungeePlugin;
+import com.minecraftly.core.bungee.handlers.job.JobQueue;
+import com.minecraftly.core.bungee.handlers.job.JobType;
 import com.minecraftly.core.bungee.utilities.BungeeUtilities;
 import com.minecraftly.core.packets.PacketTeleport;
 import com.sk89q.intake.Command;
@@ -169,7 +171,9 @@ public class TpaHandler implements Runnable, Listener {
                     gateway.sendPacket(initiator, new PacketTeleport(teleportTargetUUID));
                 } else {
                     initiator.connect(teleportTargetServer);
-                    plugin.getPreSwitchHandler().addJob(initiator, serverConnection -> {
+
+                    // todo remove cast
+                    ((JobQueue<Server>) plugin.getJobManager().getJobQueue(JobType.CONNECT)).addJob(initiatorUUID, (proxiedPlayer, serverConnection) -> {
                         gateway.sendPacketServer(serverConnection, new PacketTeleport(teleportTargetUUID));
                     });
                 }

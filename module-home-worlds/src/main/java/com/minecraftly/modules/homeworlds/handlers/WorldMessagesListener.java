@@ -1,4 +1,4 @@
-package com.minecraftly.modules.homeworlds.listener;
+package com.minecraftly.modules.homeworlds.handlers;
 
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.modules.homeworlds.HomeWorldsModule;

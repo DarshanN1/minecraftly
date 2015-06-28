@@ -1,6 +1,5 @@
-package com.minecraftly.modules.homeworlds.listener;
+package com.minecraftly.modules.homeworlds.handlers;
 
-import com.google.common.base.Preconditions;
 import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.user.User;
@@ -35,16 +34,14 @@ import java.util.function.Consumer;
  */
 public class PlayerListener implements Listener, Consumer<Player> {
 
-    private final LanguageValue langLoadingOwner = new LanguageValue("&bOne moment whilst we load your home.");
-    private final LanguageValue langLoadingGuest = new LanguageValue("&bOne moment whilst we load that home.");
     private final LanguageValue langWelcomeOwner = new LanguageValue("&aWelcome back to your home, &6%s&a.");
     private final LanguageValue langWelcomeGuest = new LanguageValue("&aWelcome to &6%s&a's home, they will have to grant you permission before you can modify blocks.");
     private final LanguageValue langWelcomeBoth = new LanguageValue("&aYou can go back to chat mode by typing &6/chat&a.");
     private final LanguageValue langPlayerJoinedHome = new LanguageValue("&6%s &bhas joined.");
     private final LanguageValue langPlayerLeftHome = new LanguageValue("&6%s &bhas left.");
 
-    private final LanguageValue langLoadFailed = new LanguageValue("&cWe were unable to load your home, please contact a member of staff.");
     private final LanguageValue langOwnerLeft = new LanguageValue("&cThe owner of that home left.");
+    private final LanguageValue langBotCheckNotCompleted = new LanguageValue("&cYou must first confirm you are human.");
 
     private HomeWorldsModule module;
     private UserManager userManager;
@@ -56,15 +53,13 @@ public class PlayerListener implements Listener, Consumer<Player> {
         module.getPlugin().getLanguageManager().registerAll(new HashMap<String, LanguageValue>() {{
             String prefix = PlayerListener.this.module.getLanguageSection();
 
-            put(prefix + ".loading.owner", langLoadingOwner);
-            put(prefix + ".loading.guest", langLoadingGuest);
             put(prefix + ".welcome.owner", langWelcomeOwner);
             put(prefix + ".welcome.guest", langWelcomeGuest);
             put(prefix + ".welcome.both", langWelcomeBoth);
             put(prefix + ".joinedHome", langPlayerJoinedHome);
             put(prefix + ".leftHome", langPlayerLeftHome);
-            put(prefix + ".error.loadFailed", langLoadFailed);
             put(prefix + ".ownerLeft", langOwnerLeft);
+            put(prefix + ".botCheckNotCompleted", langBotCheckNotCompleted);
         }});
     }
 
@@ -75,54 +70,8 @@ public class PlayerListener implements Listener, Consumer<Player> {
         Player player = Bukkit.getPlayer(playerUUID);
 
         if (player != null) {
-            joinWorld(player, worldUUID);
+            module.joinWorld(player, worldUUID);
         }
-    }
-
-    public void joinWorld(Player player, UUID worldUUID) {
-        if (!module.isWorldLoaded(worldUUID)) {
-            if (player.getUniqueId().equals(worldUUID)) {
-                langLoadingOwner.send(player);
-            } else {
-                langLoadingGuest.send(player);
-            }
-        }
-
-        World world = module.getWorld(worldUUID);
-        Bukkit.getScheduler().runTaskLater(module.getPlugin(), new Runnable() {
-            @Override
-            public void run() {
-                joinWorld(player, world);
-            }
-        }, 20L * 2);
-    }
-
-    public void joinWorld(Player player, World world) {
-        Preconditions.checkNotNull(player);
-        UUID playerUUID = player.getUniqueId();
-
-        if (world == null) {
-            langLoadFailed.send(player);
-            return;
-        }
-
-        WorldUserDataContainer worldUserDataContainer = userManager.getUser(player).getSingletonUserData(WorldUserDataContainer.class);
-        WorldUserData worldUserData = worldUserDataContainer.getOrLoad(module.getHomeOwner(world));
-
-        Location lastLocation = worldUserData.getLastLocation();
-        Location bedLocation = worldUserData.getBedLocation();
-        Location spawnLocation;
-
-        // todo util method for player data
-        if (lastLocation != null) {
-            spawnLocation = lastLocation;
-        } else if (bedLocation != null) {
-            spawnLocation = bedLocation;
-        } else {
-            spawnLocation = BukkitUtilities.getSafeLocation(world.getSpawnLocation());
-        }
-
-        player.teleport(spawnLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

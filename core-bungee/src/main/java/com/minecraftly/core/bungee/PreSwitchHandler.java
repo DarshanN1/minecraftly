@@ -1,8 +1,8 @@
-package com.minecraftly.core.bungee.handlers;
+package com.minecraftly.core.bungee;
 
+import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
 import com.ikeirnez.pluginmessageframework.packet.PrimaryValuePacket;
-import com.minecraftly.core.bungee.MclyCoreBungeePlugin;
 import com.minecraftly.core.packets.PacketPreSwitch;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
@@ -17,47 +17,26 @@ import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Handles waiting for server implementation to save before allowing a player to change server.
+ * Created by Keir on 28/06/2015.
  */
 public class PreSwitchHandler implements Listener {
 
-    private MclyCoreBungeePlugin plugin;
+    private final ProxyGateway<ProxiedPlayer, Server, ServerInfo> gateway;
+    private final Logger logger;
 
-    private Map<UUID, ServerInfo> savingPlayers = new HashMap<>();
-    private List<UUID> savedPlayers = new ArrayList<>();
+    private final Map<UUID, ServerInfo> savingPlayers = new HashMap<>();
+    private final List<UUID> savedPlayers = new ArrayList<>();
 
-    private Map<UUID, List<Consumer<Server>>> connectJobs = new HashMap<>();
-
-    public PreSwitchHandler(MclyCoreBungeePlugin plugin) {
-        this.plugin = plugin;
-    }
-
-    public Map<UUID, List<Consumer<Server>>> getConnectJobs() {
-        return Collections.unmodifiableMap(connectJobs);
-    }
-
-    public void addJob(ProxiedPlayer proxiedPlayer, Consumer<Server> consumer) {
-        addJob(proxiedPlayer.getUniqueId(), consumer);
-    }
-
-    public void addJob(UUID player, Consumer<Server> consumer) {
-        List<Consumer<Server>> list = connectJobs.get(player);
-
-        if (list == null) {
-            list = new ArrayList<>();
-            connectJobs.put(player, list);
-        }
-
-        list.add(consumer);
+    public PreSwitchHandler(ProxyGateway<ProxiedPlayer, Server, ServerInfo> gateway, Logger logger) {
+        this.gateway = gateway;
+        this.logger = logger;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -73,7 +52,7 @@ public class PreSwitchHandler implements Listener {
                 if (!savingPlayers.containsKey(uuid)) { // prevent multiple saves
                     savingPlayers.put(uuid, e.getTarget());
                     player.sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("Please wait whilst we save your data...").color(ChatColor.AQUA).create());
-                    plugin.getGateway().sendPacket(player, new PrimaryValuePacket<>(PacketPreSwitch.SERVER_SAVE));
+                    gateway.sendPacket(player, new PrimaryValuePacket<>(PacketPreSwitch.SERVER_SAVE));
                 }
             }
         }
@@ -81,23 +60,7 @@ public class PreSwitchHandler implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onServerConnected(ServerConnectedEvent e) {
-        ProxiedPlayer proxiedPlayer = e.getPlayer();
-        UUID uuid = proxiedPlayer.getUniqueId();
-        List<Consumer<Server>> jobs = connectJobs.get(uuid);
-
-        if (jobs != null) {
-            for (Consumer<Server> consumer : jobs) {
-                try {
-                    consumer.accept(e.getServer());
-                } catch (Throwable throwable1) {
-                    plugin.getLogger().log(Level.SEVERE, "Failed to run connect job for " + proxiedPlayer.getName() + " (" + uuid + ")", throwable1);
-                }
-            }
-
-            connectJobs.remove(uuid);
-        }
-
-        savedPlayers.remove(uuid);
+        savedPlayers.remove(e.getPlayer().getUniqueId());
     }
 
     @PacketHandler
@@ -112,7 +75,7 @@ public class PreSwitchHandler implements Listener {
                     player.connect(savingPlayers.get(uuid));
                     savingPlayers.remove(uuid);
                 } else {
-                    plugin.getLogger().warning("Received " + packet + " for player " + player.getName() + " when they aren't due to switch server.");
+                    logger.warning("Received " + packet + " for player " + player.getName() + " when they aren't due to switch server.");
                 }
 
                 break;

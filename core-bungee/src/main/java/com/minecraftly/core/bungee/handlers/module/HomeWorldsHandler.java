@@ -2,10 +2,13 @@ package com.minecraftly.core.bungee.handlers.module;
 
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.minecraftly.core.bungee.MinecraftlyBungeeCore;
+import com.minecraftly.core.bungee.handlers.job.JobQueue;
+import com.minecraftly.core.bungee.handlers.job.JobType;
 import com.minecraftly.core.packets.homes.PacketPlayerGotoHome;
 import com.sk89q.intake.Command;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
@@ -37,20 +40,25 @@ public class HomeWorldsHandler implements Listener {
 
     public void connectBestServer(ProxiedPlayer proxiedPlayer, final UUID ownerUUID) {
         ServerInfo serverInfo = getServerHostingWorld(ownerUUID);
-        if (serverInfo == null) {
-            serverInfo = proxiedPlayer.getServer().getInfo();
+        if (serverInfo != null && !proxiedPlayer.getServer().getInfo().equals(serverInfo)) { // connect to server this should be hosted on
+            proxiedPlayer.connect(serverInfo);
         }
 
-        playerGotoHome(serverInfo, proxiedPlayer, ownerUUID);
+        playerGotoHome(proxiedPlayer, ownerUUID);
     }
 
-    public void playerGotoHome(ServerInfo serverInfo, ProxiedPlayer proxiedPlayer, UUID ownerUUID) {
-        ServerInfo hostingServer = worldServerMap.get(ownerUUID);
-        if (hostingServer != null && !serverInfo.equals(hostingServer)) {
-            throw new UnsupportedOperationException("Attempted to host a home on 2 different instances.");
-        }
+    public void playerGotoHome(ProxiedPlayer proxiedPlayer, UUID ownerUUID) {
+        // todo remove cast
+        ((JobQueue<Boolean>) minecraftlyBungeeCore.getJobManager().getJobQueue(JobType.IS_HUMAN)).addJob(proxiedPlayer, (proxiedPlayer1, human) -> {
+            if (human) {
+                ServerInfo hostingServer = worldServerMap.get(ownerUUID);
+                if (hostingServer != null && !proxiedPlayer1.getServer().getInfo().equals(hostingServer)) {
+                    throw new UnsupportedOperationException("Attempted to host a home on 2 different instances.");
+                }
 
-        minecraftlyBungeeCore.getGateway().sendPacket(proxiedPlayer, new PacketPlayerGotoHome(proxiedPlayer.getUniqueId(), ownerUUID));
+                minecraftlyBungeeCore.getGateway().sendPacket(proxiedPlayer1, new PacketPlayerGotoHome(proxiedPlayer1.getUniqueId(), ownerUUID));
+            }
+        });
     }
 
     public ServerInfo getServerHostingWorld(UUID worldUUID) {
@@ -73,5 +81,11 @@ public class HomeWorldsHandler implements Listener {
     public void onNoLongerHosting(ProxiedPlayer proxiedPlayer, PacketNoLongerHosting packet) {
         playerServerMap.get(proxiedPlayer.getServer().getInfo()).remove(packet.getWorldUUID());
     }*/
+
+    @EventHandler
+    public void onPlayerPostLogin(PostLoginEvent e) { // go to players home once they are confirmed to not be a bot
+        ProxiedPlayer proxiedPlayer = e.getPlayer();
+        playerGotoHome(proxiedPlayer, proxiedPlayer.getUniqueId());
+    }
 
 }

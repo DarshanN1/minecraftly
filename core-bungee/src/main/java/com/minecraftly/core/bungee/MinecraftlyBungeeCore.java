@@ -3,7 +3,7 @@ package com.minecraftly.core.bungee;
 import com.google.gson.Gson;
 import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
-import com.minecraftly.core.bungee.handlers.PreSwitchHandler;
+import com.minecraftly.core.bungee.handlers.job.JobManager;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -25,6 +25,6 @@ public interface MinecraftlyBungeeCore {
 
     Gson getGson();
 
-    PreSwitchHandler getPreSwitchHandler();
+    JobManager getJobManager();
 
 }

@@ -2,7 +2,6 @@ package com.minecraftly.modules.homeworlds;
 
 import com.google.common.base.Preconditions;
 import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
-import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bukkit.MinecraftlyCore;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.module.Module;
@@ -141,8 +140,7 @@ public class HomeWorldsModule extends Module implements Listener {
         String worldName = world.getName();
 
         try {
-            UUID uuid = Utilities.convertFromNoDashes(worldName);
-            playerWorlds.put(uuid, world);
+            playerWorlds.put(UUID.fromString(worldName), world);
         } catch (IllegalArgumentException ignored) { // todo slow?
         }
     }
@@ -173,7 +171,7 @@ public class HomeWorldsModule extends Module implements Listener {
         World world = playerWorlds.get(uuid);
 
         if (world == null) {
-            String uuidString = Utilities.convertToNoDashes(uuid);
+            String uuidString = uuid.toString();
             world = Bukkit.getWorld(uuidString);
 
             if (world == null) {

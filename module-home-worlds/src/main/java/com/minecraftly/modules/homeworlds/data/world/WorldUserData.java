@@ -45,13 +45,13 @@ public class WorldUserData extends SingletonUserData implements ResultSetHandler
 
     public Location getLastLocation() {
         return yamlConfiguration.isConfigurationSection("lastLocation")
-                ? BukkitUtilities.getLocation(yamlConfiguration.getConfigurationSection("lastLocation").getValues(true))
+                ? checkLocation(BukkitUtilities.getLocation(yamlConfiguration.getConfigurationSection("lastLocation").getValues(true)))
                 : null;
     }
 
     public Location getBedLocation() {
         return yamlConfiguration.isConfigurationSection("bedLocation")
-                ? BukkitUtilities.getLocation(yamlConfiguration.getConfigurationSection("bedLocation").getValues(true))
+                ? checkLocation(BukkitUtilities.getLocation(yamlConfiguration.getConfigurationSection("bedLocation").getValues(true)))
                 : null;
     }
 

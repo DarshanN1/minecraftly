@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -119,6 +120,14 @@ public class PlayerListener implements Listener, Consumer<Player> {
 
                 BukkitUtilities.broadcast(WorldDimension.getPlayersAllDimensions(to), player, langPlayerJoinedHome.getValue(player.getName()));
             }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerDeath(PlayerDeathEvent e) {
+        if (module.isHomeWorld(WorldDimension.getBaseWorld(e.getEntity().getWorld()))) {
+            e.setKeepInventory(true);
+            e.setKeepLevel(true);
         }
     }
 

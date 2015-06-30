@@ -32,8 +32,6 @@ public class BotCheck implements Listener, Runnable {
         setItemMeta(itemMeta);
     }};
 
-    public static final Material[] RANDOM_MATERIALS = { Material.STONE, Material.DIRT, Material.GRASS };
-
     private HomeWorldsModule module;
     private Random random = new Random();
 
@@ -48,17 +46,7 @@ public class BotCheck implements Listener, Runnable {
             int inventorySize = 9 * 6;
             inventory = Bukkit.createInventory(player, inventorySize, INVENTORY_NAME);
             inventory.setItem(random.nextInt(inventorySize), ACCEPT_ITEM_STACK);
-
-            for (int i = 0; i < random.nextInt(5) + 5; i++) {
-                int slot;
-
-                do {
-                    slot = random.nextInt(inventorySize);
-                } while (inventory.getItem(slot) != null);
-
-                inventory.setItem(slot, new ItemStack(RANDOM_MATERIALS[random.nextInt(RANDOM_MATERIALS.length)], 1));
-                player.setMetadata(KEY_HUMAN_CHECK_INVENTORY, new FixedMetadataValue(module.getPlugin(), inventory));
-            }
+            player.setMetadata(KEY_HUMAN_CHECK_INVENTORY, new FixedMetadataValue(module.getPlugin(), inventory));
         } else {
             inventory = (Inventory) player.getMetadata(KEY_HUMAN_CHECK_INVENTORY).get(0).value();
         }

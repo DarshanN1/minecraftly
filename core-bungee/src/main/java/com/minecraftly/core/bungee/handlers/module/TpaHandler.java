@@ -54,25 +54,29 @@ public class TpaHandler implements Runnable, Listener {
 
     @Command(aliases = "tpa", desc = "Request to teleport to a player.", usage = "<player>", min = 1, max = 1)
     public void newTpaRequest(ProxiedPlayer sender, String inputName) {
-        String targetName = BungeeUtilities.matchRedisPlayer(inputName);
-        if (targetName == null) {
-            sender.sendMessage(new ComponentBuilder("Couldn't find a player by the name of ").color(ChatColor.RED)
-                            .append(inputName).color(ChatColor.GOLD)
-                            .append(".").color(ChatColor.RED)
-                            .create()
-            );
-        } else if (sender.getName().equals(targetName)) {
-            sender.sendMessage(new ComponentBuilder("You may not teleport to yourself.").color(ChatColor.RED).create());
+        if (!plugin.getHumanCheckHandler().isHumanVerified(sender)) {
+            sender.sendMessage(MclyCoreBungeePlugin.MESSAGE_NOT_HUMAN);
         } else {
-            UUID targetUUID = redisBungeeAPI.getUuidFromName(targetName);
-            JsonObject jsonData = toJsonObject(sender.getUniqueId(), sender.getName(), targetUUID, targetName);
-            redisBungeeAPI.sendChannelMessage(CHANNEL_NEW_TPA_REQUEST, plugin.getGson().toJson(jsonData));
+            String targetName = BungeeUtilities.matchRedisPlayer(inputName);
+            if (targetName == null) {
+                sender.sendMessage(new ComponentBuilder("Couldn't find a player by the name of ").color(ChatColor.RED)
+                                .append(inputName).color(ChatColor.GOLD)
+                                .append(".").color(ChatColor.RED)
+                                .create()
+                );
+            } else if (sender.getName().equals(targetName)) {
+                sender.sendMessage(new ComponentBuilder("You may not teleport to yourself.").color(ChatColor.RED).create());
+            } else {
+                UUID targetUUID = redisBungeeAPI.getUuidFromName(targetName);
+                JsonObject jsonData = toJsonObject(sender.getUniqueId(), sender.getName(), targetUUID, targetName);
+                redisBungeeAPI.sendChannelMessage(CHANNEL_NEW_TPA_REQUEST, plugin.getGson().toJson(jsonData));
 
-            sender.sendMessage(new ComponentBuilder("Request successfully sent to ").color(ChatColor.GREEN)
-                            .append(targetName).color(ChatColor.GOLD)
-                            .append(".").color(ChatColor.GREEN)
-                            .create()
-            );
+                sender.sendMessage(new ComponentBuilder("Request successfully sent to ").color(ChatColor.GREEN)
+                                .append(targetName).color(ChatColor.GOLD)
+                                .append(".").color(ChatColor.GREEN)
+                                .create()
+                );
+            }
         }
     }
 

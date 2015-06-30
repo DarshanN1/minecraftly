@@ -17,6 +17,9 @@ import com.minecraftly.core.bungee.handlers.job.handlers.HumanCheckHandler;
 import com.minecraftly.core.bungee.handlers.module.HomeWorldsHandler;
 import com.minecraftly.core.bungee.handlers.module.TpaHandler;
 import lc.vq.exhaust.bungee.command.CommandManager;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
@@ -38,6 +41,8 @@ import java.util.logging.Level;
  */
 public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCore {
 
+    public static final BaseComponent[] MESSAGE_NOT_HUMAN = new ComponentBuilder("You must first confirm you are human.").color(ChatColor.RED).create();
+
     private File configurationFile;
     private ConfigurationProvider configurationProvider;
     private Configuration configuration;
@@ -47,7 +52,8 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
     private RedisBungeeAPI redisBungeeAPI;
     private Gson gson = new Gson();
 
-    private JobManager jobManager = new JobManager();
+    private final JobManager jobManager = new JobManager();
+    private final HumanCheckHandler humanCheckHandler = new HumanCheckHandler(jobManager);
 
     @Override
     public void onEnable() {
@@ -71,7 +77,6 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         HomeWorldsHandler homeWorldsHandler = new HomeWorldsHandler(this);
         TpaHandler tpaHandler = new TpaHandler(this);
         PreSwitchHandler preSwitchHandler = new PreSwitchHandler(gateway, getLogger());
-        HumanCheckHandler humanCheckHandler = new HumanCheckHandler(jobManager);
 
         gateway.registerListener(homeWorldsHandler);
         gateway.registerListener(preSwitchHandler);
@@ -152,5 +157,10 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
     @Override
     public JobManager getJobManager() {
         return jobManager;
+    }
+
+    @Override
+    public HumanCheckHandler getHumanCheckHandler() {
+        return humanCheckHandler;
     }
 }

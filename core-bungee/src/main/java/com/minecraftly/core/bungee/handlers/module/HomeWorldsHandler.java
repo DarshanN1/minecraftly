@@ -1,15 +1,13 @@
 package com.minecraftly.core.bungee.handlers.module;
 
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
+import com.minecraftly.core.bungee.MclyCoreBungeePlugin;
 import com.minecraftly.core.bungee.MinecraftlyBungeeCore;
 import com.minecraftly.core.bungee.handlers.job.JobManager;
 import com.minecraftly.core.bungee.handlers.job.JobType;
 import com.minecraftly.core.bungee.handlers.job.handlers.HumanCheckHandler;
 import com.minecraftly.core.packets.homes.PacketPlayerGotoHome;
 import com.sk89q.intake.Command;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PostLoginEvent;
@@ -32,8 +30,6 @@ public class HomeWorldsHandler implements Listener {
 
     // todo use redis
     private final Map<UUID, ServerInfo> worldServerMap = new HashMap<>();
-
-    private final BaseComponent[] messageNotHuman = new ComponentBuilder("You must first confirm you are human.").color(ChatColor.RED).create();
 
     public HomeWorldsHandler(MinecraftlyBungeeCore minecraftlyBungeeCore) {
         this.minecraftlyBungeeCore = minecraftlyBungeeCore;
@@ -62,7 +58,7 @@ public class HomeWorldsHandler implements Listener {
         HumanCheckHandler humanCheckHandler = (HumanCheckHandler) jobManager.getJobQueue(JobType.IS_HUMAN);
 
         if (!humanCheckHandler.isHumanVerified(proxiedPlayer)) {
-            proxiedPlayer.sendMessage(messageNotHuman);
+            proxiedPlayer.sendMessage(MclyCoreBungeePlugin.MESSAGE_NOT_HUMAN);
         }
 
         // this executes immediately if player is already human verified

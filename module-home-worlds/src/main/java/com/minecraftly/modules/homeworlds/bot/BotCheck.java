@@ -66,7 +66,7 @@ public class BotCheck implements Listener {
             ItemStack currentItem = e.getCurrentItem();
 
             if (inventory.getName().equals(INVENTORY_NAME)) {
-                if (currentItem.getType() == ACCEPT_ITEM_STACK.getType()) { // todo make this check better
+                if (currentItem != null && currentItem.getType() == ACCEPT_ITEM_STACK.getType()) { // todo make this check better
                     player.closeInventory();
                     module.getPlugin().getUserManager().getUser(player).getSingletonUserData(BotCheckStatusData.class).setStatus(true);
                     module.getPlugin().getGateway().sendPacket(player, new PacketBotCheck(true));

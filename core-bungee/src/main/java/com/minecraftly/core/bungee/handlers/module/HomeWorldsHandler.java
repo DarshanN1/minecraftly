@@ -55,9 +55,13 @@ public class HomeWorldsHandler implements Listener {
     }
 
     public void playerGotoHome(ProxiedPlayer proxiedPlayer, UUID ownerUUID) {
+        playerGotoHome(proxiedPlayer, ownerUUID, true);
+    }
+
+    public void playerGotoHome(ProxiedPlayer proxiedPlayer, UUID ownerUUID, boolean showNotHumanError) {
         HumanCheckHandler humanCheckHandler = (HumanCheckHandler) jobManager.getJobQueue(JobType.IS_HUMAN);
 
-        if (!humanCheckHandler.isHumanVerified(proxiedPlayer)) {
+        if (showNotHumanError && !humanCheckHandler.isHumanVerified(proxiedPlayer)) {
             proxiedPlayer.sendMessage(MclyCoreBungeePlugin.MESSAGE_NOT_HUMAN);
         }
 
@@ -98,7 +102,7 @@ public class HomeWorldsHandler implements Listener {
     @EventHandler
     public void onPlayerPostLogin(PostLoginEvent e) { // go to players home once they are confirmed to not be a bot
         ProxiedPlayer proxiedPlayer = e.getPlayer();
-        playerGotoHome(proxiedPlayer, proxiedPlayer.getUniqueId());
+        playerGotoHome(proxiedPlayer, proxiedPlayer.getUniqueId(), false);
     }
 
 }

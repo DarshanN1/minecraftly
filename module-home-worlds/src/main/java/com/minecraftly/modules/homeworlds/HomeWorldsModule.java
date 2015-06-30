@@ -66,6 +66,7 @@ public class HomeWorldsModule extends Module implements Listener {
         this.gateway = plugin.getGateway();
         this.botCheck = new BotCheck(this);
         registerListener(this.botCheck);
+        Bukkit.getScheduler().runTaskTimer(this.plugin, this.botCheck, 20L, 20L);
 
         PlayerListener playerListener = new PlayerListener(this);
 
@@ -129,7 +130,7 @@ public class HomeWorldsModule extends Module implements Listener {
         Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
             @Override
             public void run() {
-                botCheck.checkBot(e.getPlayer());
+                botCheck.showHumanCheck(e.getPlayer());
             }
         }, 5L);
     }

@@ -13,13 +13,16 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.Random;
 
 /**
  * Created by Keir on 24/06/2015.
  */
-public class BotCheck implements Listener {
+public class BotCheck implements Listener, Runnable {
+
+    public static final String KEY_HUMAN_CHECK_INVENTORY = "Minecraftly.HumanCheckInventory";
 
     public static final String INVENTORY_NAME = "Are you a bot?";
 
@@ -38,19 +41,26 @@ public class BotCheck implements Listener {
         this.module = module;
     }
 
-    public void checkBot(Player player) {
-        int inventorySize = 9 * 6;
-        Inventory inventory = Bukkit.createInventory(player, inventorySize, INVENTORY_NAME);
-        inventory.setItem(random.nextInt(inventorySize), ACCEPT_ITEM_STACK);
+    public void showHumanCheck(Player player) {
+        Inventory inventory;
 
-        for (int i = 0; i < random.nextInt(5) + 5; i++) {
-            int slot;
+        if (!player.hasMetadata(KEY_HUMAN_CHECK_INVENTORY)) {
+            int inventorySize = 9 * 6;
+            inventory = Bukkit.createInventory(player, inventorySize, INVENTORY_NAME);
+            inventory.setItem(random.nextInt(inventorySize), ACCEPT_ITEM_STACK);
 
-            do {
-                slot = random.nextInt(inventorySize);
-            } while (inventory.getItem(slot) != null);
+            for (int i = 0; i < random.nextInt(5) + 5; i++) {
+                int slot;
 
-            inventory.setItem(slot, new ItemStack(RANDOM_MATERIALS[random.nextInt(RANDOM_MATERIALS.length)], 1));
+                do {
+                    slot = random.nextInt(inventorySize);
+                } while (inventory.getItem(slot) != null);
+
+                inventory.setItem(slot, new ItemStack(RANDOM_MATERIALS[random.nextInt(RANDOM_MATERIALS.length)], 1));
+                player.setMetadata(KEY_HUMAN_CHECK_INVENTORY, new FixedMetadataValue(module.getPlugin(), inventory));
+            }
+        } else {
+            inventory = (Inventory) player.getMetadata(KEY_HUMAN_CHECK_INVENTORY).get(0).value();
         }
 
         player.openInventory(inventory);
@@ -77,4 +87,12 @@ public class BotCheck implements Listener {
         }
     }
 
+    @Override
+    public void run() {
+        for (Player player : Bukkit.getWorlds().get(0).getPlayers()) {
+            if (!module.getPlugin().getUserManager().getUser(player).getSingletonUserData(BotCheckStatusData.class).getStatus()) {
+                showHumanCheck(player);
+            }
+        }
+    }
 }

@@ -2,10 +2,14 @@ package com.minecraftly.core.bungee.handlers.module;
 
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.minecraftly.core.bungee.MinecraftlyBungeeCore;
-import com.minecraftly.core.bungee.handlers.job.JobQueue;
+import com.minecraftly.core.bungee.handlers.job.JobManager;
 import com.minecraftly.core.bungee.handlers.job.JobType;
+import com.minecraftly.core.bungee.handlers.job.handlers.HumanCheckHandler;
 import com.minecraftly.core.packets.homes.PacketPlayerGotoHome;
 import com.sk89q.intake.Command;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PostLoginEvent;
@@ -23,13 +27,17 @@ import java.util.UUID;
 public class HomeWorldsHandler implements Listener {
 
     private final MinecraftlyBungeeCore minecraftlyBungeeCore;
+    private final JobManager jobManager;
     private final RedisBungeeAPI redisBungeeAPI;
 
     // todo use redis
     private final Map<UUID, ServerInfo> worldServerMap = new HashMap<>();
 
+    private final BaseComponent[] messageNotHuman = new ComponentBuilder("You must first confirm you are human.").color(ChatColor.RED).create();
+
     public HomeWorldsHandler(MinecraftlyBungeeCore minecraftlyBungeeCore) {
         this.minecraftlyBungeeCore = minecraftlyBungeeCore;
+        this.jobManager = this.minecraftlyBungeeCore.getJobManager();
         this.redisBungeeAPI = this.minecraftlyBungeeCore.getRedisBungeeAPI();
     }
 
@@ -42,14 +50,23 @@ public class HomeWorldsHandler implements Listener {
         ServerInfo serverInfo = getServerHostingWorld(ownerUUID);
         if (serverInfo != null && !proxiedPlayer.getServer().getInfo().equals(serverInfo)) { // connect to server this should be hosted on
             proxiedPlayer.connect(serverInfo);
+            jobManager.getJobQueue(JobType.CONNECT).addJob(proxiedPlayer, ((proxiedPlayer1, o) -> {
+                playerGotoHome(proxiedPlayer, ownerUUID); // todo duplicate code
+            }));
+        } else {
+            playerGotoHome(proxiedPlayer, ownerUUID); // todo duplicate code
         }
-
-        playerGotoHome(proxiedPlayer, ownerUUID);
     }
 
     public void playerGotoHome(ProxiedPlayer proxiedPlayer, UUID ownerUUID) {
-        // todo remove cast
-        ((JobQueue<Boolean>) minecraftlyBungeeCore.getJobManager().getJobQueue(JobType.IS_HUMAN)).addJob(proxiedPlayer, (proxiedPlayer1, human) -> {
+        HumanCheckHandler humanCheckHandler = (HumanCheckHandler) jobManager.getJobQueue(JobType.IS_HUMAN);
+
+        if (!humanCheckHandler.isHumanVerified(proxiedPlayer)) {
+            proxiedPlayer.sendMessage(messageNotHuman);
+        }
+
+        // this executes immediately if player is already human verified
+        humanCheckHandler.addJob(proxiedPlayer, (proxiedPlayer1, human) -> {
             if (human) {
                 ServerInfo hostingServer = worldServerMap.get(ownerUUID);
                 if (hostingServer != null && !proxiedPlayer1.getServer().getInfo().equals(hostingServer)) {

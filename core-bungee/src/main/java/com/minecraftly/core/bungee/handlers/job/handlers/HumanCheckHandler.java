@@ -19,12 +19,12 @@ import java.util.function.BiConsumer;
 /**
  * Created by Keir on 28/06/2015.
  */
-public class HumanCheckJobQueue extends JobQueue<Boolean> implements Listener {
+public class HumanCheckHandler extends JobQueue<Boolean> implements Listener {
 
     private final JobManager jobManager;
     private final List<UUID> humanVerified = new ArrayList<>();
 
-    public HumanCheckJobQueue(JobManager jobManager) {
+    public HumanCheckHandler(JobManager jobManager) {
         super(Boolean.class);
         this.jobManager = jobManager;
     }

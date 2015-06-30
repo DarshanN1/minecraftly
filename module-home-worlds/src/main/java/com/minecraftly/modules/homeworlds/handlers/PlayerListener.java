@@ -64,7 +64,7 @@ public class PlayerListener implements Listener, Consumer<Player> {
     }
 
     @PacketHandler
-    public void onPacketJoinWorld(PacketPlayerGotoHome packet) {
+    public void onPacketGotoHome(PacketPlayerGotoHome packet) {
         UUID playerUUID = packet.getPlayer();
         UUID worldUUID = packet.getWorld();
         Player player = Bukkit.getPlayer(playerUUID);

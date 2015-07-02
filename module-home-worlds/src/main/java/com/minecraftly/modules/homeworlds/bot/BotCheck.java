@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -54,6 +55,10 @@ public class BotCheck implements Listener, Runnable {
         player.openInventory(inventory);
     }
 
+    public void deleteInventoryCache(Player player) {
+        player.removeMetadata(KEY_HUMAN_CHECK_INVENTORY, module.getPlugin());
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
         HumanEntity whoClicked = e.getWhoClicked();
@@ -66,6 +71,7 @@ public class BotCheck implements Listener, Runnable {
             if (inventory.getName().equals(INVENTORY_NAME)) {
                 if (currentItem != null && currentItem.getType() == ACCEPT_ITEM_STACK.getType()) { // todo make this check better
                     player.closeInventory();
+                    deleteInventoryCache(player);
                     module.getPlugin().getUserManager().getUser(player).getSingletonUserData(BotCheckStatusData.class).setStatus(true);
                     module.getPlugin().getGateway().sendPacket(player, new PacketBotCheck(true));
                 }
@@ -73,6 +79,11 @@ public class BotCheck implements Listener, Runnable {
                 e.setCancelled(true);
             }
         }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent e) {
+        deleteInventoryCache(e.getPlayer());
     }
 
     @Override

@@ -37,7 +37,6 @@ public class PlayerListener implements Listener, Consumer<Player> {
 
     private final LanguageValue langWelcomeOwner = new LanguageValue("&aWelcome back to your home, &6%s&a.");
     private final LanguageValue langWelcomeGuest = new LanguageValue("&aWelcome to &6%s&a's home, they will have to grant you permission before you can modify blocks.");
-    private final LanguageValue langWelcomeBoth = new LanguageValue("&aYou can go back to chat mode by typing &6/chat&a.");
     private final LanguageValue langPlayerJoinedHome = new LanguageValue("&6%s &bhas joined.");
     private final LanguageValue langPlayerLeftHome = new LanguageValue("&6%s &bhas left.");
 
@@ -56,7 +55,6 @@ public class PlayerListener implements Listener, Consumer<Player> {
 
             put(prefix + ".welcome.owner", langWelcomeOwner);
             put(prefix + ".welcome.guest", langWelcomeGuest);
-            put(prefix + ".welcome.both", langWelcomeBoth);
             put(prefix + ".joinedHome", langPlayerJoinedHome);
             put(prefix + ".leftHome", langPlayerLeftHome);
             put(prefix + ".ownerLeft", langOwnerLeft);
@@ -103,7 +101,6 @@ public class PlayerListener implements Listener, Consumer<Player> {
                 if (uuid.equals(owner)) {
                     player.setGameMode(GameMode.SURVIVAL);
                     langWelcomeOwner.send(player, player.getDisplayName());
-                    langWelcomeBoth.send(player);
                 } else {
                     player.setGameMode(GameMode.ADVENTURE);
 
@@ -113,7 +110,6 @@ public class PlayerListener implements Listener, Consumer<Player> {
                             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(owner);
 
                             langWelcomeGuest.send(player, offlinePlayer instanceof Player ? ((Player) offlinePlayer).getDisplayName() : offlinePlayer.getName());
-                            langWelcomeBoth.send(player);
                         }
                     });
                 }

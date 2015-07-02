@@ -185,6 +185,8 @@ public class HomeWorldsModule extends Module implements Listener {
                     // todo start generation from BungeeCord?
                     world = worldCreator.createWorld();
                 }
+
+                world.setGameRuleValue("mobGriefing", "false");
             }
         }
 

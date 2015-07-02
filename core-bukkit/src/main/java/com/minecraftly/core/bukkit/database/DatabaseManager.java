@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  */
 public class DatabaseManager {
 
-    public static String TABLE_PREFIX = "mcly_";
+    public static String TABLE_PREFIX = "minecraftly_";
 
     final String username;
     private final Logger logger;

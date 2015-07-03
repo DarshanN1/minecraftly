@@ -6,14 +6,16 @@ import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
 import com.minecraftly.core.MinecraftlyCommon;
 import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bukkit.commands.MinecraftlyCommand;
-import com.minecraftly.core.bukkit.commands.ModulesCommand;
 import com.minecraftly.core.bukkit.config.ConfigManager;
 import com.minecraftly.core.bukkit.config.DataValue;
 import com.minecraftly.core.bukkit.database.DatabaseManager;
 import com.minecraftly.core.bukkit.internal.intake.MinecraftlyBinding;
 import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.listeners.PacketListener;
-import com.minecraftly.core.bukkit.module.ModuleManager;
+import com.minecraftly.core.bukkit.modules.Module;
+import com.minecraftly.core.bukkit.modules.homes.ModulePlayerWorlds;
+import com.minecraftly.core.bukkit.modules.readonlyworlds.ModuleReadOnlyWorlds;
+import com.minecraftly.core.bukkit.modules.spawn.ModuleSpawn;
 import com.minecraftly.core.bukkit.user.UserListener;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
@@ -27,13 +29,14 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -49,13 +52,14 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     private LanguageManager languageManager;
     private CommandManager commandManager;
     private UserManager userManager;
-    private ModuleManager moduleManager;
     private PluginManager pluginManager;
     private ServerGateway<Player> gateway;
     private PlayerSwitchJobManager playerSwitchJobManager;
     private File generalDataDirectory = new File(getDataFolder(), "data");
     private File backupDirectory = new File(getDataFolder(), "backups");
     private boolean skipDisable = false;
+
+    private List<Module> modules = new ArrayList<>();
 
     public DataValue<String> CFG_DB_HOST = new DataValue<>("127.0.0.1", String.class);
     public DataValue<Integer> CFG_DB_PORT = new DataValue<>(3306, Integer.class);
@@ -79,7 +83,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         instance = this;
     }
 
-    public static MinecraftlyCore getInstance() {
+    public static MclyCoreBukkitPlugin getInstance() {
         return instance;
     }
 
@@ -124,19 +128,15 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         userManager = new UserManager(BukkitUtilities.getLogger(this, UserManager.class, "User Manager"));
         UserListener.initialize(this, userManager, playerSwitchJobManager);
 
-        try {
-            moduleManager = new ModuleManager(getLogger(), getName(), new File(getDataFolder(), "modules"));
-        } catch (IOException e) {
-            getLogger().log(Level.SEVERE, "Issue initializing module system.", e);
-            pluginManager.disablePlugin(this);
-            return;
-        }
+        modules.add(new ModuleReadOnlyWorlds(this));
+        modules.add(new ModulePlayerWorlds(this));
+        modules.add(new ModuleSpawn(this));
 
-        moduleManager.loadModules();
+        modules.forEach(Module::onLoad);
         DispatcherNode dispatcherNode = registerCoreCommands();
 
-        moduleManager.enableModules();
-        moduleManager.registerCommands(dispatcherNode);
+        modules.forEach(Module::onEnable);
+        modules.forEach(m -> m.registerCommands(dispatcherNode));
         commandManager.build();
 
         languageManager.save(); // saves any new language values to file
@@ -147,15 +147,14 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         commandManager.config().addBinding(new MinecraftlyBinding(this));
 
         DispatcherNode dispatcherNode = commandManager.builder();
-        dispatcherNode.registerMethods(new MinecraftlyCommand());
 
-        SettableDescription description = (SettableDescription) dispatcherNode.group("modules")
-                .describeAs("Minecraftly module management commands")
-                .registerMethods(new ModulesCommand(this))
+        SettableDescription description = (SettableDescription) dispatcherNode.group("minecraftly")
+                .describeAs("Minecraftly core commands.")
+                .registerMethods(new MinecraftlyCommand(getLanguageManager()))
                 .getDispatcher().getDescription();
 
         description.setParameters(ImmutableList.<Parameter>builder()
-                .add(new SettableParameter("view/cleanup"))
+                .add(new SettableParameter("info/cleanup"))
                 .build());
 
         return dispatcherNode;
@@ -165,7 +164,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     public void onDisable() {
         if (!skipDisable) {
             userManager.unloadAll();
-            moduleManager.disableModules();
+            modules.forEach(Module::onDisable);
             languageManager.save();
             configManager.save();
 
@@ -175,11 +174,6 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         }
 
         instance = null;
-    }
-
-    @Override
-    public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
-        return moduleManager.getWorldGenerator(worldName, id);
     }
 
     // forward commands to Exhaust and then to Intake to be dispatched
@@ -224,11 +218,6 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     @Override
     public UserManager getUserManager() {
         return userManager;
-    }
-
-    @Override
-    public ModuleManager getModuleManager() {
-        return moduleManager;
     }
 
     @Override

@@ -152,8 +152,6 @@ subprojects {
                 targetFile = new File(targetFile, "/bukkit/plugins/");
             } else if (project.getName().equals("core-bungee")) {
                 targetFile = new File(targetFile, "/bungee/plugins");
-            } else if (project.getName().startsWith("module-")) {
-                targetFile = new File(targetFile, "/bukkit/plugins/Minecraftly/modules/")
             } else {
                 return; // don't copy any other jars
             }
@@ -257,39 +255,6 @@ project(':core-bungee') {
     build.dependsOn(shadowJar)
 }
 
-project(':module-home-worlds') {
-    ext.cleanName = 'Home Worlds'
-    group = parent.getGroup() + '.modules.homeworlds'
-    version = '1.0-SNAPSHOT'
-
-    dependencies {
-        compile group: 'org.spigotmc', name: 'spigot-api', version: parent.ext.bukkitVersion
-        compile project(':core-bukkit')
-    }
-}
-
-project(':module-spawn') {
-    project.ext.cleanName = 'Spawn'
-    group = parent.getGroup() + '.modules.spawn'
-    version = '1.0-SNAPSHOT'
-
-    dependencies {
-        compile group: 'org.spigotmc', name: 'spigot-api', version: parent.ext.bukkitVersion
-        compile project(':core-bukkit')
-    }
-}
-
-project(':module-read-only-world') {
-    project.ext.cleanName = 'Chat' // viet wants it to be called this
-    group = parent.getGroup() + '.modules.readonlyworld'
-    version = '1.0-SNAPSHOT'
-
-    dependencies {
-        compile group: 'org.spigotmc', name: 'spigot-api', version: parent.ext.bukkitVersion
-        compile project(':core-bukkit')
-    }
-}
-
 subprojects { // this needs done after projects have been initialized
     def cleanName = project.ext.cleanName
     archivesBaseName = cleanName
@@ -354,8 +319,7 @@ task('deployForTesting') {
                 stopServers.execute()
 
                 execute 'rm -r -f ' + baseFolder +  'global/bukkitPlugins/*.jar;' +
-                        'rm -r -f ' + baseFolder +  'bungee_proxy_*/plugins/MinecraftlyBungee*.jar;' +
-                        'rm -r -f ' + baseFolder +  'global/modules/*.jar', ignoreError: true
+                        'rm -r -f ' + baseFolder +  'bungee_proxy_*/plugins/MinecraftlyBungee*.jar;', ignoreError: true
 
                 for (Project project : subprojects) {
                     def outputDir = new File(project.buildDir, "libs");
@@ -377,8 +341,6 @@ task('deployForTesting') {
                     } else if (project.getName().equals("core-bungee")) {
                         targetLocations.add(baseFolder + 'bungee_proxy_1/plugins/')
                         targetLocations.add(baseFolder + 'bungee_proxy_2/plugins/')
-                    } else if (project.getName().startsWith("module-")) {
-                        targetLocations.add(baseFolder + 'global/modules/')
                     } else {
                         continue;
                     }

@@ -135,7 +135,7 @@ public class ModuleSpawn extends Module implements Listener {
         }
     }
 
-    private void onEnterChatWorld(final Player player, final World world) { // lol
+    private void onEnterChatWorld(final Player player, final World world) {
         for (Player player1 : Bukkit.getOnlinePlayers()) {
             player.hidePlayer(player1);
             player1.hidePlayer(player);

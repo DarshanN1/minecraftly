@@ -13,6 +13,7 @@ import com.minecraftly.core.bukkit.internal.intake.MinecraftlyBinding;
 import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.listeners.PacketListener;
 import com.minecraftly.core.bukkit.modules.Module;
+import com.minecraftly.core.bukkit.modules.chest.ModuleChest;
 import com.minecraftly.core.bukkit.modules.homes.ModulePlayerWorlds;
 import com.minecraftly.core.bukkit.modules.readonlyworlds.ModuleReadOnlyWorlds;
 import com.minecraftly.core.bukkit.modules.spawn.ModuleSpawn;
@@ -59,7 +60,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     private File backupDirectory = new File(getDataFolder(), "backups");
     private boolean skipDisable = false;
 
-    private List<Module> modules = new ArrayList<>();
+    private List<Module> modules = new ArrayList<Module>();
 
     public DataValue<String> CFG_DB_HOST = new DataValue<>("127.0.0.1", String.class);
     public DataValue<Integer> CFG_DB_PORT = new DataValue<>(3306, Integer.class);
@@ -131,6 +132,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         modules.add(new ModuleReadOnlyWorlds(this));
         modules.add(new ModulePlayerWorlds(this));
         modules.add(new ModuleSpawn(this));
+        modules.add(new ModuleChest(this));
 
         modules.forEach(Module::onLoad);
         DispatcherNode dispatcherNode = registerCoreCommands();

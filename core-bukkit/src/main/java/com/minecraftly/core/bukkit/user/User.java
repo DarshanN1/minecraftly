@@ -105,7 +105,7 @@ public class User {
         return userDataSet != null && userDataSet.remove(userData);
     }
 
-    public <T extends UserData> T getSingletonUserData(Class<T> clazz) {
+    public <T extends SingletonUserData> T getSingletonUserData(Class<T> clazz) {
         List<T> userDataList = getUserData(clazz);
 
         if (userDataList.size() > 1) {

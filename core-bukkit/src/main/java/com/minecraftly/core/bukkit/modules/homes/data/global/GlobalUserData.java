@@ -2,21 +2,19 @@ package com.minecraftly.core.bukkit.modules.homes.data.global;
 
 import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bukkit.database.DatabaseManager;
+import com.minecraftly.core.bukkit.database.YamlConfigurationResultHandler;
 import com.minecraftly.core.bukkit.user.User;
 import com.minecraftly.core.bukkit.user.modularisation.SingletonUserData;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.ResultSetHandler;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -24,7 +22,7 @@ import java.util.function.Supplier;
 /**
  * Created by Keir on 08/06/2015.
  */
-public class GlobalUserData extends SingletonUserData implements ResultSetHandler<YamlConfiguration>, Consumer<Player> {
+public class GlobalUserData extends SingletonUserData implements Consumer<Player> {
 
     private YamlConfiguration yamlConfiguration = new YamlConfiguration();
 
@@ -62,7 +60,7 @@ public class GlobalUserData extends SingletonUserData implements ResultSetHandle
 
         YamlConfiguration yamlConfiguration = getQueryRunnerSupplier().get().query(
                 String.format("SELECT `data` FROM %sglobal_user_data WHERE `uuid` = UNHEX(?)", DatabaseManager.TABLE_PREFIX),
-                this,
+                YamlConfigurationResultHandler.DATA_FIELD_INSTANCE,
                 Utilities.convertToNoDashes(getUser().getUniqueId())
         );
 
@@ -71,21 +69,6 @@ public class GlobalUserData extends SingletonUserData implements ResultSetHandle
         } else {
             this.yamlConfiguration = yamlConfiguration;
         }
-    }
-
-    @Override
-    public YamlConfiguration handle(ResultSet rs) throws SQLException {
-        if (rs.next()) {
-            try {
-                YamlConfiguration yamlConfiguration = new YamlConfiguration();
-                yamlConfiguration.loadFromString(rs.getString("data"));
-                return yamlConfiguration;
-            } catch (InvalidConfigurationException e) {
-                throw new RuntimeException("Unable to parse yml from database.", e); // todo exception type
-            }
-        }
-
-        return null;
     }
 
     @Override

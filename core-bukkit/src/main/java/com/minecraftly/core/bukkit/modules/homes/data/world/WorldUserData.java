@@ -4,21 +4,19 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bukkit.database.DatabaseManager;
+import com.minecraftly.core.bukkit.database.YamlConfigurationResultHandler;
 import com.minecraftly.core.bukkit.modules.homes.ModulePlayerWorlds;
 import com.minecraftly.core.bukkit.modules.homes.WorldDimension;
 import com.minecraftly.core.bukkit.user.User;
 import com.minecraftly.core.bukkit.user.modularisation.SingletonUserData;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.ResultSetHandler;
 import org.bukkit.Achievement;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +26,7 @@ import java.util.function.Supplier;
 /**
  * Created by Keir on 09/06/2015.
  */
-public class WorldUserData extends SingletonUserData implements ResultSetHandler<YamlConfiguration> {
+public class WorldUserData extends SingletonUserData {
 
     private final UUID worldUUID;
     private YamlConfiguration yamlConfiguration = new YamlConfiguration();
@@ -167,10 +165,11 @@ public class WorldUserData extends SingletonUserData implements ResultSetHandler
         super.load();
 
         YamlConfiguration yamlConfiguration = getQueryRunnerSupplier().get().query(
-                String.format("SELECT `data` FROM `%sworld_user_data` WHERE `world_uuid` = UNHEX(?) AND `user_uuid` = UNHEX(?)",
+                String.format(
+                        "SELECT `data` FROM `%sworld_user_data` WHERE `world_uuid` = UNHEX(?) AND `user_uuid` = UNHEX(?)",
                         DatabaseManager.TABLE_PREFIX
                 ),
-                this,
+                YamlConfigurationResultHandler.DATA_FIELD_INSTANCE,
                 Utilities.convertToNoDashes(worldUUID),
                 Utilities.convertToNoDashes(getUser().getUniqueId())
         );
@@ -180,21 +179,6 @@ public class WorldUserData extends SingletonUserData implements ResultSetHandler
         } else {
             this.yamlConfiguration = yamlConfiguration;
         }
-    }
-
-    @Override
-    public YamlConfiguration handle(ResultSet rs) throws SQLException {
-        if (rs.next()) {
-            try {
-                YamlConfiguration yamlConfiguration = new YamlConfiguration();
-                yamlConfiguration.loadFromString(rs.getString("data"));
-                return yamlConfiguration;
-            } catch (InvalidConfigurationException e) {
-                throw new RuntimeException("Unable to parse yml from database.", e); // todo exception type
-            }
-        }
-
-        return null;
     }
 
     @Override

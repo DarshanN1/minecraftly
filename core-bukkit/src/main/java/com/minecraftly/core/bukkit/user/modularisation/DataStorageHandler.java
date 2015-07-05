@@ -17,7 +17,7 @@ public abstract class DataStorageHandler<T extends SingletonUserData> {
         this.queryRunnerSupplier = queryRunnerSupplier;
     }
 
-    protected Supplier<QueryRunner> getQueryRunnerSupplier() {
+    protected final Supplier<QueryRunner> getQueryRunnerSupplier() {
         return queryRunnerSupplier;
     }
 

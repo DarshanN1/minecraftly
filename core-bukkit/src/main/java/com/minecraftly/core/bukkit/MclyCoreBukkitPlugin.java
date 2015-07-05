@@ -15,6 +15,7 @@ import com.minecraftly.core.bukkit.listeners.PacketListener;
 import com.minecraftly.core.bukkit.modules.Module;
 import com.minecraftly.core.bukkit.modules.chest.ModuleChest;
 import com.minecraftly.core.bukkit.modules.homes.ModulePlayerWorlds;
+import com.minecraftly.core.bukkit.modules.readonlyworlds.DoNothingWorldGenerator;
 import com.minecraftly.core.bukkit.modules.readonlyworlds.ModuleReadOnlyWorlds;
 import com.minecraftly.core.bukkit.modules.spawn.ModuleSpawn;
 import com.minecraftly.core.bukkit.user.UserListener;
@@ -30,6 +31,7 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -182,6 +184,11 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     @Override
     public final boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         return this.commandManager.getDefaultExecutor().onCommand(sender, command, label, args);
+    }
+
+    @Override
+    public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
+        return new DoNothingWorldGenerator();
     }
 
     @Override

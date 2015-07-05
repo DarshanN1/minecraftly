@@ -5,6 +5,7 @@ import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.modules.homes.ModulePlayerWorlds;
 import com.minecraftly.core.bukkit.modules.homes.WorldDimension;
+import com.minecraftly.core.bukkit.modules.homes.data.world.WorldUserDataContainer;
 import com.sk89q.intake.Command;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -93,6 +94,7 @@ public class WorldsCommands {
             }
 
             if (!error) {
+                module.getPlugin().getUserManager().getUser(player).getSingletonUserData(WorldUserDataContainer.class).getOrLoad(player.getUniqueId()).reset();
                 module.joinWorld(player, player);
             } else {
                 languageError.send(player);

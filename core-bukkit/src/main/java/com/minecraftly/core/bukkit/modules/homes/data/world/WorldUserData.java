@@ -8,7 +8,8 @@ import com.minecraftly.core.bukkit.database.YamlConfigurationResultHandler;
 import com.minecraftly.core.bukkit.modules.homes.ModulePlayerWorlds;
 import com.minecraftly.core.bukkit.modules.homes.WorldDimension;
 import com.minecraftly.core.bukkit.user.User;
-import com.minecraftly.core.bukkit.user.modularisation.SingletonUserData;
+import com.minecraftly.core.bukkit.user.modularisation.ResettableData;
+import com.minecraftly.core.bukkit.user.modularisation.UserData;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import org.apache.commons.dbutils.QueryRunner;
 import org.bukkit.Achievement;
@@ -26,7 +27,7 @@ import java.util.function.Supplier;
 /**
  * Created by Keir on 09/06/2015.
  */
-public class WorldUserData extends SingletonUserData {
+public class WorldUserData extends UserData implements ResettableData {
 
     private final UUID worldUUID;
     private YamlConfiguration yamlConfiguration = new YamlConfiguration();
@@ -54,31 +55,31 @@ public class WorldUserData extends SingletonUserData {
     }
 
     public int getRemainingAir() {
-        return yamlConfiguration.getInt("air");
+        return yamlConfiguration.getInt("air", 300);
     }
 
     public int getFireTicks() {
-        return yamlConfiguration.getInt("fire");
+        return yamlConfiguration.getInt("fire", 0);
     }
 
     public int getFoodLevel() {
-        return yamlConfiguration.getInt("food");
+        return yamlConfiguration.getInt("food", 20);
     }
 
     public int getTotalExperience() {
-        return yamlConfiguration.getInt("experience");
+        return yamlConfiguration.getInt("experience", 0);
     }
 
     public float getExhaustion() {
-        return yamlConfiguration.getInt("exhaustion");
+        return yamlConfiguration.getInt("exhaustion", 0);
     }
 
     public float getSaturation() {
-        return yamlConfiguration.getInt("saturation");
+        return yamlConfiguration.getInt("saturation", 20);
     }
 
     public float getFallDistance() {
-        return yamlConfiguration.getInt("fallDistance");
+        return yamlConfiguration.getInt("fallDistance", 0);
     }
 
     public List<String> getAchievements() {
@@ -192,4 +193,19 @@ public class WorldUserData extends SingletonUserData {
                 yamlConfiguration.saveToString());
     }
 
+    @Override
+    public void reset() {
+        yamlConfiguration = new YamlConfiguration();
+
+        Player player = getUser().getPlayer();
+        if (player != null) {
+            apply(player);
+        } else {
+            try {
+                save();
+            } catch (SQLException e) {
+                e.printStackTrace(); // todo
+            }
+        }
+    }
 }

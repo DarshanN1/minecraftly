@@ -146,7 +146,9 @@ public class BukkitUtilities {
      * @param location the original location
      * @return the safe location
      */
-    public static Location getSafeLocation(Location location) {
+    public static Location getSafeSpawnLocation(Location location) {
+        location.setY(location.getWorld().getSeaLevel() + 1);
+
         while (location.getBlock().getType() != Material.AIR || location.add(0, 1, 0).getBlock().getType() != Material.AIR) {
             location = location.add(0, 1, 0);
         }

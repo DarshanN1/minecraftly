@@ -150,7 +150,7 @@ public class PlayerListener implements Listener, Consumer<Player> {
                 if (bedLocation != null) {
                     e.setRespawnLocation(bedLocation);
                 } else {
-                    e.setRespawnLocation(BukkitUtilities.getSafeLocation(world.getSpawnLocation()));
+                    e.setRespawnLocation(BukkitUtilities.getSafeSpawnLocation(world.getSpawnLocation()));
                 }
             }
         }

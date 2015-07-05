@@ -227,7 +227,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
         } else if (bedLocation != null) {
             spawnLocation = bedLocation;
         } else {
-            spawnLocation = BukkitUtilities.getSafeLocation(world.getSpawnLocation());
+            spawnLocation = BukkitUtilities.getSafeSpawnLocation(world.getSpawnLocation());
         }
 
         player.teleport(spawnLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);

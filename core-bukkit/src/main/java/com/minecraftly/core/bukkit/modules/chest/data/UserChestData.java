@@ -140,6 +140,10 @@ public class UserChestData extends SingletonUserData {
                     itemsSection.set(String.valueOf(slot), itemStack);
                 }
             }
+
+            if (itemsSection.getKeys(false).size() == 0) { // don't save empty inventories
+                yamlConfiguration.set(String.valueOf(chestNumber), null);
+            }
         }
 
         getQueryRunnerSupplier().get().update(

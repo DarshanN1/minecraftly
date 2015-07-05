@@ -59,12 +59,12 @@ public enum WorldDimension {
         return convertTo(world, false);
     }
 
-    public World convertTo(World world, boolean create) {
+    public World convertTo(World world, boolean load) {
         checkNotNull(world);
         String newWorldName = convertTo(world.getName());
         World newWorld = Bukkit.getWorld(newWorldName);
 
-        if (create && newWorld == null) {
+        if (newWorld == null && load) {
             WorldCreator worldCreator = new WorldCreator(newWorldName);
             worldCreator.environment(getEnvironment());
             newWorld = Bukkit.createWorld(worldCreator); // todo generate elsewhere?

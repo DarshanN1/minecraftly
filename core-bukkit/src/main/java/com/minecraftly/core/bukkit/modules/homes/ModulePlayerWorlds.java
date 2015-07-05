@@ -5,6 +5,7 @@ import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
 import com.minecraftly.core.bukkit.MclyCoreBukkitPlugin;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.modules.Module;
+import com.minecraftly.core.bukkit.modules.homes.command.WorldsCommands;
 import com.minecraftly.core.bukkit.modules.homes.data.global.GlobalStorageHandler;
 import com.minecraftly.core.bukkit.modules.homes.data.world.WorldStorageHandler;
 import com.minecraftly.core.bukkit.modules.homes.data.world.WorldUserData;
@@ -19,6 +20,7 @@ import com.sk89q.intake.fluent.DispatcherNode;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
@@ -96,6 +98,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
     @Override
     public void registerCommands(DispatcherNode dispatcherNode) {
         dispatcherNode.registerMethods(new OwnerCommands(this));
+        dispatcherNode.registerMethods(new WorldsCommands(this, getPlugin().getLanguageManager()));
     }
 
     @Override
@@ -162,6 +165,10 @@ public class ModulePlayerWorlds extends Module implements Listener {
         return null;
     }
 
+    public World getWorld(OfflinePlayer offlinePlayer) {
+        return getWorld(offlinePlayer.getUniqueId());
+    }
+
     public World getWorld(UUID uuid) {
         World world = playerWorlds.get(uuid);
 
@@ -185,6 +192,10 @@ public class ModulePlayerWorlds extends Module implements Listener {
         }
 
         return world;
+    }
+
+    public void joinWorld(Player player, OfflinePlayer offlinePlayer) {
+        joinWorld(player, offlinePlayer.getUniqueId());
     }
 
     public void joinWorld(Player player, UUID worldUUID) {

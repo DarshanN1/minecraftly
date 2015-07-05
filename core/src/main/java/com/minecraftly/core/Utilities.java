@@ -1,6 +1,16 @@
 package com.minecraftly.core;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import javax.annotation.Nonnull;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -31,6 +41,38 @@ public class Utilities {
 
     public static String convertToNoDashes(String uuidString) {
         return uuidString.replace("-", "");
+    }
+
+    public static boolean deleteDirectory(File directory) {
+        checkNotNull(directory);
+        checkArgument(directory.isDirectory(), "File is not directory.");
+
+        try {
+            Files.walkFileTree(directory.toPath(), new SimpleFileVisitor<Path>() {
+                @Nonnull
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Nonnull
+                @Override
+                public FileVisitResult postVisitDirectory(@Nonnull Path dir, IOException exc) throws IOException {
+                    if (exc == null) {
+                        Files.delete(dir);
+                        return FileVisitResult.CONTINUE;
+                    } else {
+                        throw exc;
+                    }
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
     }
 
 }

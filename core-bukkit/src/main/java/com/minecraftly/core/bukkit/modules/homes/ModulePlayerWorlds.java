@@ -18,7 +18,6 @@ import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.packets.homes.PacketNoLongerHosting;
 import com.sk89q.intake.fluent.DispatcherNode;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -104,7 +103,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
     @Override
     public void onDisable() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.kickPlayer(ChatColor.RED + "Slave server is shutting down.");
+            player.kickPlayer(null);
         }
 
         for (World world : playerWorlds.values()) {

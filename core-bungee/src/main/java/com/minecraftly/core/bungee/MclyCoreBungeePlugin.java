@@ -74,7 +74,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         gateway = BungeeGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
         redisBungeeAPI = RedisBungee.getApi();
 
-        PlayerWorldsHandler playerWorldsHandler = new PlayerWorldsHandler(this);
+        PlayerWorldsHandler playerWorldsHandler = new PlayerWorldsHandler(gateway, jobManager, humanCheckManager, redisBungeeAPI);
         TpaHandler tpaHandler = new TpaHandler(this);
         PreSwitchHandler preSwitchHandler = new PreSwitchHandler(gateway, getLogger());
 

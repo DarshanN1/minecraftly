@@ -1,14 +1,16 @@
 package com.minecraftly.core.bungee.handlers.module;
 
+import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
+import com.minecraftly.core.bungee.HumanCheckManager;
 import com.minecraftly.core.bungee.MclyCoreBungeePlugin;
-import com.minecraftly.core.bungee.MinecraftlyBungeeCore;
 import com.minecraftly.core.bungee.handlers.job.JobManager;
 import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
 import com.minecraftly.core.packets.homes.PacketPlayerGotoHome;
 import com.sk89q.intake.Command;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
@@ -23,17 +25,22 @@ import java.util.UUID;
  */
 public class PlayerWorldsHandler implements Listener {
 
-    private final MinecraftlyBungeeCore minecraftlyBungeeCore;
+    private final ProxyGateway<ProxiedPlayer, Server, ServerInfo> gateway;
     private final JobManager jobManager;
+    private final HumanCheckManager humanCheckManager;
     private final RedisBungeeAPI redisBungeeAPI;
 
     // todo use redis
     private final Map<UUID, ServerInfo> worldServerMap = new HashMap<>();
 
-    public PlayerWorldsHandler(MinecraftlyBungeeCore minecraftlyBungeeCore) {
-        this.minecraftlyBungeeCore = minecraftlyBungeeCore;
-        this.jobManager = this.minecraftlyBungeeCore.getJobManager();
-        this.redisBungeeAPI = this.minecraftlyBungeeCore.getRedisBungeeAPI();
+    public PlayerWorldsHandler(ProxyGateway<ProxiedPlayer, Server, ServerInfo> gateway,
+                               JobManager jobManager,
+                               HumanCheckManager humanCheckManager,
+                               RedisBungeeAPI redisBungeeAPI) {
+        this.gateway = gateway;
+        this.jobManager = jobManager;
+        this.humanCheckManager = humanCheckManager;
+        this.redisBungeeAPI = redisBungeeAPI;
     }
 
     @Command(aliases = "home", desc = "Teleport's the sender to their world")
@@ -58,7 +65,7 @@ public class PlayerWorldsHandler implements Listener {
     }
 
     public void playerGotoHome(ProxiedPlayer proxiedPlayer, UUID ownerUUID, boolean showNotHumanError) {
-        if (showNotHumanError && !minecraftlyBungeeCore.getHumanCheckManager().isHumanVerified(proxiedPlayer)) {
+        if (showNotHumanError && !humanCheckManager.isHumanVerified(proxiedPlayer)) {
             proxiedPlayer.sendMessage(MclyCoreBungeePlugin.MESSAGE_NOT_HUMAN);
         }
 
@@ -70,7 +77,7 @@ public class PlayerWorldsHandler implements Listener {
                     throw new UnsupportedOperationException("Attempted to host a home on 2 different instances.");
                 }
 
-                minecraftlyBungeeCore.getGateway().sendPacket(proxiedPlayer1, new PacketPlayerGotoHome(proxiedPlayer1.getUniqueId(), ownerUUID));
+                gateway.sendPacket(proxiedPlayer1, new PacketPlayerGotoHome(proxiedPlayer1.getUniqueId(), ownerUUID));
             }
         });
     }

@@ -20,6 +20,10 @@ public class JobManager {
     public void addJobQueue(JobQueue<?> jobQueue) {
         Class<? extends JobQueue> clazz = jobQueue.getClass();
 
+        if (jobQueue.getClass().equals(JobQueue.class)) { // this means user is not using an extended class
+            throw new UnsupportedOperationException("You must extend the " + JobQueue.class.getName() + " rather than instantiating the abstract class.");
+        }
+
         if (jobQueues.containsKey(jobQueue.getClass())) {
             throw new UnsupportedOperationException("Attempted to double register class: " + clazz.getName());
         }

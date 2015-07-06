@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.minecraftly.core.bungee.handlers.job.JobManager;
-import com.minecraftly.core.bungee.handlers.job.handlers.HumanCheckHandler;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -28,6 +27,6 @@ public interface MinecraftlyBungeeCore {
 
     JobManager getJobManager();
 
-    HumanCheckHandler getHumanCheckHandler();
+    HumanCheckManager getHumanCheckManager();
 
 }

@@ -4,8 +4,7 @@ import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.minecraftly.core.bungee.MclyCoreBungeePlugin;
 import com.minecraftly.core.bungee.MinecraftlyBungeeCore;
 import com.minecraftly.core.bungee.handlers.job.JobManager;
-import com.minecraftly.core.bungee.handlers.job.JobType;
-import com.minecraftly.core.bungee.handlers.job.handlers.HumanCheckHandler;
+import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
 import com.minecraftly.core.packets.homes.PacketPlayerGotoHome;
 import com.sk89q.intake.Command;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -46,7 +45,7 @@ public class PlayerWorldsHandler implements Listener {
         ServerInfo serverInfo = getServerHostingWorld(ownerUUID);
         if (serverInfo != null && !proxiedPlayer.getServer().getInfo().equals(serverInfo)) { // connect to server this should be hosted on
             proxiedPlayer.connect(serverInfo);
-            jobManager.getJobQueue(JobType.CONNECT).addJob(proxiedPlayer, ((proxiedPlayer1, o) -> {
+            jobManager.getJobQueue(HumanCheckJobQueue.class).addJob(proxiedPlayer, ((proxiedPlayer1, o) -> {
                 playerGotoHome(proxiedPlayer, ownerUUID); // todo duplicate code
             }));
         } else {
@@ -59,14 +58,12 @@ public class PlayerWorldsHandler implements Listener {
     }
 
     public void playerGotoHome(ProxiedPlayer proxiedPlayer, UUID ownerUUID, boolean showNotHumanError) {
-        HumanCheckHandler humanCheckHandler = (HumanCheckHandler) jobManager.getJobQueue(JobType.IS_HUMAN);
-
-        if (showNotHumanError && !humanCheckHandler.isHumanVerified(proxiedPlayer)) {
+        if (showNotHumanError && !minecraftlyBungeeCore.getHumanCheckManager().isHumanVerified(proxiedPlayer)) {
             proxiedPlayer.sendMessage(MclyCoreBungeePlugin.MESSAGE_NOT_HUMAN);
         }
 
         // this executes immediately if player is already human verified
-        humanCheckHandler.addJob(proxiedPlayer, (proxiedPlayer1, human) -> {
+        jobManager.getJobQueue(HumanCheckJobQueue.class).addJob(proxiedPlayer, (proxiedPlayer1, human) -> {
             if (human) {
                 ServerInfo hostingServer = worldServerMap.get(ownerUUID);
                 if (hostingServer != null && !proxiedPlayer1.getServer().getInfo().equals(hostingServer)) {

@@ -1,5 +1,7 @@
 package com.minecraftly.core.bungee.handlers.job;
 
+import com.minecraftly.core.bungee.handlers.job.queue.JobQueue;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,29 +10,25 @@ import java.util.Map;
  */
 public class JobManager {
 
-    private final Map<JobType, JobQueue<?>> jobQueues = new HashMap<>();
+    private final Map<Class<? extends JobQueue>, JobQueue<?>> jobQueues = new HashMap<>();
 
-    public JobQueue<?> getJobQueue(JobType jobType) {
-        return jobQueues.get(jobType);
+    @SuppressWarnings("unchecked")
+    public <T extends JobQueue<?>> T getJobQueue(Class<T> clazz) {
+        return (T) jobQueues.get(clazz);
     }
 
-    public void addJobQueue(JobType jobType, JobQueue<?> jobQueue) {
-        if (jobQueues.containsKey(jobType)) {
-            throw new UnsupportedOperationException("Attempted to double register JobType: " + jobType.name());
+    public void addJobQueue(JobQueue<?> jobQueue) {
+        Class<? extends JobQueue> clazz = jobQueue.getClass();
+
+        if (jobQueues.containsKey(jobQueue.getClass())) {
+            throw new UnsupportedOperationException("Attempted to double register class: " + clazz.getName());
         }
 
-        if (!jobType.getClassType().isAssignableFrom(jobQueue.getParameterType())) {
-            throw new UnsupportedOperationException(
-                    "JobQueue's parameter type must be the same, or a super class of the class type: "
-                            + jobType.getClassType().getName()
-            );
-        }
-
-        jobQueues.put(jobType, jobQueue);
+        jobQueues.put(clazz, jobQueue);
     }
 
-    public void removeJobQueue(JobType jobType) {
-        jobQueues.remove(jobType);
+    public void removeJobQueue(Class<? extends JobQueue> clazz) {
+        jobQueues.remove(clazz);
     }
 
 }

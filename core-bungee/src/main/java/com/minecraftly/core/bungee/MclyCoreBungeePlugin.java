@@ -10,10 +10,10 @@ import com.minecraftly.core.MinecraftlyCommon;
 import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bungee.handlers.MOTDHandler;
 import com.minecraftly.core.bungee.handlers.job.JobManager;
-import com.minecraftly.core.bungee.handlers.job.JobQueue;
-import com.minecraftly.core.bungee.handlers.job.JobType;
 import com.minecraftly.core.bungee.handlers.job.handlers.ConnectHandler;
 import com.minecraftly.core.bungee.handlers.job.handlers.HumanCheckHandler;
+import com.minecraftly.core.bungee.handlers.job.queue.ConnectJobQueue;
+import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
 import com.minecraftly.core.bungee.handlers.module.PlayerWorldsHandler;
 import com.minecraftly.core.bungee.handlers.module.TpaHandler;
 import lc.vq.exhaust.bungee.command.CommandManager;
@@ -53,7 +53,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
     private Gson gson = new Gson();
 
     private final JobManager jobManager = new JobManager();
-    private final HumanCheckHandler humanCheckHandler = new HumanCheckHandler(jobManager);
+    private final HumanCheckManager humanCheckManager = new HumanCheckManager();
 
     @Override
     public void onEnable() {
@@ -80,7 +80,6 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
         gateway.registerListener(playerWorldsHandler);
         gateway.registerListener(preSwitchHandler);
-        gateway.registerListener(humanCheckHandler);
 
         commandManager = new CommandManager(this);
         commandManager.builder()
@@ -91,15 +90,19 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         pluginManager.registerListener(this, playerWorldsHandler);
         pluginManager.registerListener(this, tpaHandler);
         pluginManager.registerListener(this, preSwitchHandler);
-        pluginManager.registerListener(this, new ConnectHandler(jobManager, getLogger()));
-        pluginManager.registerListener(this, humanCheckHandler);
         pluginManager.registerListener(this, new MOTDHandler(this));
 
         TaskScheduler taskScheduler = getProxy().getScheduler();
         taskScheduler.schedule(this, tpaHandler, 5, TimeUnit.MINUTES);
 
-        jobManager.addJobQueue(JobType.CONNECT, new JobQueue<>(JobType.CONNECT.getClassType()));
-        jobManager.addJobQueue(JobType.IS_HUMAN, humanCheckHandler);
+        HumanCheckJobQueue humanCheckJobQueue = new HumanCheckJobQueue(humanCheckManager);
+        ConnectJobQueue connectJobQueue = new ConnectJobQueue();
+        HumanCheckHandler humanCheckHandler = new HumanCheckHandler(jobManager, humanCheckManager);
+        jobManager.addJobQueue(humanCheckJobQueue);
+        jobManager.addJobQueue(connectJobQueue);
+        gateway.registerListener(humanCheckHandler);
+        pluginManager.registerListener(this, humanCheckHandler);
+        pluginManager.registerListener(this, new ConnectHandler(connectJobQueue, getLogger()));
     }
 
     private void copyDefaults() {
@@ -160,7 +163,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
     }
 
     @Override
-    public HumanCheckHandler getHumanCheckHandler() {
-        return humanCheckHandler;
+    public HumanCheckManager getHumanCheckManager() {
+        return humanCheckManager;
     }
 }

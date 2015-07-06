@@ -1,4 +1,4 @@
-package com.minecraftly.core.bungee.handlers.job;
+package com.minecraftly.core.bungee.handlers.job.queue;
 
 import com.google.common.base.Preconditions;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -14,7 +14,7 @@ import java.util.function.BiConsumer;
 /**
  * Created by Keir on 28/06/2015.
  */
-public class JobQueue<T> {
+public abstract class JobQueue<T> {
 
     private final Class<T> parameterType;
     private final Map<UUID, List<BiConsumer<ProxiedPlayer, T>>> jobs = new HashMap<>();

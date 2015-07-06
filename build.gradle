@@ -29,6 +29,7 @@ ext.bukkitVersion = '1.8.7-R0.1-SNAPSHOT'
 ext.bungeeVersion = '1.8-SNAPSHOT'
 ext.exhaustVersion = '1.0.0-SNAPSHOT'
 ext.pmfVersion = '1.0.0-SNAPSHOT'
+ext.vaultVersion = '1.5'
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.3'
@@ -59,7 +60,7 @@ subprojects {
         mavenLocal() // PluginMessageFramework
 
         maven {
-            url 'https://hub.spigotmc.org/nexus/content/groups/public/'
+            url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
         }
 
         maven {
@@ -205,12 +206,19 @@ project(':core-bukkit') {
     group = project(':core').getGroup() + '.bukkit'
     version = '1.0-SNAPSHOT'
 
+    repositories {
+        maven { // VaultAPI
+            url 'http://nexus.theyeticave.net/content/repositories/pub_releases'
+        }
+    }
+
     dependencies {
         compile project(path: ':core', configuration: 'shadow')
-        compile group: 'org.spigotmc', name: 'spigot-api', version: parent.ext.bukkitVersion
+        compile group: 'org.bukkit', name: 'bukkit', version: parent.ext.bukkitVersion
         compile group: 'lc.vq', name: 'exhaust-bukkit', version: parent.ext.exhaustVersion
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-bukkit', version: parent.ext.pmfVersion
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-packets-bungeecord', version: parent.ext.pmfVersion
+        compile group: 'net.milkbowl.vault', name: 'VaultAPI', version: parent.ext.vaultVersion
     }
 
     shadowJar {
@@ -318,7 +326,7 @@ task('deployForTesting') {
             session(host: host, user: user, password: pass) {
                 stopServers.execute()
 
-                execute 'rm -r -f ' + baseFolder +  'global/bukkitPlugins/*.jar;' +
+                execute 'rm -r -f ' + baseFolder +  'slave_*/plugins/Minecraftly*.jar;' +
                         'rm -r -f ' + baseFolder +  'bungee_proxy_*/plugins/MinecraftlyBungee*.jar;', ignoreError: true
 
                 for (Project project : subprojects) {

@@ -5,6 +5,7 @@ import com.minecraftly.core.bukkit.config.ConfigManager;
 import com.minecraftly.core.bukkit.database.DatabaseManager;
 import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.user.UserManager;
+import net.milkbowl.vault.permission.Permission;
 import org.apache.commons.dbutils.QueryRunner;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -34,4 +35,6 @@ public interface MinecraftlyCore extends Plugin {
     PlayerSwitchJobManager getPlayerSwitchJobManager();
 
     Supplier<QueryRunner> getQueryRunnerSupplier();
+
+    Permission getPermission();
 }

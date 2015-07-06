@@ -3,6 +3,7 @@ package com.minecraftly.core.bukkit.modules.homes;
 import com.google.common.base.Preconditions;
 import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
 import com.minecraftly.core.bukkit.MclyCoreBukkitPlugin;
+import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.modules.Module;
 import com.minecraftly.core.bukkit.modules.homes.command.WorldsCommands;
@@ -68,11 +69,12 @@ public class ModulePlayerWorlds extends Module implements Listener {
         registerListener(this.botCheck);
         Bukkit.getScheduler().runTaskTimer(getPlugin(), this.botCheck, 20L, 20L);
 
+        LanguageManager languageManager = getPlugin().getLanguageManager();
         PlayerListener playerListener = new PlayerListener(this);
 
         registerListener(this);
         registerListener(playerListener);
-        registerListener(new DimensionListener(this));
+        registerListener(new DimensionListener(this, languageManager, getPlugin().getPermission()));
         registerListener(new WorldMessagesListener(this));
         gateway.registerListener(playerListener);
         getPlugin().getPlayerSwitchJobManager().addJob(playerListener);
@@ -87,7 +89,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
         userManager.addDataStorageHandler(new BotCheckStatusDataStorageHandler());
 
-        getPlugin().getLanguageManager().registerAll(new HashMap<String, LanguageValue>(){{
+        languageManager.registerAll(new HashMap<String, LanguageValue>(){{
             put(getLanguageSection() + ".loading.owner", langLoadingOwner);
             put(getLanguageSection() + ".loading.guest", langLoadingGuest);
             put(getLanguageSection() + ".error.loadFailed", langLoadFailed);

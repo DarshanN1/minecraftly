@@ -15,18 +15,24 @@ import java.util.List;
  */
 public enum WorldDimension {
 
-    NETHER(World.Environment.NETHER, "_nether"), THE_END(World.Environment.THE_END, "_the_end");
+    NETHER(World.Environment.NETHER, "The Nether", "_nether"), THE_END(World.Environment.THE_END, "The End", "_the_end");
 
     private World.Environment environment;
+    private String niceName;
     private String suffix;
 
-    WorldDimension(World.Environment environment, String suffix) {
+    WorldDimension(World.Environment environment, String niceName, String suffix) {
         this.environment = environment;
+        this.niceName = niceName;
         this.suffix = suffix;
     }
 
     public World.Environment getEnvironment() {
         return environment;
+    }
+
+    public String getNiceName() {
+        return niceName;
     }
 
     public String getSuffix() {
@@ -71,6 +77,16 @@ public enum WorldDimension {
         }
 
         return newWorld;
+    }
+
+    public static WorldDimension fromEnvironment(World.Environment environment) {
+        for (WorldDimension worldDimension : values()) {
+            if (worldDimension.getEnvironment() == environment) {
+                return worldDimension;
+            }
+        }
+
+        return null;
     }
 
     public static String getBaseWorldName(String worldName) {

@@ -27,12 +27,15 @@ import com.sk89q.intake.SettableDescription;
 import com.sk89q.intake.SettableParameter;
 import com.sk89q.intake.fluent.DispatcherNode;
 import lc.vq.exhaust.bukkit.command.CommandManager;
+import net.milkbowl.vault.permission.Permission;
 import org.apache.commons.dbutils.QueryRunner;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -62,7 +65,9 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     private File backupDirectory = new File(getDataFolder(), "backups");
     private boolean skipDisable = false;
 
-    private List<Module> modules = new ArrayList<Module>();
+    private Permission permission;
+
+    private List<Module> modules = new ArrayList<>();
 
     public final DataValue<String> CFG_DB_HOST = new DataValue<>("127.0.0.1", String.class);
     public final DataValue<Integer> CFG_DB_PORT = new DataValue<>(3306, Integer.class);
@@ -93,6 +98,15 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     @Override
     public void onEnable() {
         pluginManager = getServer().getPluginManager();
+        RegisteredServiceProvider<Permission> economyServiceProvider = getServer().getServicesManager().getRegistration(Permission.class);
+        if (economyServiceProvider == null) {
+            getLogger().severe("Permission service not found.");
+            pluginManager.disablePlugin(this);
+            Bukkit.shutdown();
+            return;
+        }
+
+        permission = economyServiceProvider.getProvider();
 
         File configurationFile = new File(getDataFolder(), "config.yml");
         boolean firstRun = !configurationFile.exists();
@@ -252,5 +266,10 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     @Override
     public Supplier<QueryRunner> getQueryRunnerSupplier() {
         return queryRunnerSupplier;
+    }
+
+    @Override
+    public Permission getPermission() {
+        return permission;
     }
 }

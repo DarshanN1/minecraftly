@@ -64,13 +64,13 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
 
     private List<Module> modules = new ArrayList<Module>();
 
-    public DataValue<String> CFG_DB_HOST = new DataValue<>("127.0.0.1", String.class);
-    public DataValue<Integer> CFG_DB_PORT = new DataValue<>(3306, Integer.class);
-    public DataValue<String> CFG_DB_USER = new DataValue<>("root", String.class);
-    public DataValue<String> CFG_DB_PASS = new DataValue<>("", String.class);
-    public DataValue<String> CFG_DB_DATABASE = new DataValue<>("minecraftly", String.class);
+    public final DataValue<String> CFG_DB_HOST = new DataValue<>("127.0.0.1", String.class);
+    public final DataValue<Integer> CFG_DB_PORT = new DataValue<>(3306, Integer.class);
+    public final DataValue<String> CFG_DB_USER = new DataValue<>("root", String.class);
+    public final DataValue<String> CFG_DB_PASS = new DataValue<>("", String.class);
+    public final DataValue<String> CFG_DB_DATABASE = new DataValue<>("minecraftly", String.class);
 
-    public Map<String, DataValue> configValues = new HashMap<String, DataValue>() {{
+    private final Map<String, DataValue> configValues = new HashMap<String, DataValue>() {{
         String dbPrefix = "database.";
 
         put(dbPrefix + "host", CFG_DB_HOST);

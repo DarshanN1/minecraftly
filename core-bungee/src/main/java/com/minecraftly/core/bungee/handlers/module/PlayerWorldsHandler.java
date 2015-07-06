@@ -22,7 +22,7 @@ import java.util.UUID;
 /**
  * Created by Keir on 29/04/2015.
  */
-public class HomeWorldsHandler implements Listener {
+public class PlayerWorldsHandler implements Listener {
 
     private final MinecraftlyBungeeCore minecraftlyBungeeCore;
     private final JobManager jobManager;
@@ -31,7 +31,7 @@ public class HomeWorldsHandler implements Listener {
     // todo use redis
     private final Map<UUID, ServerInfo> worldServerMap = new HashMap<>();
 
-    public HomeWorldsHandler(MinecraftlyBungeeCore minecraftlyBungeeCore) {
+    public PlayerWorldsHandler(MinecraftlyBungeeCore minecraftlyBungeeCore) {
         this.minecraftlyBungeeCore = minecraftlyBungeeCore;
         this.jobManager = this.minecraftlyBungeeCore.getJobManager();
         this.redisBungeeAPI = this.minecraftlyBungeeCore.getRedisBungeeAPI();

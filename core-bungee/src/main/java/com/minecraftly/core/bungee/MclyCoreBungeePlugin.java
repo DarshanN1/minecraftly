@@ -14,7 +14,7 @@ import com.minecraftly.core.bungee.handlers.job.JobQueue;
 import com.minecraftly.core.bungee.handlers.job.JobType;
 import com.minecraftly.core.bungee.handlers.job.handlers.ConnectHandler;
 import com.minecraftly.core.bungee.handlers.job.handlers.HumanCheckHandler;
-import com.minecraftly.core.bungee.handlers.module.HomeWorldsHandler;
+import com.minecraftly.core.bungee.handlers.module.PlayerWorldsHandler;
 import com.minecraftly.core.bungee.handlers.module.TpaHandler;
 import lc.vq.exhaust.bungee.command.CommandManager;
 import net.md_5.bungee.api.ChatColor;
@@ -74,21 +74,21 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         gateway = BungeeGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
         redisBungeeAPI = RedisBungee.getApi();
 
-        HomeWorldsHandler homeWorldsHandler = new HomeWorldsHandler(this);
+        PlayerWorldsHandler playerWorldsHandler = new PlayerWorldsHandler(this);
         TpaHandler tpaHandler = new TpaHandler(this);
         PreSwitchHandler preSwitchHandler = new PreSwitchHandler(gateway, getLogger());
 
-        gateway.registerListener(homeWorldsHandler);
+        gateway.registerListener(playerWorldsHandler);
         gateway.registerListener(preSwitchHandler);
         gateway.registerListener(humanCheckHandler);
 
         commandManager = new CommandManager(this);
         commandManager.builder()
-                .registerMethods(homeWorldsHandler)
+                .registerMethods(playerWorldsHandler)
                 .registerMethods(tpaHandler);
         commandManager.build();
 
-        pluginManager.registerListener(this, homeWorldsHandler);
+        pluginManager.registerListener(this, playerWorldsHandler);
         pluginManager.registerListener(this, tpaHandler);
         pluginManager.registerListener(this, preSwitchHandler);
         pluginManager.registerListener(this, new ConnectHandler(jobManager, getLogger()));

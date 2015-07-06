@@ -51,7 +51,7 @@ public class Utilities {
             Files.walkFileTree(directory.toPath(), new SimpleFileVisitor<Path>() {
                 @Nonnull
                 @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                public FileVisitResult visitFile(@Nonnull Path file, @Nonnull BasicFileAttributes attrs) throws IOException {
                     Files.delete(file);
                     return FileVisitResult.CONTINUE;
                 }

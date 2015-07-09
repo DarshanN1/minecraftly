@@ -16,7 +16,7 @@ import com.minecraftly.core.bukkit.modules.playerworlds.handlers.PlayerListener;
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.WorldMessagesListener;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
-import com.minecraftly.core.packets.playerworlds.PacketNoLongerHosting;
+import com.minecraftly.core.packets.playerworlds.PacketNoLongerHostingWorld;
 import com.sk89q.intake.fluent.DispatcherNode;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -151,7 +151,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
         if (ownerUUID != null) {
             playerWorlds.remove(ownerUUID);
-            gateway.sendPacket(new PacketNoLongerHosting(ownerUUID), false); // notify proxy if possible
+            gateway.sendPacket(new PacketNoLongerHostingWorld(ownerUUID), false); // notify proxy if possible
             getLogger().info("Unloaded world for player: " + ownerUUID + ".");
         }
     }

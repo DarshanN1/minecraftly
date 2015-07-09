@@ -7,13 +7,13 @@ import java.util.UUID;
 /**
  * Sent from a Slave server to the Proxy, notifying when the server is no longer hosting a world.
  */
-public class PacketNoLongerHosting extends StandardPacket {
+public class PacketNoLongerHostingWorld extends StandardPacket {
 
     private static final long serialVersionUID = 4071317416124081400L;
 
     private UUID worldUUID;
 
-    public PacketNoLongerHosting(UUID worldUUID) {
+    public PacketNoLongerHostingWorld(UUID worldUUID) {
         this.worldUUID = worldUUID;
     }
 

@@ -158,7 +158,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
 
     private DispatcherNode registerCoreCommands() {
         commandManager = new CommandManager(this);
-        commandManager.injector().install(new MinecraftlyModule(this, userManager, languageManager, databaseManager));
+        commandManager.injector().install(new MinecraftlyModule(this));
 
         DispatcherNode dispatcherNode = commandManager.builder();
         dispatcherNode.group("minecraftly")

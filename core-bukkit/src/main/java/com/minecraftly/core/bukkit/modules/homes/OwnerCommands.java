@@ -2,8 +2,8 @@ package com.minecraftly.core.bukkit.modules.homes;
 
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.sk89q.intake.Command;
+import lc.vq.exhaust.command.annotation.Sender;
 import org.apache.commons.lang.WordUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -41,45 +41,39 @@ public class OwnerCommands {
     }
 
     @Command(aliases = {"survival"}, desc = "Puts a player in survival mode.", usage = "<target>", min = 1, max = 1)
-    public void setGuestSurvival(Player player, String targetName) {
-        setGuestGameMode(player, targetName, GameMode.SURVIVAL);
+    public void setGuestSurvival(@Sender Player player, Player target) {
+        setGuestGameMode(player, target, GameMode.SURVIVAL);
     }
 
     @Command(aliases = {"adventure"}, desc = "Puts a player in adventure mode.", usage = "<target>", min = 1, max = 1)
-    public void setGuestAdventure(Player player, String targetName) {
-        setGuestGameMode(player, targetName, GameMode.ADVENTURE);
+    public void setGuestAdventure(@Sender Player player, Player target) {
+        setGuestGameMode(player, target, GameMode.ADVENTURE);
     }
 
-    public void setGuestGameMode(Player sender, String targetName, GameMode gameMode) {
+    public void setGuestGameMode(Player sender, Player target, GameMode gameMode) {
         World world = WorldDimension.getBaseWorld(sender.getWorld());
 
         if (module.isHomeWorld(world)) {
             UUID worldOwner = module.getHomeOwner(world);
 
             if (sender.getUniqueId().equals(worldOwner)) {
-                Player target = Bukkit.getPlayer(targetName);
+                if (sender != target) {
+                    if (WorldDimension.getBaseWorld(target.getWorld()) == world) {
+                        String gameModeCamelCase = WordUtils.capitalizeFully(gameMode.name().toLowerCase()).replace(" ", "");
 
-                if (target != null) {
-                    if (sender != target) {
-                        if (WorldDimension.getBaseWorld(target.getWorld()) == world) {
-                            String gameModeCamelCase = WordUtils.capitalizeFully(gameMode.name().toLowerCase()).replace(" ", "");
+                        if (target.getGameMode() != gameMode) {
+                            target.setGameMode(gameMode);
 
-                            if (target.getGameMode() != gameMode) {
-                                target.setGameMode(gameMode);
-
-                                langSuccessSender.send(sender, target.getDisplayName(), gameModeCamelCase);
-                                langSuccessTarget.send(target, gameModeCamelCase, sender.getDisplayName());
-                            } else {
-                                langAlreadyInGameMode.send(sender, gameModeCamelCase);
-                            }
+                            langSuccessSender.send(sender, target.getDisplayName(), gameModeCamelCase);
+                            langSuccessTarget.send(target, gameModeCamelCase, sender.getDisplayName());
                         } else {
-                            langNotInHome.send(sender);
+                            langAlreadyInGameMode.send(sender, gameModeCamelCase);
                         }
                     } else {
-                        langAttemptSelf.send(sender);
+                        langNotInHome.send(sender);
                     }
                 } else {
-                    langNotInHome.send(sender);
+                    langAttemptSelf.send(sender);
                 }
             } else {
                 langNotOwner.send(sender);

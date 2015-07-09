@@ -7,6 +7,7 @@ import com.minecraftly.core.bukkit.modules.homes.ModulePlayerWorlds;
 import com.minecraftly.core.bukkit.modules.homes.WorldDimension;
 import com.minecraftly.core.bukkit.modules.homes.data.world.WorldUserDataContainer;
 import com.sk89q.intake.Command;
+import lc.vq.exhaust.command.annotation.Sender;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -45,7 +46,7 @@ public class WorldsCommands {
     }
 
     @Command(aliases = "reset", desc = "Resets all of your worlds.", min = 0, max = 0)
-    public void resetWorlds(Player player) {
+    public void resetWorlds(@Sender Player player) {
         long lastResetCommand = 0;
 
         if (player.hasMetadata(KEY_RESET)) {

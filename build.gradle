@@ -27,7 +27,7 @@ apply plugin: 'idea'
 
 ext.bukkitVersion = '1.8.7-R0.1-SNAPSHOT'
 ext.bungeeVersion = '1.8-SNAPSHOT'
-ext.exhaustVersion = '1.0.0-SNAPSHOT'
+ext.exhaustVersion = '1.0.1-SNAPSHOT'
 ext.pmfVersion = '1.0.0-SNAPSHOT'
 ext.vaultVersion = '1.5'
 

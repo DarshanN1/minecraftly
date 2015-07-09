@@ -11,6 +11,7 @@ import com.minecraftly.core.bungee.handlers.job.queue.ConnectJobQueue;
 import com.minecraftly.core.bungee.utilities.BungeeUtilities;
 import com.minecraftly.core.packets.PacketTeleport;
 import com.sk89q.intake.Command;
+import lc.vq.exhaust.command.annotation.Sender;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -52,7 +53,7 @@ public class TpaHandler implements Runnable, Listener {
     private Map<Map.Entry<UUID, UUID>, Long> tpaRequests = new HashMap<>();
 
     @Command(aliases = "tpa", desc = "Request to teleport to a player.", usage = "<player>", min = 1, max = 1)
-    public void newTpaRequest(ProxiedPlayer sender, String inputName) {
+    public void newTpaRequest(@Sender ProxiedPlayer sender, String inputName) {
         if (!plugin.getHumanCheckManager().isHumanVerified(sender)) {
             sender.sendMessage(MclyCoreBungeePlugin.MESSAGE_NOT_HUMAN);
         } else {
@@ -80,7 +81,7 @@ public class TpaHandler implements Runnable, Listener {
     }
 
     @Command(aliases = "tpaccept", desc = "Accept a teleport request from a player.", usage = "<player>", min = 1, max = 1)
-    public void acceptTpaRequest(ProxiedPlayer teleportTarget, String initiatorNameInput) {
+    public void acceptTpaRequest(@Sender ProxiedPlayer teleportTarget, String initiatorNameInput) {
         String initiatorName = BungeeUtilities.matchRedisPlayer(initiatorNameInput);
 
         if (initiatorName == null) {

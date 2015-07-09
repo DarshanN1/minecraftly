@@ -1,6 +1,5 @@
 package com.minecraftly.core.bukkit;
 
-import com.google.common.collect.ImmutableList;
 import com.ikeirnez.pluginmessageframework.bukkit.BukkitGatewayProvider;
 import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
 import com.minecraftly.core.MinecraftlyCommon;
@@ -9,7 +8,7 @@ import com.minecraftly.core.bukkit.commands.MinecraftlyCommand;
 import com.minecraftly.core.bukkit.config.ConfigManager;
 import com.minecraftly.core.bukkit.config.DataValue;
 import com.minecraftly.core.bukkit.database.DatabaseManager;
-import com.minecraftly.core.bukkit.internal.intake.MinecraftlyBinding;
+import com.minecraftly.core.bukkit.internal.intake.MinecraftlyModule;
 import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.listeners.PacketListener;
 import com.minecraftly.core.bukkit.modules.Module;
@@ -22,9 +21,6 @@ import com.minecraftly.core.bukkit.user.UserListener;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.bukkit.utilities.PrefixedLogger;
-import com.sk89q.intake.Parameter;
-import com.sk89q.intake.SettableDescription;
-import com.sk89q.intake.SettableParameter;
 import com.sk89q.intake.fluent.DispatcherNode;
 import lc.vq.exhaust.bukkit.command.CommandManager;
 import net.milkbowl.vault.permission.Permission;
@@ -162,18 +158,11 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
 
     private DispatcherNode registerCoreCommands() {
         commandManager = new CommandManager(this);
-        commandManager.config().addBinding(new MinecraftlyBinding(this));
+        commandManager.injector().install(new MinecraftlyModule(this, userManager, languageManager, databaseManager));
 
         DispatcherNode dispatcherNode = commandManager.builder();
-
-        SettableDescription description = (SettableDescription) dispatcherNode.group("minecraftly")
-                .describeAs("Minecraftly core commands.")
-                .registerMethods(new MinecraftlyCommand(getLanguageManager()))
-                .getDispatcher().getDescription();
-
-        description.setParameters(ImmutableList.<Parameter>builder()
-                .add(new SettableParameter("info/cleanup"))
-                .build());
+        dispatcherNode.group("minecraftly")
+                .registerMethods(new MinecraftlyCommand(languageManager));
 
         return dispatcherNode;
     }

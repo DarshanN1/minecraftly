@@ -8,6 +8,7 @@ import com.minecraftly.core.bukkit.user.User;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;
+import lc.vq.exhaust.command.annotation.Sender;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -37,7 +38,7 @@ public class MinecraftlyCommand {
     }
 
     @Command(aliases = "info", desc = "Displays information about the Minecraftly plugin", min = 0, max = 0)
-    public void about(Player player, User user) {
+    public void about(@Sender Player player, @Sender User user) {
         player.sendMessage(ChatColor.AQUA + "WIP."); // todo
     }
 

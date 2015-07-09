@@ -6,6 +6,7 @@ import com.minecraftly.core.bukkit.user.User;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.parametric.annotation.Range;
+import lc.vq.exhaust.command.annotation.Sender;
 import org.bukkit.entity.Player;
 
 /**
@@ -24,7 +25,7 @@ public class ChestCommand {
     }
 
     @Command(aliases = "chest", desc = "Opens a virtual chest.", usage = "<chest-number>", min = 1, max = 1)
-    public void openChest(Player player, @Range(min = 1) int chestNumber) {
+    public void openChest(@Sender Player player, @Range(min = 1) int chestNumber) {
         int maximumChests = moduleChest.getMaximumChests().getValue();
 
         if (chestNumber > maximumChests) {

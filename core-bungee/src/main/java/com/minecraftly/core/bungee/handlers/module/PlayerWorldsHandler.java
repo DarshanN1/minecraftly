@@ -8,6 +8,7 @@ import com.minecraftly.core.bungee.handlers.job.JobManager;
 import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
 import com.minecraftly.core.packets.homes.PacketPlayerGotoHome;
 import com.sk89q.intake.Command;
+import lc.vq.exhaust.command.annotation.Sender;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
@@ -44,7 +45,7 @@ public class PlayerWorldsHandler implements Listener {
     }
 
     @Command(aliases = "home", desc = "Teleport's the sender to their world")
-    public void connectBestServer(ProxiedPlayer proxiedPlayer) {
+    public void connectBestServer(@Sender ProxiedPlayer proxiedPlayer) {
         connectBestServer(proxiedPlayer, proxiedPlayer.getUniqueId());
     }
 

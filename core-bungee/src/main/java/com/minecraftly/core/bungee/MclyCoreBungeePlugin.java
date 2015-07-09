@@ -74,6 +74,15 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         gateway = BungeeGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
         redisBungeeAPI = RedisBungee.getApi();
 
+        HumanCheckJobQueue humanCheckJobQueue = new HumanCheckJobQueue(humanCheckManager);
+        ConnectJobQueue connectJobQueue = new ConnectJobQueue();
+        HumanCheckHandler humanCheckHandler = new HumanCheckHandler(jobManager, humanCheckManager);
+        jobManager.addJobQueue(humanCheckJobQueue);
+        jobManager.addJobQueue(connectJobQueue);
+        gateway.registerListener(humanCheckHandler);
+        pluginManager.registerListener(this, humanCheckHandler);
+        pluginManager.registerListener(this, new ConnectHandler(connectJobQueue, getLogger()));
+
         PlayerWorldsHandler playerWorldsHandler = new PlayerWorldsHandler(gateway, jobManager, humanCheckManager, redisBungeeAPI);
         TpaHandler tpaHandler = new TpaHandler(this);
         PreSwitchHandler preSwitchHandler = new PreSwitchHandler(gateway, getLogger());
@@ -90,19 +99,10 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         pluginManager.registerListener(this, playerWorldsHandler);
         pluginManager.registerListener(this, tpaHandler);
         pluginManager.registerListener(this, preSwitchHandler);
-        pluginManager.registerListener(this, new MOTDHandler(this));
+        pluginManager.registerListener(this, new MOTDHandler(jobManager, new File(getDataFolder(), "motd.json"), getLogger()));
 
         TaskScheduler taskScheduler = getProxy().getScheduler();
         taskScheduler.schedule(this, tpaHandler, 5, TimeUnit.MINUTES);
-
-        HumanCheckJobQueue humanCheckJobQueue = new HumanCheckJobQueue(humanCheckManager);
-        ConnectJobQueue connectJobQueue = new ConnectJobQueue();
-        HumanCheckHandler humanCheckHandler = new HumanCheckHandler(jobManager, humanCheckManager);
-        jobManager.addJobQueue(humanCheckJobQueue);
-        jobManager.addJobQueue(connectJobQueue);
-        gateway.registerListener(humanCheckHandler);
-        pluginManager.registerListener(this, humanCheckHandler);
-        pluginManager.registerListener(this, new ConnectHandler(connectJobQueue, getLogger()));
     }
 
     private void copyDefaults() {

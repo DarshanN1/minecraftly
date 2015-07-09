@@ -6,11 +6,11 @@ import com.minecraftly.core.bukkit.user.modularisation.SingletonUserData;
 /**
  * Stores whether or not a player has passed the bot check for this session.
  */
-public class BotCheckStatusData extends SingletonUserData {
+public class HumanCheckStatusData extends SingletonUserData {
 
     private boolean status = false;
 
-    public BotCheckStatusData(User user) {
+    public HumanCheckStatusData(User user) {
         super(user, null);
     }
 

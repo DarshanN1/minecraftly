@@ -16,6 +16,7 @@ import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -104,7 +105,7 @@ public class PlayerWorldsHandler implements Listener {
         playerServerMap.get(proxiedPlayer.getServer().getInfo()).remove(packet.getWorldUUID());
     }*/
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerPostLogin(PostLoginEvent e) { // go to players home once they are confirmed to not be a bot
         ProxiedPlayer proxiedPlayer = e.getPlayer();
         playerGotoHome(proxiedPlayer, proxiedPlayer.getUniqueId(), false);

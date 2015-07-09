@@ -2,7 +2,8 @@ package com.minecraftly.core.bungee.handlers;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
-import com.minecraftly.core.bungee.MclyCoreBungeePlugin;
+import com.minecraftly.core.bungee.handlers.job.JobManager;
+import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -11,24 +12,30 @@ import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Displays the motd to players when they join.
  */
 public class MOTDHandler implements Listener {
 
-    private final MclyCoreBungeePlugin plugin;
+    private final JobManager jobManager;
+    private final Logger logger;
+
     private File motdFile;
 
-    public MOTDHandler(MclyCoreBungeePlugin plugin) {
-        this.plugin = plugin;
-        this.motdFile = new File(plugin.getDataFolder(), "motd.json");
+    public MOTDHandler(JobManager jobManager, File motdFile, Logger logger) {
+        this.jobManager = jobManager;
+        this.logger = logger;
+
+        this.motdFile = motdFile;
 
         if (!this.motdFile.exists()) {
             try {
@@ -53,7 +60,7 @@ public class MOTDHandler implements Listener {
                 this.motdFile.createNewFile();
                 Files.write(this.motdFile.toPath(), Collections.singletonList(prettifyJson(ComponentSerializer.toString(defaultMotd))));
             } catch (IOException e) {
-                this.plugin.getLogger().log(Level.SEVERE, "Couldn't write default motd file.", e);
+                logger.log(Level.SEVERE, "Couldn't write default motd file.", e);
             }
         }
     }
@@ -62,12 +69,16 @@ public class MOTDHandler implements Listener {
         return new GsonBuilder().setPrettyPrinting().create().toJson(new JsonParser().parse(json));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerPostLogin(PostLoginEvent e) {
-        BaseComponent[] motdComponents = getMotdFromFile();
-        if (motdComponents != null) {
-            e.getPlayer().sendMessage(motdComponents);
-        }
+        jobManager.getJobQueue(HumanCheckJobQueue.class).addJob(e.getPlayer(), ((proxiedPlayer, human) -> {
+            if (human) {
+                BaseComponent[] motdComponents = getMotdFromFile();
+                if (motdComponents != null) {
+                    proxiedPlayer.sendMessage(motdComponents);
+                }
+            }
+        }));
     }
 
     public BaseComponent[] getMotdFromFile() {
@@ -79,7 +90,7 @@ public class MOTDHandler implements Listener {
 
             return ComponentSerializer.parse(data);
         } catch (IOException e) {
-            plugin.getLogger().log(Level.SEVERE, "Error reading MOTD file.", e);
+            logger.log(Level.SEVERE, "Error reading MOTD file.", e);
         }
 
         return null;

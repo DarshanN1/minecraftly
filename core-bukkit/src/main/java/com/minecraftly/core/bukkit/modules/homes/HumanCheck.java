@@ -20,7 +20,7 @@ import java.util.Random;
 /**
  * Created by Keir on 24/06/2015.
  */
-public class BotCheck implements Listener, Runnable {
+public class HumanCheck implements Listener, Runnable {
 
     public static final String KEY_HUMAN_CHECK_INVENTORY = "Minecraftly.HumanCheckInventory";
 
@@ -35,7 +35,7 @@ public class BotCheck implements Listener, Runnable {
     private ModulePlayerWorlds module;
     private Random random = new Random();
 
-    public BotCheck(ModulePlayerWorlds module) {
+    public HumanCheck(ModulePlayerWorlds module) {
         this.module = module;
     }
 
@@ -71,7 +71,8 @@ public class BotCheck implements Listener, Runnable {
                 if (currentItem != null && currentItem.getType() == ACCEPT_ITEM_STACK.getType()) { // todo make this check better
                     player.closeInventory();
                     deleteInventoryCache(player);
-                    module.getPlugin().getUserManager().getUser(player).getSingletonUserData(BotCheckStatusData.class).setStatus(true);
+
+                    module.getPlugin().getUserManager().getUser(player).getSingletonUserData(HumanCheckStatusData.class).setStatus(true);
                     module.getPlugin().getGateway().sendPacket(player, new PacketBotCheck(true));
                 }
 
@@ -88,7 +89,7 @@ public class BotCheck implements Listener, Runnable {
     @Override
     public void run() {
         for (Player player : Bukkit.getWorlds().get(0).getPlayers()) {
-            if (!module.getPlugin().getUserManager().getUser(player).getSingletonUserData(BotCheckStatusData.class).getStatus()) {
+            if (!module.getPlugin().getUserManager().getUser(player).getSingletonUserData(HumanCheckStatusData.class).getStatus()) {
                 showHumanCheck(player);
             }
         }

@@ -44,7 +44,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
         return instance;
     }
 
-    private BotCheck botCheck;
+    private HumanCheck humanCheck;
     private ServerGateway<Player> gateway;
 
     public final Map<UUID, World> playerWorlds = new HashMap<>();
@@ -65,9 +65,9 @@ public class ModulePlayerWorlds extends Module implements Listener {
     @Override
     public void onEnable() {
         this.gateway = getPlugin().getGateway();
-        this.botCheck = new BotCheck(this);
-        registerListener(this.botCheck);
-        Bukkit.getScheduler().runTaskTimer(getPlugin(), this.botCheck, 20L, 20L);
+        this.humanCheck = new HumanCheck(this);
+        registerListener(this.humanCheck);
+        Bukkit.getScheduler().runTaskTimer(getPlugin(), this.humanCheck, 20L, 20L);
 
         LanguageManager languageManager = getPlugin().getLanguageManager();
         PlayerListener playerListener = new PlayerListener(this);
@@ -87,7 +87,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
         registerListener(globalStorageHandler);
         registerListener(worldStorageHandler);
 
-        userManager.addDataStorageHandler(new BotCheckStatusDataStorageHandler());
+        userManager.addDataStorageHandler(new HumanCheckStatusDataStorageHandler());
 
         languageManager.registerAll(new HashMap<String, LanguageValue>(){{
             put(getLanguageSection() + ".loading.owner", langLoadingOwner);
@@ -128,7 +128,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
         Bukkit.getScheduler().runTaskLater(getPlugin(), new Runnable() {
             @Override
             public void run() {
-                botCheck.showHumanCheck(e.getPlayer());
+                humanCheck.showHumanCheck(e.getPlayer());
             }
         }, 5L);
     }

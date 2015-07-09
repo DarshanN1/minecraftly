@@ -7,14 +7,14 @@ import com.minecraftly.core.bukkit.user.modularisation.DataStorageHandler;
 /**
  * Created by Keir on 27/06/2015.
  */
-public class BotCheckStatusDataStorageHandler extends DataStorageHandler<BotCheckStatusData> implements AutoInitializedData<BotCheckStatusData> {
+public class HumanCheckStatusDataStorageHandler extends DataStorageHandler<HumanCheckStatusData> implements AutoInitializedData<HumanCheckStatusData> {
 
-    public BotCheckStatusDataStorageHandler() {
+    public HumanCheckStatusDataStorageHandler() {
         super(null);
     }
 
     @Override
-    public BotCheckStatusData autoInitialize(User user) {
-        return new BotCheckStatusData(user);
+    public HumanCheckStatusData autoInitialize(User user) {
+        return new HumanCheckStatusData(user);
     }
 }

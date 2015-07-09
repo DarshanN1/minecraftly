@@ -32,7 +32,7 @@ ext.pmfVersion = '1.0.0-SNAPSHOT'
 ext.vaultVersion = '1.5'
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.3'
+    gradleVersion = '2.5'
 }
 
 defaultTasks 'clean', 'build', 'test'

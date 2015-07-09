@@ -1,8 +1,8 @@
-package com.minecraftly.core.bukkit.modules.homes.handlers;
+package com.minecraftly.core.bukkit.modules.playerworlds.handlers;
 
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
-import com.minecraftly.core.bukkit.modules.homes.ModulePlayerWorlds;
-import com.minecraftly.core.bukkit.modules.homes.WorldDimension;
+import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
+import com.minecraftly.core.bukkit.modules.playerworlds.WorldDimension;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -26,7 +26,7 @@ public class WorldMessagesListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent e) {
         World world = WorldDimension.getBaseWorld(e.getEntity().getWorld());
 
-        if (module.isHomeWorld(world)) {
+        if (module.isPlayerWorld(world)) {
             String deathMessage = e.getDeathMessage();
             e.setDeathMessage(null);
 

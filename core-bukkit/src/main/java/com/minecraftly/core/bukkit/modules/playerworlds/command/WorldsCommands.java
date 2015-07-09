@@ -1,11 +1,11 @@
-package com.minecraftly.core.bukkit.modules.homes.command;
+package com.minecraftly.core.bukkit.modules.playerworlds.command;
 
 import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.language.LanguageValue;
-import com.minecraftly.core.bukkit.modules.homes.ModulePlayerWorlds;
-import com.minecraftly.core.bukkit.modules.homes.WorldDimension;
-import com.minecraftly.core.bukkit.modules.homes.data.world.WorldUserDataContainer;
+import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
+import com.minecraftly.core.bukkit.modules.playerworlds.WorldDimension;
+import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserDataContainer;
 import com.sk89q.intake.Command;
 import lc.vq.exhaust.command.annotation.Sender;
 import org.bukkit.Bukkit;

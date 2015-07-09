@@ -1,8 +1,8 @@
-package com.minecraftly.core.bukkit.modules.homes.data.world;
+package com.minecraftly.core.bukkit.modules.playerworlds.data.world;
 
 import com.minecraftly.core.bukkit.database.DatabaseManager;
-import com.minecraftly.core.bukkit.modules.homes.ModulePlayerWorlds;
-import com.minecraftly.core.bukkit.modules.homes.WorldDimension;
+import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
+import com.minecraftly.core.bukkit.modules.playerworlds.WorldDimension;
 import com.minecraftly.core.bukkit.user.User;
 import com.minecraftly.core.bukkit.user.modularisation.AutoInitializedData;
 import com.minecraftly.core.bukkit.user.modularisation.DataStorageHandler;
@@ -47,22 +47,22 @@ public class WorldStorageHandler extends DataStorageHandler<WorldUserDataContain
         World to = WorldDimension.getBaseWorld(e.getTo().getWorld());
 
         if (!from.equals(to)) {
-            boolean fromHome = module.isHomeWorld(from);
-            boolean toHome = module.isHomeWorld(to);
+            boolean fromWorld = module.isPlayerWorld(from);
+            boolean toWorld = module.isPlayerWorld(to);
             User user = module.getPlugin().getUserManager().getUser(player);
             WorldUserDataContainer worldUserDataContainer = null;
 
-            if (fromHome) {
+            if (fromWorld) {
                 worldUserDataContainer = user.getSingletonUserData(WorldUserDataContainer.class);
-                worldUserDataContainer.unload(module.getHomeOwner(from));
+                worldUserDataContainer.unload(module.getWorldOwner(from));
             }
 
-            if (toHome) {
+            if (toWorld) {
                 if (worldUserDataContainer == null) {
                     worldUserDataContainer = user.getSingletonUserData(WorldUserDataContainer.class);
                 }
 
-                worldUserDataContainer.load(module.getHomeOwner(to));
+                worldUserDataContainer.load(module.getWorldOwner(to));
             }
         }
     }

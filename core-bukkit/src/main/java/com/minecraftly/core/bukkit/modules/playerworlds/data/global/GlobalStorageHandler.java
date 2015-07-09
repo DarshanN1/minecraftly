@@ -1,8 +1,8 @@
-package com.minecraftly.core.bukkit.modules.homes.data.global;
+package com.minecraftly.core.bukkit.modules.playerworlds.data.global;
 
 import com.minecraftly.core.bukkit.database.DatabaseManager;
-import com.minecraftly.core.bukkit.modules.homes.ModulePlayerWorlds;
-import com.minecraftly.core.bukkit.modules.homes.WorldDimension;
+import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
+import com.minecraftly.core.bukkit.modules.playerworlds.WorldDimension;
 import com.minecraftly.core.bukkit.user.User;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.user.modularisation.DataStorageHandler;
@@ -43,17 +43,17 @@ public class GlobalStorageHandler extends DataStorageHandler<GlobalUserData> imp
         World to = WorldDimension.getBaseWorld(e.getTo().getWorld());
 
         if (!from.equals(to)) {
-            boolean fromHome = module.isHomeWorld(from);
-            boolean toHome = module.isHomeWorld(to);
+            boolean fromWorld = module.isPlayerWorld(from);
+            boolean toWorld = module.isPlayerWorld(to);
             UserManager userManager = module.getPlugin().getUserManager();
 
-            if (fromHome && !toHome) {
+            if (fromWorld && !toWorld) {
                 User user = userManager.getUser(player, false);
 
                 if (user != null) {
                     user.detachUserData(GlobalUserData.class);
                 }
-            } else if (!fromHome && toHome) {
+            } else if (!fromWorld && toWorld) {
                 User user = userManager.getUser(player);
                 GlobalUserData globalUserData = new GlobalUserData(user, getQueryRunnerSupplier());
                 user.attachUserData(globalUserData);

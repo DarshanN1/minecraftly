@@ -39,7 +39,7 @@ public class MOTDHandler implements Listener {
 
         if (!this.motdFile.exists()) {
             try {
-                BaseComponent[] defaultMotd = new ComponentBuilder("Welcome to Minecraftly Homes.").color(ChatColor.AQUA)
+                BaseComponent[] defaultMotd = new ComponentBuilder("Welcome to Minecraftly Worlds.").color(ChatColor.AQUA)
                         .append("\n")
                         .append("Type ").color(ChatColor.AQUA)
                             .append("/m").color(ChatColor.GOLD)
@@ -54,7 +54,7 @@ public class MOTDHandler implements Listener {
                         .append("Type ").color(ChatColor.AQUA)
                             .append("/home").color(ChatColor.GOLD)
                                 .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/home"))
-                            .append(" to go to your home.").color(ChatColor.AQUA)
+                            .append(" to go to your world.").color(ChatColor.AQUA)
                         .create();
 
                 this.motdFile.createNewFile();

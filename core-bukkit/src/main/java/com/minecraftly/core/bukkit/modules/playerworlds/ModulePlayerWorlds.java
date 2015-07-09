@@ -1,4 +1,4 @@
-package com.minecraftly.core.bukkit.modules.homes;
+package com.minecraftly.core.bukkit.modules.playerworlds;
 
 import com.google.common.base.Preconditions;
 import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
@@ -6,17 +6,17 @@ import com.minecraftly.core.bukkit.MclyCoreBukkitPlugin;
 import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.modules.Module;
-import com.minecraftly.core.bukkit.modules.homes.command.WorldsCommands;
-import com.minecraftly.core.bukkit.modules.homes.data.global.GlobalStorageHandler;
-import com.minecraftly.core.bukkit.modules.homes.data.world.WorldStorageHandler;
-import com.minecraftly.core.bukkit.modules.homes.data.world.WorldUserData;
-import com.minecraftly.core.bukkit.modules.homes.data.world.WorldUserDataContainer;
-import com.minecraftly.core.bukkit.modules.homes.handlers.DimensionListener;
-import com.minecraftly.core.bukkit.modules.homes.handlers.PlayerListener;
-import com.minecraftly.core.bukkit.modules.homes.handlers.WorldMessagesListener;
+import com.minecraftly.core.bukkit.modules.playerworlds.command.WorldsCommands;
+import com.minecraftly.core.bukkit.modules.playerworlds.data.global.GlobalStorageHandler;
+import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldStorageHandler;
+import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserData;
+import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserDataContainer;
+import com.minecraftly.core.bukkit.modules.playerworlds.handlers.DimensionListener;
+import com.minecraftly.core.bukkit.modules.playerworlds.handlers.PlayerListener;
+import com.minecraftly.core.bukkit.modules.playerworlds.handlers.WorldMessagesListener;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
-import com.minecraftly.core.packets.homes.PacketNoLongerHosting;
+import com.minecraftly.core.packets.playerworlds.PacketNoLongerHosting;
 import com.sk89q.intake.fluent.DispatcherNode;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -49,9 +49,9 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
     public final Map<UUID, World> playerWorlds = new HashMap<>();
 
-    private final LanguageValue langLoadingOwner = new LanguageValue("&bOne moment whilst we load your home.");
-    private final LanguageValue langLoadingGuest = new LanguageValue("&bOne moment whilst we load that home.");
-    private final LanguageValue langLoadFailed = new LanguageValue("&cWe were unable to load your home, please contact a member of staff.");
+    private final LanguageValue langLoadingOwner = new LanguageValue("&bOne moment whilst we load your world.");
+    private final LanguageValue langLoadingGuest = new LanguageValue("&bOne moment whilst we load that world.");
+    private final LanguageValue langLoadFailed = new LanguageValue("&cWe were unable to load your world, please contact a member of staff.");
 
     public ModulePlayerWorlds(MclyCoreBukkitPlugin plugin) {
         super("PlayerWorlds", plugin);
@@ -119,7 +119,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
         return playerWorlds.containsKey(worldUUID);
     }
 
-    public boolean isHomeWorld(World world) {
+    public boolean isPlayerWorld(World world) {
         return playerWorlds.values().contains(world);
     }
 
@@ -147,7 +147,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
     @EventHandler
     public void onWorldUnload(WorldUnloadEvent e) { // do some cleaning up
         World world = e.getWorld();
-        UUID ownerUUID = getHomeOwner(world);
+        UUID ownerUUID = getWorldOwner(world);
 
         if (ownerUUID != null) {
             playerWorlds.remove(ownerUUID);
@@ -156,7 +156,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
         }
     }
 
-    public UUID getHomeOwner(World world) {
+    public UUID getWorldOwner(World world) {
         for (Map.Entry<UUID, World> entry : playerWorlds.entrySet()) {
             if (entry.getValue().equals(world)) {
                 return entry.getKey();
@@ -227,7 +227,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
         }
 
         WorldUserDataContainer worldUserDataContainer = getPlugin().getUserManager().getUser(player).getSingletonUserData(WorldUserDataContainer.class);
-        WorldUserData worldUserData = worldUserDataContainer.getOrLoad(getHomeOwner(world));
+        WorldUserData worldUserData = worldUserDataContainer.getOrLoad(getWorldOwner(world));
 
         Location lastLocation = worldUserData.getLastLocation();
         Location bedLocation = worldUserData.getBedLocation();

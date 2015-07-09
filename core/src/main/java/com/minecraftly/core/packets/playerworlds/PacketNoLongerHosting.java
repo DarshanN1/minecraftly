@@ -1,4 +1,4 @@
-package com.minecraftly.core.packets.homes;
+package com.minecraftly.core.packets.playerworlds;
 
 import com.ikeirnez.pluginmessageframework.packet.StandardPacket;
 

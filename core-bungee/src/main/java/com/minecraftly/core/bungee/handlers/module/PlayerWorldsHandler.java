@@ -6,7 +6,7 @@ import com.minecraftly.core.bungee.HumanCheckManager;
 import com.minecraftly.core.bungee.MclyCoreBungeePlugin;
 import com.minecraftly.core.bungee.handlers.job.JobManager;
 import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
-import com.minecraftly.core.packets.homes.PacketPlayerGotoHome;
+import com.minecraftly.core.packets.playerworlds.PacketPlayerGotoWorld;
 import com.sk89q.intake.Command;
 import lc.vq.exhaust.command.annotation.Sender;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -55,18 +55,18 @@ public class PlayerWorldsHandler implements Listener {
         if (serverInfo != null && !proxiedPlayer.getServer().getInfo().equals(serverInfo)) { // connect to server this should be hosted on
             proxiedPlayer.connect(serverInfo);
             jobManager.getJobQueue(HumanCheckJobQueue.class).addJob(proxiedPlayer, ((proxiedPlayer1, o) -> {
-                playerGotoHome(proxiedPlayer, ownerUUID); // todo duplicate code
+                playerGotoWorld(proxiedPlayer, ownerUUID); // todo duplicate code
             }));
         } else {
-            playerGotoHome(proxiedPlayer, ownerUUID); // todo duplicate code
+            playerGotoWorld(proxiedPlayer, ownerUUID); // todo duplicate code
         }
     }
 
-    public void playerGotoHome(ProxiedPlayer proxiedPlayer, UUID ownerUUID) {
-        playerGotoHome(proxiedPlayer, ownerUUID, true);
+    public void playerGotoWorld(ProxiedPlayer proxiedPlayer, UUID ownerUUID) {
+        playerGotoWorld(proxiedPlayer, ownerUUID, true);
     }
 
-    public void playerGotoHome(ProxiedPlayer proxiedPlayer, UUID ownerUUID, boolean showNotHumanError) {
+    public void playerGotoWorld(ProxiedPlayer proxiedPlayer, UUID ownerUUID, boolean showNotHumanError) {
         if (showNotHumanError && !humanCheckManager.isHumanVerified(proxiedPlayer)) {
             proxiedPlayer.sendMessage(MclyCoreBungeePlugin.MESSAGE_NOT_HUMAN);
         }
@@ -76,10 +76,10 @@ public class PlayerWorldsHandler implements Listener {
             if (human) {
                 ServerInfo hostingServer = worldServerMap.get(ownerUUID);
                 if (hostingServer != null && !proxiedPlayer1.getServer().getInfo().equals(hostingServer)) {
-                    throw new UnsupportedOperationException("Attempted to host a home on 2 different instances.");
+                    throw new UnsupportedOperationException("Attempted to host a world on 2 different instances.");
                 }
 
-                gateway.sendPacket(proxiedPlayer1, new PacketPlayerGotoHome(proxiedPlayer1.getUniqueId(), ownerUUID));
+                gateway.sendPacket(proxiedPlayer1, new PacketPlayerGotoWorld(proxiedPlayer1.getUniqueId(), ownerUUID));
             }
         });
     }
@@ -106,9 +106,9 @@ public class PlayerWorldsHandler implements Listener {
     }*/
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerPostLogin(PostLoginEvent e) { // go to players home once they are confirmed to not be a bot
+    public void onPlayerPostLogin(PostLoginEvent e) { // go to players world once they are confirmed to not be a bot
         ProxiedPlayer proxiedPlayer = e.getPlayer();
-        playerGotoHome(proxiedPlayer, proxiedPlayer.getUniqueId(), false);
+        playerGotoWorld(proxiedPlayer, proxiedPlayer.getUniqueId(), false);
     }
 
 }

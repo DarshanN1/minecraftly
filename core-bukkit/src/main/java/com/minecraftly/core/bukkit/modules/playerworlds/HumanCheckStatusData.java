@@ -1,4 +1,4 @@
-package com.minecraftly.core.bukkit.modules.homes;
+package com.minecraftly.core.bukkit.modules.playerworlds;
 
 import com.minecraftly.core.bukkit.user.User;
 import com.minecraftly.core.bukkit.user.modularisation.SingletonUserData;

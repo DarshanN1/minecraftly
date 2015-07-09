@@ -1,12 +1,12 @@
-package com.minecraftly.core.bukkit.modules.homes.data.world;
+package com.minecraftly.core.bukkit.modules.playerworlds.data.world;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bukkit.database.DatabaseManager;
 import com.minecraftly.core.bukkit.database.YamlConfigurationResultHandler;
-import com.minecraftly.core.bukkit.modules.homes.ModulePlayerWorlds;
-import com.minecraftly.core.bukkit.modules.homes.WorldDimension;
+import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
+import com.minecraftly.core.bukkit.modules.playerworlds.WorldDimension;
 import com.minecraftly.core.bukkit.user.User;
 import com.minecraftly.core.bukkit.user.modularisation.ResettableData;
 import com.minecraftly.core.bukkit.user.modularisation.UserData;
@@ -118,7 +118,7 @@ public class WorldUserData extends UserData implements ResettableData {
             World world = location.getWorld();
 
             if (world != null) {
-                UUID worldOwner = ModulePlayerWorlds.getInstance().getHomeOwner(WorldDimension.getBaseWorld(world));
+                UUID worldOwner = ModulePlayerWorlds.getInstance().getWorldOwner(WorldDimension.getBaseWorld(world));
 
                 if (worldOwner == null || !worldOwner.equals(getUser().getUniqueId())) {
                     location = null;

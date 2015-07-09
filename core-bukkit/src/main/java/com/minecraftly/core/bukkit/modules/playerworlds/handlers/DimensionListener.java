@@ -1,9 +1,9 @@
-package com.minecraftly.core.bukkit.modules.homes.handlers;
+package com.minecraftly.core.bukkit.modules.playerworlds.handlers;
 
 import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.language.LanguageValue;
-import com.minecraftly.core.bukkit.modules.homes.ModulePlayerWorlds;
-import com.minecraftly.core.bukkit.modules.homes.WorldDimension;
+import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
+import com.minecraftly.core.bukkit.modules.playerworlds.WorldDimension;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -43,8 +43,8 @@ public class DimensionListener implements Listener {
         World fromWorld = from.getWorld();
         World baseWorld = WorldDimension.getBaseWorld(fromWorld);
 
-        if (module.isHomeWorld(baseWorld)) {
-            OfflinePlayer offlineOwner = Bukkit.getOfflinePlayer(module.getHomeOwner(baseWorld));
+        if (module.isPlayerWorld(baseWorld)) {
+            OfflinePlayer offlineOwner = Bukkit.getOfflinePlayer(module.getWorldOwner(baseWorld));
             TravelAgent travelAgent = e.getPortalTravelAgent();
 
             World.Environment environment = from.getWorld().getEnvironment();

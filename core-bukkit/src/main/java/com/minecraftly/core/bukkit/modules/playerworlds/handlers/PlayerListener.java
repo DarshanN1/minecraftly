@@ -1,15 +1,15 @@
-package com.minecraftly.core.bukkit.modules.homes.handlers;
+package com.minecraftly.core.bukkit.modules.playerworlds.handlers;
 
 import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
 import com.minecraftly.core.bukkit.language.LanguageValue;
-import com.minecraftly.core.bukkit.modules.homes.ModulePlayerWorlds;
-import com.minecraftly.core.bukkit.modules.homes.WorldDimension;
-import com.minecraftly.core.bukkit.modules.homes.data.world.WorldUserData;
-import com.minecraftly.core.bukkit.modules.homes.data.world.WorldUserDataContainer;
+import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
+import com.minecraftly.core.bukkit.modules.playerworlds.WorldDimension;
+import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserData;
+import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserDataContainer;
 import com.minecraftly.core.bukkit.user.User;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
-import com.minecraftly.core.packets.homes.PacketPlayerGotoHome;
+import com.minecraftly.core.packets.playerworlds.PacketPlayerGotoWorld;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -35,12 +35,12 @@ import java.util.function.Consumer;
  */
 public class PlayerListener implements Listener, Consumer<Player> {
 
-    private final LanguageValue langWelcomeOwner = new LanguageValue("&aWelcome back to your home, &6%s&a.");
-    private final LanguageValue langWelcomeGuest = new LanguageValue("&aWelcome to &6%s&a's home, they will have to grant you permission before you can modify blocks.");
-    private final LanguageValue langPlayerJoinedHome = new LanguageValue("&6%s &bhas joined.");
-    private final LanguageValue langPlayerLeftHome = new LanguageValue("&6%s &bhas left.");
+    private final LanguageValue langWelcomeOwner = new LanguageValue("&aWelcome back to your world, &6%s&a.");
+    private final LanguageValue langWelcomeGuest = new LanguageValue("&aWelcome to &6%s&a's world, they will have to grant you permission before you can modify blocks.");
+    private final LanguageValue langPlayerJoinedWorld = new LanguageValue("&6%s &bhas joined.");
+    private final LanguageValue langPlayerLeftWorld = new LanguageValue("&6%s &bhas left.");
 
-    private final LanguageValue langOwnerLeft = new LanguageValue("&cThe owner of that home left.");
+    private final LanguageValue langOwnerLeft = new LanguageValue("&cThe owner of that world left.");
     private final LanguageValue langBotCheckNotCompleted = new LanguageValue("&cYou must first confirm you are human.");
 
     private ModulePlayerWorlds module;
@@ -55,15 +55,15 @@ public class PlayerListener implements Listener, Consumer<Player> {
 
             put(prefix + ".welcome.owner", langWelcomeOwner);
             put(prefix + ".welcome.guest", langWelcomeGuest);
-            put(prefix + ".joinedHome", langPlayerJoinedHome);
-            put(prefix + ".leftHome", langPlayerLeftHome);
+            put(prefix + ".joinedWorld", langPlayerJoinedWorld);
+            put(prefix + ".leftWorld", langPlayerLeftWorld);
             put(prefix + ".ownerLeft", langOwnerLeft);
             put(prefix + ".botCheckNotCompleted", langBotCheckNotCompleted);
         }});
     }
 
     @PacketHandler
-    public void onPacketGotoHome(PacketPlayerGotoHome packet) {
+    public void onPacketGotoWorld(PacketPlayerGotoWorld packet) {
         UUID playerUUID = packet.getPlayer();
         UUID worldUUID = packet.getWorld();
         Player player = Bukkit.getPlayer(playerUUID);
@@ -90,8 +90,8 @@ public class PlayerListener implements Listener, Consumer<Player> {
         if (!from.equals(to)) {
             leftWorld(player, from);
 
-            if (module.isHomeWorld(to)) {
-                final UUID owner = module.getHomeOwner(to);
+            if (module.isPlayerWorld(to)) {
+                final UUID owner = module.getWorldOwner(to);
                 WorldUserDataContainer worldUserDataContainer = userManager.getUser(player).getSingletonUserData(WorldUserDataContainer.class);
                 WorldUserData worldUserData = worldUserDataContainer.get(owner);
                 worldUserData.apply(player);
@@ -114,14 +114,14 @@ public class PlayerListener implements Listener, Consumer<Player> {
                     });
                 }
 
-                BukkitUtilities.broadcast(WorldDimension.getPlayersAllDimensions(to), player, langPlayerJoinedHome.getValue(player.getName()));
+                BukkitUtilities.broadcast(WorldDimension.getPlayersAllDimensions(to), player, langPlayerJoinedWorld.getValue(player.getName()));
             }
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerDeath(PlayerDeathEvent e) {
-        if (module.isHomeWorld(WorldDimension.getBaseWorld(e.getEntity().getWorld()))) {
+        if (module.isPlayerWorld(WorldDimension.getBaseWorld(e.getEntity().getWorld()))) {
             e.setKeepInventory(true);
             e.setKeepLevel(true);
         }
@@ -132,9 +132,9 @@ public class PlayerListener implements Listener, Consumer<Player> {
         Player player = e.getPlayer();
         World world = WorldDimension.getBaseWorld(player.getWorld());
 
-        if (module.isHomeWorld(world)) {
+        if (module.isPlayerWorld(world)) {
             WorldUserDataContainer worldUserDataContainer = userManager.getUser(player).getSingletonUserData(WorldUserDataContainer.class);
-            WorldUserData worldUserData = worldUserDataContainer.get(module.getHomeOwner(world));
+            WorldUserData worldUserData = worldUserDataContainer.get(module.getWorldOwner(world));
 
             if (worldUserData != null) {
                 // todo can't help but think this could all be shortened
@@ -160,7 +160,7 @@ public class PlayerListener implements Listener, Consumer<Player> {
     public void onPlayerChat(AsyncPlayerChatEvent e) {
         World world = WorldDimension.getBaseWorld(e.getPlayer().getWorld());
 
-        if (module.isHomeWorld(world)) {
+        if (module.isPlayerWorld(world)) {
             Set<Player> recipients = e.getRecipients();
             recipients.clear();
             recipients.addAll(WorldDimension.getPlayersAllDimensions(world));
@@ -177,16 +177,16 @@ public class PlayerListener implements Listener, Consumer<Player> {
     }
 
     public void checkWorldForUnload(World world) {
-        if (module.isHomeWorld(world) && WorldDimension.getPlayersAllDimensions(world).size() == 0) {
+        if (module.isPlayerWorld(world) && WorldDimension.getPlayersAllDimensions(world).size() == 0) {
             Bukkit.unloadWorld(world, true); // unloads other dimensions too
         }
     }
 
     public void leftWorld(Player player, World baseWorld) {
-        if (module.isHomeWorld(baseWorld)) {
-            BukkitUtilities.broadcast(WorldDimension.getPlayersAllDimensions(baseWorld), player, langPlayerLeftHome.getValue(player.getName()));
+        if (module.isPlayerWorld(baseWorld)) {
+            BukkitUtilities.broadcast(WorldDimension.getPlayersAllDimensions(baseWorld), player, langPlayerLeftWorld.getValue(player.getName()));
 
-            if (module.getHomeOwner(baseWorld).equals(player.getUniqueId())) {
+            if (module.getWorldOwner(baseWorld).equals(player.getUniqueId())) {
                 ownerLeftWorld(player, baseWorld);
             }
         }

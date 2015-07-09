@@ -13,7 +13,7 @@ import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.listeners.PacketListener;
 import com.minecraftly.core.bukkit.modules.Module;
 import com.minecraftly.core.bukkit.modules.chest.ModuleChest;
-import com.minecraftly.core.bukkit.modules.homes.ModulePlayerWorlds;
+import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
 import com.minecraftly.core.bukkit.modules.readonlyworlds.DoNothingWorldGenerator;
 import com.minecraftly.core.bukkit.modules.readonlyworlds.ModuleReadOnlyWorlds;
 import com.minecraftly.core.bukkit.modules.spawn.ModuleSpawn;

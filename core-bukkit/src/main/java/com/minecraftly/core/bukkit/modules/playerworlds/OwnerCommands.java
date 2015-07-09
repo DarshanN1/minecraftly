@@ -1,4 +1,4 @@
-package com.minecraftly.core.bukkit.modules.homes;
+package com.minecraftly.core.bukkit.modules.playerworlds;
 
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.sk89q.intake.Command;
@@ -18,8 +18,8 @@ public class OwnerCommands {
 
     private final ModulePlayerWorlds module;
 
-    private final LanguageValue langNotOwner = new LanguageValue("&cYou cannot do that here, this is not your home.");
-    private final LanguageValue langNotInHome = new LanguageValue("&cThat player is not in your home.");
+    private final LanguageValue langNotOwner = new LanguageValue("&cYou cannot do that here, this is not your world.");
+    private final LanguageValue langNotInWorld = new LanguageValue("&cThat player is not in your world.");
     private final LanguageValue langAttemptSelf = new LanguageValue("&cYou may not set your own game mode.");
     private final LanguageValue langAlreadyInGameMode = new LanguageValue("&cThat player is already in &6%s &cmode.");
     private final LanguageValue langSuccessSender = new LanguageValue("&aSuccessfully set &6%s &ato &6%s &amode.");
@@ -32,7 +32,7 @@ public class OwnerCommands {
             String langPrefix = module.getLanguageSection() + ".command.owner";
 
             put(langPrefix + ".notOwner", langNotOwner);
-            put(langPrefix + ".notInHome", langNotInHome);
+            put(langPrefix + ".notInWorld", langNotInWorld);
             put(langPrefix + ".attemptSelf", langAttemptSelf);
             put(langPrefix + ".alreadyInGameMode", langAlreadyInGameMode);
             put(langPrefix + ".success.sender", langSuccessSender);
@@ -53,8 +53,8 @@ public class OwnerCommands {
     public void setGuestGameMode(Player sender, Player target, GameMode gameMode) {
         World world = WorldDimension.getBaseWorld(sender.getWorld());
 
-        if (module.isHomeWorld(world)) {
-            UUID worldOwner = module.getHomeOwner(world);
+        if (module.isPlayerWorld(world)) {
+            UUID worldOwner = module.getWorldOwner(world);
 
             if (sender.getUniqueId().equals(worldOwner)) {
                 if (sender != target) {
@@ -70,7 +70,7 @@ public class OwnerCommands {
                             langAlreadyInGameMode.send(sender, gameModeCamelCase);
                         }
                     } else {
-                        langNotInHome.send(sender);
+                        langNotInWorld.send(sender);
                     }
                 } else {
                     langAttemptSelf.send(sender);

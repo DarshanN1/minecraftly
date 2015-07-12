@@ -69,7 +69,7 @@ public class PlayerListener implements Listener, Consumer<Player> {
         Player player = Bukkit.getPlayer(playerUUID);
 
         if (player != null) {
-            module.joinWorld(player, worldUUID);
+            module.delayedJoinWorld(player, worldUUID);
         }
     }
 

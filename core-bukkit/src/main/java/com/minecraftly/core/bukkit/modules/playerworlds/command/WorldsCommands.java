@@ -96,7 +96,7 @@ public class WorldsCommands {
 
             if (!error) {
                 module.getPlugin().getUserManager().getUser(player).getSingletonUserData(WorldUserDataContainer.class).getOrLoad(player.getUniqueId()).reset();
-                module.joinWorld(player, player);
+                module.delayedJoinWorld(player, player);
             } else {
                 languageError.send(player);
             }

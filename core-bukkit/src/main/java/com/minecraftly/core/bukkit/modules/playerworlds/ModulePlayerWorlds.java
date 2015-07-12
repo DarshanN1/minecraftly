@@ -30,6 +30,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.util.HashMap;
@@ -51,7 +52,9 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
     private final LanguageValue langLoadingOwner = new LanguageValue("&bOne moment whilst we load your world.");
     private final LanguageValue langLoadingGuest = new LanguageValue("&bOne moment whilst we load that world.");
-    private final LanguageValue langLoadFailed = new LanguageValue("&cWe were unable to load your world, please contact a member of staff.");
+    private final LanguageValue langLoadFailed = new LanguageValue("&cWe were unable to load that world, please contact a member of staff.");
+    private final LanguageValue langLoaded = new LanguageValue("&bWorld has been loaded, please wait...");
+    private final LanguageValue langTeleportCountdown = new LanguageValue("&bTeleporting in &6%s &bseconds.");
 
     public ModulePlayerWorlds(MclyCoreBukkitPlugin plugin) {
         super("PlayerWorlds", plugin);
@@ -93,6 +96,8 @@ public class ModulePlayerWorlds extends Module implements Listener {
             put(getLanguageSection() + ".loading.owner", langLoadingOwner);
             put(getLanguageSection() + ".loading.guest", langLoadingGuest);
             put(getLanguageSection() + ".error.loadFailed", langLoadFailed);
+            put(getLanguageSection() + ".loaded.message", langLoaded);
+            put(getLanguageSection() + ".loaded.teleportCountdown", langTeleportCountdown);
         }});
     }
 
@@ -195,11 +200,11 @@ public class ModulePlayerWorlds extends Module implements Listener {
         return world;
     }
 
-    public void joinWorld(Player player, OfflinePlayer offlinePlayer) {
-        joinWorld(player, offlinePlayer.getUniqueId());
+    public void delayedJoinWorld(Player player, OfflinePlayer offlinePlayer) {
+        delayedJoinWorld(player, offlinePlayer.getUniqueId());
     }
 
-    public void joinWorld(Player player, UUID worldUUID) {
+    public void delayedJoinWorld(Player player, UUID worldUUID) {
         if (!isWorldLoaded(worldUUID)) {
             if (player.getUniqueId().equals(worldUUID)) {
                 langLoadingOwner.send(player);
@@ -208,16 +213,10 @@ public class ModulePlayerWorlds extends Module implements Listener {
             }
         }
 
-        World world = getWorld(worldUUID);
-        Bukkit.getScheduler().runTaskLater(getPlugin(), new Runnable() {
-            @Override
-            public void run() {
-                joinWorld(player, world);
-            }
-        }, 20L * 5);
+        delayedJoinWorld(player, getWorld(worldUUID));
     }
 
-    public void joinWorld(Player player, World world) {
+    public void delayedJoinWorld(Player player, World world) {
         Preconditions.checkNotNull(player);
         UUID playerUUID = player.getUniqueId();
 
@@ -226,6 +225,24 @@ public class ModulePlayerWorlds extends Module implements Listener {
             return;
         }
 
+        langLoaded.send(player);
+
+        new BukkitRunnable() {
+            int countdown = 10;
+
+            @Override
+            public void run() {
+                langTeleportCountdown.send(player, countdown--);
+
+                if (countdown <= 0) {
+                    spawnInWorld(player, world);
+                    cancel();
+                }
+            }
+        }.runTaskTimer(getPlugin(), 20L, 20L);
+    }
+
+    public void spawnInWorld(Player player, World world) {
         WorldUserDataContainer worldUserDataContainer = getPlugin().getUserManager().getUser(player).getSingletonUserData(WorldUserDataContainer.class);
         WorldUserData worldUserData = worldUserDataContainer.getOrLoad(getWorldOwner(world));
 

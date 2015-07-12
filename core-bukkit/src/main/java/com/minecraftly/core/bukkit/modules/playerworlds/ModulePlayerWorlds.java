@@ -214,7 +214,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
             public void run() {
                 joinWorld(player, world);
             }
-        }, 20L * 2);
+        }, 20L * 5);
     }
 
     public void joinWorld(Player player, World world) {

@@ -1,6 +1,7 @@
 package com.minecraftly.core.bukkit.language;
 
 import com.minecraftly.core.bukkit.config.DataValue;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 import java.util.IllegalFormatException;
@@ -29,6 +30,14 @@ public class LanguageValue extends DataValue<String> {
 
     public void send(CommandSender commandSender, Object... args) {
         commandSender.sendMessage(getValue(args));
+    }
+
+    public void broadcast(Object... args) {
+        Bukkit.broadcastMessage(getValue(args));
+    }
+
+    public void broadcastPermission(String permission, Object... args) {
+        Bukkit.broadcast(getValue(args), permission);
     }
 
     // make below methods visible to language manager

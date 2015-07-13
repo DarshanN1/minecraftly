@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -71,9 +70,7 @@ public enum WorldDimension {
         World newWorld = Bukkit.getWorld(newWorldName);
 
         if (newWorld == null && load) {
-            WorldCreator worldCreator = new WorldCreator(newWorldName);
-            worldCreator.environment(getEnvironment());
-            newWorld = Bukkit.createWorld(worldCreator); // todo generate elsewhere?
+            newWorld = ModulePlayerWorlds.getInstance().getOrLoadWorld(newWorldName, getEnvironment()); // todo static
         }
 
         return newWorld;

@@ -59,7 +59,7 @@ public class WorldsCommands {
         } else { // reset
             player.removeMetadata(KEY_RESET, module.getPlugin());
 
-            World world = module.getWorld(player);
+            World world = module.getPlayerWorld(player);
             Location spawnLocation = Bukkit.getWorlds().get(0).getSpawnLocation();
             for (Player p : WorldDimension.getPlayersAllDimensions(world)) {
                 languageWorldIsBeingReset.send(p);

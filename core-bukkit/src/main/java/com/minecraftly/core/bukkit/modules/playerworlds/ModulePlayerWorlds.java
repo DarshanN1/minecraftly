@@ -56,6 +56,9 @@ public class ModulePlayerWorlds extends Module implements Listener {
     private final LanguageValue langLoaded = new LanguageValue("&bWorld has been loaded, please wait...");
     private final LanguageValue langTeleportCountdown = new LanguageValue("&bTeleporting in &6%s &bseconds.");
 
+    private final LanguageValue langWorldGenerating = new LanguageValue("&5A world is currently being generated, you may experience some lag.");
+    private final LanguageValue langWorldGenerated = new LanguageValue("&5World generation finished, server should be back to normal.");
+
     public ModulePlayerWorlds(MclyCoreBukkitPlugin plugin) {
         super("PlayerWorlds", plugin);
     }
@@ -98,6 +101,9 @@ public class ModulePlayerWorlds extends Module implements Listener {
             put(getLanguageSection() + ".error.loadFailed", langLoadFailed);
             put(getLanguageSection() + ".loaded.message", langLoaded);
             put(getLanguageSection() + ".loaded.teleportCountdown", langTeleportCountdown);
+
+            put(getLanguageSection() + ".world.generating", langWorldGenerating);
+            put(getLanguageSection() + ".world.generated", langWorldGenerated);
         }});
     }
 
@@ -171,30 +177,15 @@ public class ModulePlayerWorlds extends Module implements Listener {
         return null;
     }
 
-    public World getWorld(OfflinePlayer offlinePlayer) {
-        return getWorld(offlinePlayer.getUniqueId());
+    public World getPlayerWorld(OfflinePlayer offlinePlayer) {
+        return getPlayerWorld(offlinePlayer.getUniqueId());
     }
 
-    public World getWorld(UUID uuid) {
+    public World getPlayerWorld(UUID uuid) {
         World world = playerWorlds.get(uuid);
 
         if (world == null) {
-            String uuidString = uuid.toString();
-            world = Bukkit.getWorld(uuidString);
-
-            if (world == null) {
-                WorldCreator worldCreator = new WorldCreator(uuidString);
-                File worldDirectory = new File(Bukkit.getWorldContainer(), uuidString);
-
-                if (worldDirectory.exists() && worldDirectory.isDirectory()) {
-                    world = worldCreator.createWorld(); // this actually loads an existing world
-                } else { // generate world async
-                    // todo start generation from BungeeCord?
-                    world = worldCreator.createWorld();
-                }
-
-                world.setGameRuleValue("mobGriefing", "false");
-            }
+            world = getOrLoadWorld(uuid.toString(), World.Environment.NORMAL);
         }
 
         return world;
@@ -213,7 +204,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
             }
         }
 
-        delayedJoinWorld(player, getWorld(worldUUID));
+        delayedJoinWorld(player, getPlayerWorld(worldUUID));
     }
 
     public void delayedJoinWorld(Player player, World world) {
@@ -260,6 +251,34 @@ public class ModulePlayerWorlds extends Module implements Listener {
         }
 
         player.teleport(spawnLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+    }
+
+    public World getOrLoadWorld(String worldName, World.Environment environment) {
+        World world = Bukkit.getWorld(worldName);
+
+        if (world == null) {
+            File worldDirectory = new File(Bukkit.getWorldContainer(), worldName);
+            boolean generating = !worldDirectory.exists();
+
+            if (generating) {
+                langWorldGenerating.broadcast();
+            } else if (!worldDirectory.isDirectory()) {
+                throw new IllegalArgumentException(worldDirectory.getPath() + " exists, but is not a directory.");
+            }
+
+            world = new WorldCreator(worldName).environment(environment).createWorld();
+            initializeWorld(world);
+
+            if (generating) {
+                langWorldGenerated.broadcast();
+            }
+        }
+
+        return world;
+    }
+
+    public void initializeWorld(World world) {
+        world.setGameRuleValue("mobGriefing", "false");
     }
 
 }

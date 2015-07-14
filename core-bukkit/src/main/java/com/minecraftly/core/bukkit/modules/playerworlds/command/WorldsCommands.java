@@ -7,6 +7,7 @@ import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
 import com.minecraftly.core.bukkit.modules.playerworlds.WorldDimension;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserDataContainer;
 import com.sk89q.intake.Command;
+import com.sk89q.intake.Require;
 import lc.vq.exhaust.command.annotation.Sender;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -19,6 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -33,16 +35,40 @@ public class WorldsCommands {
 
     private LanguageValue languageAreYouSure = new LanguageValue("&cAre you sure you wish to do that? All your worlds will be reset.\n&cUse &6/reset &cagain to reset.");
     private LanguageValue languageWorldIsBeingReset = new LanguageValue("&cSorry, that world is currently being reset.");
-    private LanguageValue languageError = new LanguageValue("&cThere was an error whilst resetting your worlds.");
+    private LanguageValue languageError = new LanguageValue("&cThere was an error whilst resetting your world(s).");
+
+    private LanguageValue languageKickedSender = new LanguageValue("&aPlayer &6%s &asuccessfully kicked from world.");
+    private LanguageValue languageKickedTarget = new LanguageValue("&cYou were kicked from that players world.");
+    private LanguageValue languageNotFound = new LanguageValue("&cPlayer not found in your world.");
 
     public WorldsCommands(ModulePlayerWorlds module, LanguageManager languageManager) {
         this.module = module;
         languageManager.registerAll(new HashMap<String, LanguageValue>(){{
-            String prefix = module.getLanguageSection() + ".reset";
-            put(prefix + ".areYouSure", languageAreYouSure);
-            put(prefix + ".worldIsBeingReset", languageWorldIsBeingReset);
-            put(prefix + ".error", languageError);
+            String resetPrefix = module.getLanguageSection() + ".reset";
+            put(resetPrefix + ".areYouSure", languageAreYouSure);
+            put(resetPrefix + ".worldIsBeingReset", languageWorldIsBeingReset);
+            put(resetPrefix + ".error", languageError);
+
+            String worldPrefix = module.getLanguageSection() + ".world";
+            put(worldPrefix + ".kicked.sender", languageKickedSender);
+            put(worldPrefix + ".kicked.target", languageKickedTarget);
         }});
+    }
+
+    @Command(aliases = "kick", desc = "Kicks a player from your world.", min = 1, max = 1)
+    @Require("minecraftly.world.kick")
+    public void kickPlayer(@Sender Player sender, Player target) {
+        UUID senderUUID = sender.getUniqueId();
+
+        if (!sender.equals(target)
+                && module.isWorldLoaded(senderUUID)
+                && WorldDimension.getBaseWorld(target.getWorld()).equals(module.getPlayerWorld(senderUUID))) {
+            languageKickedSender.send(sender, target.getDisplayName());
+            languageKickedTarget.send(target);
+            target.teleport(Bukkit.getWorlds().get(0).getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+        } else {
+            languageNotFound.send(sender);
+        }
     }
 
     @Command(aliases = "reset", desc = "Resets all of your worlds.", min = 0, max = 0)

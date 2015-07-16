@@ -3,6 +3,7 @@ package com.minecraftly.core.bukkit.utilities;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.minecraftly.core.packets.LocationContainer;
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -170,6 +171,10 @@ public class BukkitUtilities {
                 player.sendMessage(message);
             }
         }
+    }
+
+    public static String getFriendlyName(Enum<?> e) {
+        return WordUtils.capitalize(e.name().toLowerCase().replace("_", " "));
     }
 
 }

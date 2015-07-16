@@ -13,6 +13,7 @@ import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.listeners.PacketListener;
 import com.minecraftly.core.bukkit.modules.Module;
 import com.minecraftly.core.bukkit.modules.chest.ModuleChest;
+import com.minecraftly.core.bukkit.modules.fun.ModuleFun;
 import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
 import com.minecraftly.core.bukkit.modules.readonlyworlds.DoNothingWorldGenerator;
 import com.minecraftly.core.bukkit.modules.readonlyworlds.ModuleReadOnlyWorlds;
@@ -145,6 +146,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         modules.add(new ModulePlayerWorlds(this));
         modules.add(new ModuleSpawn(this));
         modules.add(new ModuleChest(this));
+        modules.add(new ModuleFun(this));
 
         modules.forEach(Module::onLoad);
         DispatcherNode dispatcherNode = registerCoreCommands();

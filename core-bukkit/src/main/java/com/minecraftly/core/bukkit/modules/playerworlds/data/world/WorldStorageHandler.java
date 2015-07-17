@@ -32,7 +32,9 @@ public class WorldStorageHandler extends DataStorageHandler<WorldUserDataContain
                 "CREATE TABLE IF NOT EXISTS `%sworld_user_data` (" +
                         "`world_uuid` BINARY(16) NOT NULL, " +
                         "`user_uuid` BINARY(16) NOT NULL," +
-                        "`data` TEXT NOT NULL, PRIMARY KEY (`world_uuid`, `user_uuid`))", DatabaseManager.TABLE_PREFIX));
+                        "`muted` BOOLEAN NOT NULL DEFAULT 0," +
+                        "`extra_data` TEXT NOT NULL, PRIMARY KEY (`world_uuid`, `user_uuid`))",
+                DatabaseManager.TABLE_PREFIX));
     }
 
     @Override
@@ -62,7 +64,7 @@ public class WorldStorageHandler extends DataStorageHandler<WorldUserDataContain
                     worldUserDataContainer = user.getSingletonUserData(WorldUserDataContainer.class);
                 }
 
-                worldUserDataContainer.load(module.getWorldOwner(to));
+                worldUserDataContainer.load(module.getWorldOwner(to), true);
             }
         }
     }

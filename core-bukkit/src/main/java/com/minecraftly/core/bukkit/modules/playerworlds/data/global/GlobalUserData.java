@@ -59,8 +59,8 @@ public class GlobalUserData extends SingletonUserData implements Consumer<Player
         super.load();
 
         YamlConfiguration yamlConfiguration = getQueryRunnerSupplier().get().query(
-                String.format("SELECT `data` FROM %sglobal_user_data WHERE `uuid` = UNHEX(?)", DatabaseManager.TABLE_PREFIX),
-                YamlConfigurationResultHandler.DATA_FIELD_INSTANCE,
+                String.format("SELECT `extra_data` FROM %sglobal_user_data WHERE `uuid` = UNHEX(?)", DatabaseManager.TABLE_PREFIX),
+                YamlConfigurationResultHandler.EXTRA_DATA_FIELD_HANDLER_INSTANCE,
                 Utilities.convertToNoDashes(getUser().getUniqueId())
         );
 
@@ -99,7 +99,7 @@ public class GlobalUserData extends SingletonUserData implements Consumer<Player
         super.save();
 
         getQueryRunnerSupplier().get().update(
-                String.format("REPLACE INTO `%sglobal_user_data`(`uuid`, `data`) VALUES(UNHEX(?), ?)",
+                String.format("REPLACE INTO `%sglobal_user_data`(`uuid`, `extra_data`) VALUES(UNHEX(?), ?)",
                         DatabaseManager.TABLE_PREFIX),
                 Utilities.convertToNoDashes(getUser().getUniqueId()),
                 yamlConfiguration.saveToString()

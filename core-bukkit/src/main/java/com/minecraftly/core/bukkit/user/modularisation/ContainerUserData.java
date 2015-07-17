@@ -23,10 +23,14 @@ public abstract class ContainerUserData<K, V extends UserData> extends Singleton
     }
 
     public V getOrLoad(K key) {
+        return getOrLoad(key, true);
+    }
+
+    public V getOrLoad(K key, boolean createIfNotExists) {
         V value = get(key);
 
         if (value == null) {
-            value = load(key);
+            value = load(key, createIfNotExists);
         }
 
         return value;
@@ -44,7 +48,7 @@ public abstract class ContainerUserData<K, V extends UserData> extends Singleton
         keyDataMap.remove(key);
     }
 
-    protected abstract V load(K key);
+    protected abstract V load(K key, boolean createIfNotExists);
 
     // helper method
     private void forEachHandleException(Collection<V> collection, ExceptionalConsumer<V> consumer) {

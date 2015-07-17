@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bukkit.database.DatabaseManager;
-import com.minecraftly.core.bukkit.database.YamlConfigurationResultHandler;
 import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
 import com.minecraftly.core.bukkit.modules.playerworlds.WorldDimension;
 import com.minecraftly.core.bukkit.user.User;
@@ -40,6 +39,14 @@ public class WorldUserData extends UserData implements ResettableData {
 
     public UUID getWorldUUID() {
         return worldUUID;
+    }
+
+    public boolean isMuted() {
+        return yamlConfiguration.getBoolean("muted", false);
+    }
+
+    public void setMuted(boolean muted) {
+        yamlConfiguration.set("muted", muted);
     }
 
     public Location getLastLocation() {
@@ -167,10 +174,10 @@ public class WorldUserData extends UserData implements ResettableData {
 
         YamlConfiguration yamlConfiguration = getQueryRunnerSupplier().get().query(
                 String.format(
-                        "SELECT `data` FROM `%sworld_user_data` WHERE `world_uuid` = UNHEX(?) AND `user_uuid` = UNHEX(?)",
+                        "SELECT `muted`, `extra_data` FROM `%sworld_user_data` WHERE `world_uuid` = UNHEX(?) AND `user_uuid` = UNHEX(?)",
                         DatabaseManager.TABLE_PREFIX
                 ),
-                YamlConfigurationResultHandler.DATA_FIELD_INSTANCE,
+                WorldUserDataResultSetHandler.INSTANCE,
                 Utilities.convertToNoDashes(worldUUID),
                 Utilities.convertToNoDashes(getUser().getUniqueId())
         );
@@ -186,10 +193,11 @@ public class WorldUserData extends UserData implements ResettableData {
     public void save() throws SQLException {
         super.save();
 
-        getQueryRunnerSupplier().get().update(String.format("REPLACE INTO `%sworld_user_data` (`world_uuid`, `user_uuid`, `data`) VALUES (UNHEX(?), UNHEX(?), ?)",
+        getQueryRunnerSupplier().get().update(String.format("REPLACE INTO `%sworld_user_data` (`world_uuid`, `user_uuid`, `muted`, `extra_data`) VALUES (UNHEX(?), UNHEX(?), ?, ?)",
                         DatabaseManager.TABLE_PREFIX),
                 Utilities.convertToNoDashes(worldUUID),
                 Utilities.convertToNoDashes(getUser().getUniqueId()),
+                isMuted(),
                 yamlConfiguration.saveToString());
     }
 

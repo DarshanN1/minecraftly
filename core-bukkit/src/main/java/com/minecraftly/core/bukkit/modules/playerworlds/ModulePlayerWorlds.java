@@ -110,7 +110,10 @@ public class ModulePlayerWorlds extends Module implements Listener {
     @Override
     public void registerCommands(DispatcherNode dispatcherNode) {
         dispatcherNode.registerMethods(new OwnerCommands(this));
-        dispatcherNode.registerMethods(new WorldsCommands(this, getPlugin().getLanguageManager()));
+
+        WorldsCommands worldsCommands = new WorldsCommands(this, getPlugin().getUserManager(), getPlugin().getLanguageManager());
+        dispatcherNode.registerMethods(worldsCommands);
+        Bukkit.getPluginManager().registerEvents(worldsCommands, getPlugin());
     }
 
     @Override

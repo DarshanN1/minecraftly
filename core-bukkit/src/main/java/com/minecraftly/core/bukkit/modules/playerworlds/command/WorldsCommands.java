@@ -5,7 +5,9 @@ import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
 import com.minecraftly.core.bukkit.modules.playerworlds.WorldDimension;
+import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserData;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserDataContainer;
+import com.minecraftly.core.bukkit.user.UserManager;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;
 import lc.vq.exhaust.command.annotation.Sender;
@@ -13,6 +15,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 
@@ -26,23 +32,30 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by Keir on 05/07/2015.
  */
-public class WorldsCommands {
+public class WorldsCommands implements Listener {
 
     private static final String KEY_RESET = "Minecraftly.Reset.Time";
     private static final int RESET_SECONDS = 5;
 
-    private ModulePlayerWorlds module;
+    private final ModulePlayerWorlds module;
+    private final UserManager userManager;
 
-    private LanguageValue languageAreYouSure = new LanguageValue("&cAre you sure you wish to do that? All your worlds will be reset.\n&cUse &6/reset &cagain to reset.");
-    private LanguageValue languageWorldIsBeingReset = new LanguageValue("&cSorry, that world is currently being reset.");
-    private LanguageValue languageError = new LanguageValue("&cThere was an error whilst resetting your world(s).");
+    private final LanguageValue languageAreYouSure = new LanguageValue("&cAre you sure you wish to do that? All your worlds will be reset.\n&cUse &6/reset &cagain to reset.");
+    private final LanguageValue languageWorldIsBeingReset = new LanguageValue("&cSorry, that world is currently being reset.");
+    private final LanguageValue languageError = new LanguageValue("&cThere was an error whilst resetting your world(s).");
 
-    private LanguageValue languageKickedSender = new LanguageValue("&aPlayer &6%s &asuccessfully kicked from world.");
-    private LanguageValue languageKickedTarget = new LanguageValue("&cYou were kicked from that players world.");
-    private LanguageValue languageNotFound = new LanguageValue("&cPlayer not found in your world.");
+    private final LanguageValue languageKickedSender = new LanguageValue("&aPlayer &6%s &asuccessfully kicked from world.");
+    private final LanguageValue languageKickedTarget = new LanguageValue("&cYou were kicked from that players world.");
+    private final LanguageValue languageNotFound = new LanguageValue("&cPlayer not found in your world.");
 
-    public WorldsCommands(ModulePlayerWorlds module, LanguageManager languageManager) {
+    private final LanguageValue languageMutedSender = new LanguageValue("&aThe player &6%s &ahas been muted in your world.");
+    private final LanguageValue languageMutedTarget = new LanguageValue("&cYou have been muted in the world of &6%s&c.");
+    private final LanguageValue languageMutedAttemptChat = new LanguageValue("&cSorry, the owner of this world has muted you.");
+
+    public WorldsCommands(ModulePlayerWorlds module, UserManager userManager, LanguageManager languageManager) {
         this.module = module;
+        this.userManager = userManager;
+
         languageManager.registerAll(new HashMap<String, LanguageValue>(){{
             String resetPrefix = module.getLanguageSection() + ".reset";
             put(resetPrefix + ".areYouSure", languageAreYouSure);
@@ -50,8 +63,11 @@ public class WorldsCommands {
             put(resetPrefix + ".error", languageError);
 
             String worldPrefix = module.getLanguageSection() + ".world";
+            put(worldPrefix + ".error.notFound", languageNotFound);
             put(worldPrefix + ".kicked.sender", languageKickedSender);
             put(worldPrefix + ".kicked.target", languageKickedTarget);
+            put(worldPrefix + ".mute.sender", languageMutedSender);
+            put(worldPrefix + ".mute.target", languageMutedTarget);
         }});
     }
 
@@ -125,6 +141,37 @@ public class WorldsCommands {
                 module.delayedJoinWorld(player, player);
             } else {
                 languageError.send(player);
+            }
+        }
+    }
+
+    @Command(aliases = "mute", desc = "Mutes a player in your world.", min = 1, max = 1)
+    @Require("minecraftly.world.mute")
+    public void mutePlayer(@Sender Player sender, Player target) {
+        UUID targetWorldOwner = module.getWorldOwner(WorldDimension.getBaseWorld(target.getWorld()));
+
+        if (targetWorldOwner != null && sender.getUniqueId().equals(targetWorldOwner)) {
+            WorldUserData worldUserData = userManager.getUser(sender).getSingletonUserData(WorldUserDataContainer.class).getOrLoad(target.getUniqueId());
+            worldUserData.setMuted(true);
+
+            languageMutedTarget.send(target, sender.getDisplayName());
+            languageMutedSender.send(sender, target.getDisplayName());
+        } else {
+            languageNotFound.send(sender);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void handleMute(AsyncPlayerChatEvent e) {
+        Player player = e.getPlayer();
+        UUID worldOwnerUUID = module.getWorldOwner(WorldDimension.getBaseWorld(player.getWorld()));
+
+        if (worldOwnerUUID != null) {
+            WorldUserData worldUserData = userManager.getUser(worldOwnerUUID).getSingletonUserData(WorldUserDataContainer.class).get(player.getUniqueId());
+
+            if (worldUserData.isMuted()) {
+                languageMutedAttemptChat.send(player);
+                e.setCancelled(true);
             }
         }
     }

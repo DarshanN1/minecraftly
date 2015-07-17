@@ -13,7 +13,7 @@ import java.sql.SQLException;
  */
 public class YamlConfigurationResultHandler implements ResultSetHandler<YamlConfiguration> {
 
-    public static final YamlConfigurationResultHandler DATA_FIELD_INSTANCE = new YamlConfigurationResultHandler("data");
+    public static final YamlConfigurationResultHandler EXTRA_DATA_FIELD_HANDLER_INSTANCE = new YamlConfigurationResultHandler("extra_data");
 
     private String field;
 

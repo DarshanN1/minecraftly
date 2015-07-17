@@ -22,7 +22,7 @@ public class ChestStorageHandler extends DataStorageHandler<UserChestData> imple
     public void initialize() throws SQLException {
         getQueryRunnerSupplier().get().update(
                 String.format(
-                        "CREATE TABLE IF NOT EXISTS `%suser_chests` (`uuid` BINARY(16) NOT NULL, `data` LONGTEXT NOT NULL, PRIMARY KEY (`uuid`))",
+                        "CREATE TABLE IF NOT EXISTS `%suser_chests` (`uuid` BINARY(16) NOT NULL, `extra_data` LONGTEXT NOT NULL, PRIMARY KEY (`uuid`))",
                         DatabaseManager.TABLE_PREFIX
                 )
         );

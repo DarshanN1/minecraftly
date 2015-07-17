@@ -98,10 +98,10 @@ public class UserChestData extends SingletonUserData {
 
         YamlConfiguration yamlConfiguration = getQueryRunnerSupplier().get().query(
                 String.format(
-                        "SELECT `data` FROM `%suser_chests` WHERE `uuid` = UNHEX(?)",
+                        "SELECT `extra_data` FROM `%suser_chests` WHERE `uuid` = UNHEX(?)",
                         DatabaseManager.TABLE_PREFIX
                 ),
-                YamlConfigurationResultHandler.DATA_FIELD_INSTANCE,
+                YamlConfigurationResultHandler.EXTRA_DATA_FIELD_HANDLER_INSTANCE,
                 Utilities.convertToNoDashes(getUser().getUniqueId())
         );
 
@@ -148,7 +148,7 @@ public class UserChestData extends SingletonUserData {
 
         getQueryRunnerSupplier().get().update(
                 String.format(
-                        "REPLACE INTO `%suser_chests` (`uuid`, `data`) VALUES (UNHEX(?), ?)",
+                        "REPLACE INTO `%suser_chests` (`uuid`, `extra_data`) VALUES (UNHEX(?), ?)",
                         DatabaseManager.TABLE_PREFIX
                 ),
                 Utilities.convertToNoDashes(getUser().getUniqueId()),

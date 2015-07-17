@@ -30,7 +30,7 @@ public class GlobalStorageHandler extends DataStorageHandler<GlobalUserData> imp
     public void initialize() throws SQLException {
         getQueryRunnerSupplier().get().update(
                 String.format(
-                        "CREATE TABLE IF NOT EXISTS `%sglobal_user_data` (`uuid` BINARY(16) NOT NULL, `data` LONGTEXT NOT NULL, PRIMARY KEY (`uuid`))",
+                        "CREATE TABLE IF NOT EXISTS `%sglobal_user_data` (`uuid` BINARY(16) NOT NULL, `extra_data` LONGTEXT NOT NULL, PRIMARY KEY (`uuid`))",
                         DatabaseManager.TABLE_PREFIX
                 )
         );

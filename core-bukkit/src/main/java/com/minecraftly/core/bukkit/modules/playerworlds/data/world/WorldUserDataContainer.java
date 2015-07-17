@@ -1,8 +1,11 @@
 package com.minecraftly.core.bukkit.modules.playerworlds.data.world;
 
+import com.minecraftly.core.Utilities;
+import com.minecraftly.core.bukkit.database.DatabaseManager;
 import com.minecraftly.core.bukkit.user.User;
 import com.minecraftly.core.bukkit.user.modularisation.ContainerUserData;
 import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.ArrayHandler;
 import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
@@ -19,11 +22,28 @@ public class WorldUserDataContainer extends ContainerUserData<UUID, WorldUserDat
     }
 
     @Override
-    protected WorldUserData load(UUID worldUUID) {
-        WorldUserData worldUserData = get(worldUUID);
+    protected WorldUserData load(UUID userUUID, boolean createIfNotExists) {
+        WorldUserData worldUserData = get(userUUID);
 
         if (worldUserData == null) { // skip if already loaded
-            worldUserData = new WorldUserData(worldUUID, getUser(), getQueryRunnerSupplier());
+            if (!createIfNotExists) {
+                try {
+                    if (getQueryRunnerSupplier().get().query( // check if user data exists
+                            String.format(
+                                    "SELECT `world_uuid` FROM `%sworld_user_data` WHERE `world_uuid` = UNHEX(?) AND `user_uuid` = UNHEX(?)",
+                                    DatabaseManager.TABLE_PREFIX
+                            ), new ArrayHandler(),
+                            Utilities.convertToNoDashes(getUser().getUniqueId()),
+                            Utilities.convertToNoDashes(userUUID)
+                    ).length == 0) {
+                        return null;
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace(); // todo improve
+                }
+            }
+
+            worldUserData = new WorldUserData(userUUID, getUser(), getQueryRunnerSupplier());
 
             try {
                 worldUserData.load();
@@ -31,7 +51,7 @@ public class WorldUserDataContainer extends ContainerUserData<UUID, WorldUserDat
                 e.printStackTrace(); // todo improve
             }
 
-            put(worldUUID, worldUserData);
+            put(userUUID, worldUserData);
         }
 
         return worldUserData;

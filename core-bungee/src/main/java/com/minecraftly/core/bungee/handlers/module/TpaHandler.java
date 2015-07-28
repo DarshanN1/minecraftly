@@ -7,6 +7,7 @@ import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.imaginarycode.minecraft.redisbungee.events.PubSubMessageEvent;
 import com.minecraftly.core.bungee.MclyCoreBungeePlugin;
+import com.minecraftly.core.bungee.handlers.RedisFunctionsHandler;
 import com.minecraftly.core.bungee.handlers.job.queue.ConnectJobQueue;
 import com.minecraftly.core.bungee.utilities.BungeeUtilities;
 import com.minecraftly.core.packets.PacketTeleport;
@@ -82,23 +83,16 @@ public class TpaHandler implements Runnable, Listener {
 
     @Command(aliases = "tpaccept", desc = "Accept a teleport request from a player.", usage = "<player>", min = 1, max = 1)
     public void acceptTpaRequest(@Sender ProxiedPlayer teleportTarget, String initiatorNameInput) {
-        String initiatorName = BungeeUtilities.matchRedisPlayer(initiatorNameInput);
+        String initiatorName = getInitiatorName(teleportTarget, initiatorNameInput);
 
-        if (initiatorName == null) {
-            teleportTarget.sendMessage(new ComponentBuilder("Couldn't find a player by the name of ").color(ChatColor.RED)
-                            .append(initiatorNameInput).color(ChatColor.GOLD)
-                            .append(".").color(ChatColor.RED)
-                            .create()
-            );
-        } else {
+        if (initiatorName != null) {
             final UUID teleportTargetUUID = teleportTarget.getUniqueId();
             UUID initiatorUUID = redisBungeeAPI.getUuidFromName(initiatorName);
-
-            Map.Entry<UUID, UUID> searchQuery = new AbstractMap.SimpleImmutableEntry<>(initiatorUUID, teleportTargetUUID);
+            Map.Entry<UUID, UUID> searchQuery = getSearchQuery(initiatorUUID, teleportTargetUUID);
             Long timeCreated = tpaRequests.get(searchQuery);
 
             if (timeCreated == null || System.currentTimeMillis() > timeCreated + TimeUnit.SECONDS.toMillis(EXPIRE_SECONDS)) {
-                teleportTarget.sendMessage(new ComponentBuilder("There are no teleport requests to accept (expired?).").color(ChatColor.RED).create());
+                teleportTarget.sendMessage(new ComponentBuilder("That player hasn't sent you a teleport request (expired?).").color(ChatColor.RED).create()); // todo dupe
             } else {
                 teleportTarget.sendMessage(new ComponentBuilder("Teleporting ").color(ChatColor.GREEN)
                                 .append(initiatorName).color(ChatColor.GOLD)
@@ -113,6 +107,32 @@ public class TpaHandler implements Runnable, Listener {
             tpaRequests.remove(searchQuery);
         }
     }
+
+    @Command(aliases = "tpdeny", desc = "Deny a teleport request from a player.", usage = "<player>", min = 1, max = 1)
+    public void denyTpaRequest(@Sender ProxiedPlayer teleportTarget, String initiatorNameInput) {
+        String initiatorName = getInitiatorName(teleportTarget, initiatorNameInput);
+
+        if (initiatorName != null) {
+            UUID teleportTargetUUID = teleportTarget.getUniqueId();
+            UUID initiatorUUID = redisBungeeAPI.getUuidFromName(initiatorName);
+            Map.Entry<UUID, UUID> searchQuery = getSearchQuery(initiatorUUID, teleportTargetUUID);
+
+            if (tpaRequests.remove(searchQuery) != null) {
+                teleportTarget.sendMessage(new ComponentBuilder("Successfully cancelled teleport request.").color(ChatColor.RED).create());
+
+                RedisFunctionsHandler.sendMessage(initiatorUUID,
+                        new ComponentBuilder(teleportTarget.getDisplayName())
+                                    .color(ChatColor.GOLD)
+                                .append(" has cancelled your teleport request.")
+                                    .color(ChatColor.RED).create()
+                );
+            } else {
+                teleportTarget.sendMessage(new ComponentBuilder("That player hasn't sent you a teleport request (expired?).").color(ChatColor.RED).create()); // todo dupe
+            }
+        }
+    }
+
+    /** HANDLERS **/
 
     @Override
     public void run() {
@@ -156,6 +176,8 @@ public class TpaHandler implements Runnable, Listener {
                                 .append(" has sent you a teleport request.\nUse ").color(ChatColor.AQUA)
                                 .append("/tpaccept " + initiatorName).color(ChatColor.GOLD)
                                 .append(" to accept.").color(ChatColor.AQUA)
+                                .append("\n/tpdeny " + initiatorName).color(ChatColor.GOLD)
+                                .append(" to deny.").color(ChatColor.AQUA)
                                 .create()
                 );
             }
@@ -183,6 +205,26 @@ public class TpaHandler implements Runnable, Listener {
                 }
             }
         }
+    }
+
+    /** HELPER METHODS **/
+
+    private String getInitiatorName(ProxiedPlayer sender, String input) {
+        String initiatorName = BungeeUtilities.matchRedisPlayer(input);
+
+        if (initiatorName == null) {
+            sender.sendMessage(new ComponentBuilder("Couldn't find a player by the name of ").color(ChatColor.RED)
+                            .append(input).color(ChatColor.GOLD)
+                            .append(".").color(ChatColor.RED)
+                            .create()
+            );
+        }
+
+        return initiatorName;
+    }
+
+    private Map.Entry<UUID, UUID> getSearchQuery(UUID initiatorUUID, UUID teleportTargetUUID) {
+        return new AbstractMap.SimpleImmutableEntry<>(initiatorUUID, teleportTargetUUID);
     }
 
     public JsonObject toJsonObject(UUID initiatorUUID, String initiatorName, UUID targetUUID, String targetName) { // todo move to util class for other command

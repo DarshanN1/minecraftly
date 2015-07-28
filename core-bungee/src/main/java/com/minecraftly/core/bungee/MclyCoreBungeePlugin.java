@@ -9,6 +9,7 @@ import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.minecraftly.core.MinecraftlyCommon;
 import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bungee.handlers.MOTDHandler;
+import com.minecraftly.core.bungee.handlers.RedisFunctionsHandler;
 import com.minecraftly.core.bungee.handlers.job.JobManager;
 import com.minecraftly.core.bungee.handlers.job.handlers.ConnectHandler;
 import com.minecraftly.core.bungee.handlers.job.handlers.HumanCheckHandler;
@@ -41,6 +42,12 @@ import java.util.logging.Level;
  */
 public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCore {
 
+    private static MclyCoreBungeePlugin instance;
+
+    public static MclyCoreBungeePlugin getInstance() {
+        return instance;
+    }
+
     public static final BaseComponent[] MESSAGE_NOT_HUMAN = new ComponentBuilder("You must first confirm you are human.").color(ChatColor.RED).create();
 
     private File configurationFile;
@@ -54,6 +61,11 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
     private final JobManager jobManager = new JobManager();
     private final HumanCheckManager humanCheckManager = new HumanCheckManager();
+
+    @Override
+    public void onLoad() {
+        instance = this;
+    }
 
     @Override
     public void onEnable() {
@@ -73,6 +85,9 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         PluginManager pluginManager = getProxy().getPluginManager();
         gateway = BungeeGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
         redisBungeeAPI = RedisBungee.getApi();
+
+        redisBungeeAPI.registerPubSubChannels(RedisFunctionsHandler.MESSAGE_PLAYER_CHANNEL);
+        pluginManager.registerListener(this, new RedisFunctionsHandler());
 
         HumanCheckJobQueue humanCheckJobQueue = new HumanCheckJobQueue(humanCheckManager);
         ConnectJobQueue connectJobQueue = new ConnectJobQueue();
@@ -103,6 +118,11 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
         TaskScheduler taskScheduler = getProxy().getScheduler();
         taskScheduler.schedule(this, tpaHandler, 5, TimeUnit.MINUTES);
+    }
+
+    @Override
+    public void onDisable() {
+        instance = null;
     }
 
     private void copyDefaults() {

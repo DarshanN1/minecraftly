@@ -17,7 +17,7 @@ import java.util.UUID;
 /**
  * Contains general redis functions which should really be built-in to RedisBungee.
  */
-public class RedisFunctionsHandler implements Listener {
+public class RedisMessagingHandler implements Listener {
 
     public static final String MESSAGE_PLAYER_CHANNEL = "mcly_message_player";
 

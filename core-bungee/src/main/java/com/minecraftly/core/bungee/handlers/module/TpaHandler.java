@@ -7,7 +7,7 @@ import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.imaginarycode.minecraft.redisbungee.events.PubSubMessageEvent;
 import com.minecraftly.core.bungee.MclyCoreBungeePlugin;
-import com.minecraftly.core.bungee.handlers.RedisFunctionsHandler;
+import com.minecraftly.core.bungee.handlers.RedisMessagingHandler;
 import com.minecraftly.core.bungee.handlers.job.queue.ConnectJobQueue;
 import com.minecraftly.core.bungee.utilities.BungeeUtilities;
 import com.minecraftly.core.packets.PacketTeleport;
@@ -120,11 +120,11 @@ public class TpaHandler implements Runnable, Listener {
             if (tpaRequests.remove(searchQuery) != null) {
                 teleportTarget.sendMessage(new ComponentBuilder("Successfully cancelled teleport request.").color(ChatColor.RED).create());
 
-                RedisFunctionsHandler.sendMessage(initiatorUUID,
+                RedisMessagingHandler.sendMessage(initiatorUUID,
                         new ComponentBuilder(teleportTarget.getDisplayName())
-                                    .color(ChatColor.GOLD)
+                                .color(ChatColor.GOLD)
                                 .append(" has cancelled your teleport request.")
-                                    .color(ChatColor.RED).create()
+                                .color(ChatColor.RED).create()
                 );
             } else {
                 teleportTarget.sendMessage(new ComponentBuilder("That player hasn't sent you a teleport request (expired?).").color(ChatColor.RED).create()); // todo dupe

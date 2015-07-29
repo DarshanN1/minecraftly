@@ -9,7 +9,7 @@ import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.minecraftly.core.MinecraftlyCommon;
 import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bungee.handlers.MOTDHandler;
-import com.minecraftly.core.bungee.handlers.RedisFunctionsHandler;
+import com.minecraftly.core.bungee.handlers.RedisMessagingHandler;
 import com.minecraftly.core.bungee.handlers.job.JobManager;
 import com.minecraftly.core.bungee.handlers.job.handlers.ConnectHandler;
 import com.minecraftly.core.bungee.handlers.job.handlers.HumanCheckHandler;
@@ -86,8 +86,8 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         gateway = BungeeGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
         redisBungeeAPI = RedisBungee.getApi();
 
-        redisBungeeAPI.registerPubSubChannels(RedisFunctionsHandler.MESSAGE_PLAYER_CHANNEL);
-        pluginManager.registerListener(this, new RedisFunctionsHandler());
+        redisBungeeAPI.registerPubSubChannels(RedisMessagingHandler.MESSAGE_PLAYER_CHANNEL);
+        pluginManager.registerListener(this, new RedisMessagingHandler());
 
         HumanCheckJobQueue humanCheckJobQueue = new HumanCheckJobQueue(humanCheckManager);
         ConnectJobQueue connectJobQueue = new ConnectJobQueue();

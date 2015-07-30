@@ -9,7 +9,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.1'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
         classpath group: 'org.zeroturnaround', name: 'gradle-jrebel-plugin', version: '1.1.2'
     }
 }

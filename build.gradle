@@ -25,7 +25,7 @@ import java.nio.file.StandardCopyOption
 
 apply plugin: 'idea'
 
-ext.bukkitVersion = '1.8.7-R0.1-SNAPSHOT'
+ext.bukkitVersion = '1.8.8-R0.1-SNAPSHOT'
 ext.bungeeVersion = '1.8-SNAPSHOT'
 ext.exhaustVersion = '1.0.1-SNAPSHOT'
 ext.pmfVersion = '1.0.0-SNAPSHOT'
@@ -174,10 +174,10 @@ project(':core') {
         compile group: 'lc.vq', name: 'exhaust-core', version: exhaustVersion
 
         // HikariCP dependencies
-        compile group: 'com.zaxxer', name: 'HikariCP-java6', version: '2.3.8'
-        compile group: 'org.javassist', name: 'javassist', version: '3.19.0-GA'
-        compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.10'
-        compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.10'
+        compile group: 'com.zaxxer', name: 'HikariCP', version: '2.4.0'
+        compile group: 'org.javassist', name: 'javassist', version: '3.20.0-GA'
+        compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
+        compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.12'
 
         compile group: 'commons-dbutils', name: 'commons-dbutils', version: '1.6'
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-core', version: parent.ext.pmfVersion
@@ -188,7 +188,7 @@ project(':core') {
             include(dependency('lc.vq:exhaust-core'))
 
             // include HikariCP dependencies
-            include(dependency('com.zaxxer:HikariCP-java6'))
+            include(dependency('com.zaxxer:HikariCP'))
             include(dependency('org.javassist:javassist'))
             include(dependency('org.slf4j:slf4j-api'))
             include(dependency('org.slf4j:slf4j-simple'))

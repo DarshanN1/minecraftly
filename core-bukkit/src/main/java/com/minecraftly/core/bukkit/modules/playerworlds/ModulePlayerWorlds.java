@@ -7,6 +7,7 @@ import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.modules.Module;
 import com.minecraftly.core.bukkit.modules.playerworlds.command.WorldsCommands;
+import com.minecraftly.core.bukkit.modules.playerworlds.data.JoinCountdownData;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.global.GlobalStorageHandler;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldStorageHandler;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserData;
@@ -14,6 +15,7 @@ import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserData
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.DimensionListener;
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.PlayerListener;
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.WorldMessagesListener;
+import com.minecraftly.core.bukkit.user.User;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.packets.playerworlds.PacketNoLongerHostingWorld;
@@ -221,7 +223,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
         langLoaded.send(player);
 
-        new BukkitRunnable() {
+        BukkitRunnable bukkitRunnable = new BukkitRunnable() {
             int countdown = 10;
 
             @Override
@@ -233,7 +235,12 @@ public class ModulePlayerWorlds extends Module implements Listener {
                     cancel();
                 }
             }
-        }.runTaskTimer(getPlugin(), 20L, 20L);
+        };
+
+        User user = getPlugin().getUserManager().getUser(player);
+        JoinCountdownData joinCountdownData = new JoinCountdownData(user, bukkitRunnable);
+        user.attachUserData(joinCountdownData);
+        bukkitRunnable.runTaskTimer(getPlugin(), 20L, 20L);
     }
 
     public void spawnInWorld(Player player, World world) {

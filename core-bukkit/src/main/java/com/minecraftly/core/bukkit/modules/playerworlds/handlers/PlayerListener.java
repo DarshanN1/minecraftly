@@ -4,6 +4,7 @@ import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
 import com.minecraftly.core.bukkit.modules.playerworlds.WorldDimension;
+import com.minecraftly.core.bukkit.modules.playerworlds.data.JoinCountdownData;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserData;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserDataContainer;
 import com.minecraftly.core.bukkit.user.User;
@@ -73,11 +74,22 @@ public class PlayerListener implements Listener, Consumer<Player> {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerQuit(PlayerQuitEvent e) {
         Player player = e.getPlayer();
-        World world = WorldDimension.getBaseWorld(player.getWorld());
-        leftWorld(player, world);
+        JoinCountdownData joinCountdownData = userManager.getUser(e.getPlayer()).getSingletonUserData(JoinCountdownData.class);
+        World world;
+
+        if (joinCountdownData == null) {
+            world = WorldDimension.getBaseWorld(player.getWorld());
+        } else {
+            world = module.getPlayerWorld(player);
+            joinCountdownData.getCountdownTask().cancel(); // cancel pending countdown tasks
+        }
+
+        if (world != null) {
+            leftWorld(player, world);
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -186,7 +198,7 @@ public class PlayerListener implements Listener, Consumer<Player> {
         if (module.isPlayerWorld(baseWorld)) {
             BukkitUtilities.broadcast(WorldDimension.getPlayersAllDimensions(baseWorld), player, langPlayerLeftWorld.getValue(player.getName()));
 
-            if (module.getWorldOwner(baseWorld).equals(player.getUniqueId())) {
+            if (baseWorld == player.getWorld() && module.getWorldOwner(baseWorld).equals(player.getUniqueId())) { // player may not be in world if they leave during countdown
                 ownerLeftWorld(player, baseWorld);
             }
         }

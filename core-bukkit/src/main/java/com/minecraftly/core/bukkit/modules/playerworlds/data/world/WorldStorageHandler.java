@@ -13,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.sql.SQLException;
+import java.util.UUID;
 
 /**
  * Created by Keir on 09/06/2015.
@@ -49,22 +50,23 @@ public class WorldStorageHandler extends DataStorageHandler<WorldUserDataContain
         World to = WorldDimension.getBaseWorld(e.getTo().getWorld());
 
         if (!from.equals(to)) {
-            boolean fromWorld = module.isPlayerWorld(from);
-            boolean toWorld = module.isPlayerWorld(to);
+            UUID fromWorldOwner = module.getWorldOwner(from);
+            UUID toWorldOwner = module.getWorldOwner(to);
+
             User user = module.getPlugin().getUserManager().getUser(player);
             WorldUserDataContainer worldUserDataContainer = null;
 
-            if (fromWorld) {
+            if (fromWorldOwner != null) {
                 worldUserDataContainer = user.getSingletonUserData(WorldUserDataContainer.class);
-                worldUserDataContainer.unload(module.getWorldOwner(from));
+                worldUserDataContainer.unload(fromWorldOwner);
             }
 
-            if (toWorld) {
+            if (toWorldOwner != null) {
                 if (worldUserDataContainer == null) {
                     worldUserDataContainer = user.getSingletonUserData(WorldUserDataContainer.class);
                 }
 
-                worldUserDataContainer.load(module.getWorldOwner(to), true);
+                worldUserDataContainer.load(toWorldOwner, true);
             }
         }
     }

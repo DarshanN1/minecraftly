@@ -58,9 +58,6 @@ public class ModulePlayerWorlds extends Module implements Listener {
     private final LanguageValue langLoaded = new LanguageValue("&bWorld has been loaded, please wait...");
     private final LanguageValue langTeleportCountdown = new LanguageValue("&bTeleporting in &6%s &bseconds.");
 
-    private final LanguageValue langWorldGenerating = new LanguageValue("&5A world is currently being generated, you may experience some lag.");
-    private final LanguageValue langWorldGenerated = new LanguageValue("&5World generation finished, server should be back to normal.");
-
     public ModulePlayerWorlds(MclyCoreBukkitPlugin plugin) {
         super("PlayerWorlds", plugin);
     }
@@ -103,9 +100,6 @@ public class ModulePlayerWorlds extends Module implements Listener {
             put(getLanguageSection() + ".error.loadFailed", langLoadFailed);
             put(getLanguageSection() + ".loaded.message", langLoaded);
             put(getLanguageSection() + ".loaded.teleportCountdown", langTeleportCountdown);
-
-            put(getLanguageSection() + ".world.generating", langWorldGenerating);
-            put(getLanguageSection() + ".world.generated", langWorldGenerated);
         }});
     }
 
@@ -268,20 +262,13 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
         if (world == null) {
             File worldDirectory = new File(Bukkit.getWorldContainer(), worldName);
-            boolean generating = !worldDirectory.exists();
 
-            if (generating) {
-                langWorldGenerating.broadcast();
-            } else if (!worldDirectory.isDirectory()) {
+            if (worldDirectory.exists() && !worldDirectory.isDirectory()) {
                 throw new IllegalArgumentException(worldDirectory.getPath() + " exists, but is not a directory.");
             }
 
             world = new WorldCreator(worldName).environment(environment).createWorld();
             initializeWorld(world);
-
-            if (generating) {
-                langWorldGenerated.broadcast();
-            }
         }
 
         return world;

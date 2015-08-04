@@ -82,9 +82,15 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
             return;
         }
 
+        redisBungeeAPI = RedisBungee.getApi();
+
+        if (redisBungeeAPI == null) {
+            getLogger().severe("RedisBungeeAPI is not available.");
+            return;
+        }
+
         PluginManager pluginManager = getProxy().getPluginManager();
         gateway = BungeeGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
-        redisBungeeAPI = RedisBungee.getApi();
 
         redisBungeeAPI.registerPubSubChannels(RedisMessagingHandler.MESSAGE_PLAYER_CHANNEL);
         pluginManager.registerListener(this, new RedisMessagingHandler());

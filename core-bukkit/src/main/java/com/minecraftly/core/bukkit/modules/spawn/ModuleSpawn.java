@@ -1,8 +1,11 @@
 package com.minecraftly.core.bukkit.modules.spawn;
 
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
 import com.minecraftly.core.bukkit.MclyCoreBukkitPlugin;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.modules.Module;
+import com.minecraftly.core.bukkit.utilities.packet.WrapperPlayServerEntityEffect;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.World;
@@ -19,6 +22,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -136,9 +140,24 @@ public class ModuleSpawn extends Module implements Listener {
     }
 
     private void onEnterChatWorld(final Player player, final World world) {
-        for (Player player1 : Bukkit.getOnlinePlayers()) {
-            player.hidePlayer(player1);
-            player1.hidePlayer(player);
+        WrapperPlayServerEntityEffect packet = getInvisibleEffectPacket(player);
+
+        for (Player p : world.getPlayers()) {
+            if (player != p) {
+                ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
+
+                try { // make joining player invisible to everyone else
+                    protocolManager.sendServerPacket(p, packet.getHandle());
+                } catch (InvocationTargetException e) {
+                    throw new RuntimeException("Error sending invisibility packet.");
+                }
+
+                try { // make everyone else invisible to joining player
+                    protocolManager.sendServerPacket(player, getInvisibleEffectPacket(p).getHandle());
+                } catch (InvocationTargetException e) {
+                    throw new RuntimeException("Error sending invisibility packet.");
+                }
+            }
         }
 
         player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 200, true, false));
@@ -160,6 +179,15 @@ public class ModuleSpawn extends Module implements Listener {
                 }
             }
         }, 1L);
+    }
+
+    private static WrapperPlayServerEntityEffect getInvisibleEffectPacket(Player player) {
+        WrapperPlayServerEntityEffect packet = new WrapperPlayServerEntityEffect();
+        packet.setEntityID(player.getEntityId());
+        packet.setEffectID((byte) PotionEffectType.INVISIBILITY.getId());
+        packet.setDuration(Integer.MAX_VALUE);
+        packet.setHideParticles(true);
+        return packet;
     }
 
 }

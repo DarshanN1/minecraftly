@@ -103,6 +103,13 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
             return;
         }
 
+        if (pluginManager.getPlugin("ProtocolLib") == null) {
+            getLogger().severe("ProtocolLib not found.");
+            pluginManager.disablePlugin(this);
+            Bukkit.shutdown();
+            return;
+        }
+
         permission = economyServiceProvider.getProvider();
 
         File configurationFile = new File(getDataFolder(), "config.yml");

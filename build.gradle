@@ -30,6 +30,7 @@ ext.bungeeVersion = '1.8-SNAPSHOT'
 ext.exhaustVersion = '1.0.1-SNAPSHOT'
 ext.pmfVersion = '1.0.0-SNAPSHOT'
 ext.vaultVersion = '1.5'
+ext.protocolLibVersion = '3.6.4'
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.5'
@@ -210,6 +211,14 @@ project(':core-bukkit') {
         maven { // VaultAPI
             url 'http://nexus.theyeticave.net/content/repositories/pub_releases'
         }
+
+        maven { // ProtocolLib (releases requires snapshots for parent)
+            url 'http://repo.dmulloy2.net/content/repositories/snapshots/'
+        }
+
+        maven { // ProtocolLib
+            url 'http://repo.dmulloy2.net/content/repositories/releases/'
+        }
     }
 
     dependencies {
@@ -219,6 +228,7 @@ project(':core-bukkit') {
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-bukkit', version: parent.ext.pmfVersion
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-packets-bungeecord', version: parent.ext.pmfVersion
         compile group: 'net.milkbowl.vault', name: 'VaultAPI', version: parent.ext.vaultVersion
+        compile group: 'com.comphenix.protocol', name: 'ProtocolLib', version: parent.ext.protocolLibVersion
     }
 
     shadowJar {

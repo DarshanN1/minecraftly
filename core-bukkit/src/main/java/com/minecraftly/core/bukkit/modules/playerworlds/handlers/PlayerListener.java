@@ -108,8 +108,6 @@ public class PlayerListener implements Listener, Consumer<Player> {
                 WorldUserData worldUserData = worldUserDataContainer.get(owner);
                 worldUserData.apply(player);
 
-                refreshPlayerVisibilities(player, to);
-
                 if (uuid.equals(owner)) {
                     player.setGameMode(GameMode.SURVIVAL);
                     langWelcomeOwner.send(player, player.getDisplayName());
@@ -212,20 +210,6 @@ public class PlayerListener implements Listener, Consumer<Player> {
         for (Player p : world.getPlayers()) {
             if (p != owner) {
                 p.teleport(spawnLocation, PlayerTeleportEvent.TeleportCause.PLUGIN); // put back in chat mode
-            }
-        }
-    }
-
-    public void refreshPlayerVisibilities(Player player, World baseWorld) {
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            if (p != player) {
-                if (WorldDimension.getBaseWorld(p.getWorld()) != baseWorld) {
-                    player.hidePlayer(p);
-                    p.hidePlayer(player);
-                } else {
-                    player.showPlayer(p);
-                    p.showPlayer(player);
-                }
             }
         }
     }

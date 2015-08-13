@@ -217,6 +217,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
         langLoaded.send(player);
 
+        User user = getPlugin().getUserManager().getUser(player);
         BukkitRunnable bukkitRunnable = new BukkitRunnable() {
             int countdown = 10;
 
@@ -225,13 +226,13 @@ public class ModulePlayerWorlds extends Module implements Listener {
                 langTeleportCountdown.send(player, countdown--);
 
                 if (countdown <= 0) {
+                    user.detachUserData(JoinCountdownData.class);
                     spawnInWorld(player, world);
                     cancel();
                 }
             }
         };
 
-        User user = getPlugin().getUserManager().getUser(player);
         JoinCountdownData joinCountdownData = new JoinCountdownData(user, bukkitRunnable);
         user.attachUserData(joinCountdownData);
         bukkitRunnable.runTaskTimer(getPlugin(), 20L, 20L);

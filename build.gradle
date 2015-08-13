@@ -332,10 +332,10 @@ task('startServers') {
 
 task('deployForTesting') {
     doLast {
+        stopServers.execute()
+
         ssh.run {
             session(host: host, user: user, password: pass) {
-                stopServers.execute()
-
                 execute 'rm -r -f ' + baseFolder +  'slave_*/plugins/Minecraftly*.jar;' +
                         'rm -r -f ' + baseFolder +  'bungee_proxy_*/plugins/MinecraftlyBungee*.jar;', ignoreError: true
 
@@ -367,11 +367,12 @@ task('deployForTesting') {
                         put from: sourceFile.path, into: targetLocation
                     }
                 }
-
-                if (System.getenv().hasProperty('startServers') ? startServers : true) { // allows disabling of this feature
-                    startServers.execute()
-                }
             }
+        }
+
+        runStartupScripts = Boolean.parseBoolean(runStartupScripts)
+        if (System.getenv().hasProperty('runStartupScripts') ? runStartupScripts : true) { // allows disabling of this feature
+            startServers.execute()
         }
     }
 }.dependsOn([ tasks.findByName('parseSettings'), subprojects.collect { it.tasks.findByName('optimizeOutputs') } ]) // all sub-modules must optimize their outputs first

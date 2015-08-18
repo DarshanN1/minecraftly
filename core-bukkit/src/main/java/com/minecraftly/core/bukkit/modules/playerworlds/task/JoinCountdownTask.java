@@ -18,7 +18,7 @@ public class JoinCountdownTask extends BukkitRunnable {
     private User user;
     private World world;
 
-    private int countdown = 10;
+    private int countdown = 5;
 
     public JoinCountdownTask(ModulePlayerWorlds modulePlayerWorlds, LanguageValue langTeleportCountdown, User user, World world) {
         this.modulePlayerWorlds = modulePlayerWorlds;

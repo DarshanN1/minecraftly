@@ -7,7 +7,6 @@ import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.modules.Module;
 import com.minecraftly.core.bukkit.modules.playerworlds.command.WorldsCommands;
-import com.minecraftly.core.bukkit.modules.playerworlds.data.JoinCountdownData;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.global.GlobalStorageHandler;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldStorageHandler;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserData;
@@ -15,7 +14,7 @@ import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserData
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.DimensionListener;
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.PlayerListener;
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.WorldMessagesListener;
-import com.minecraftly.core.bukkit.user.User;
+import com.minecraftly.core.bukkit.modules.playerworlds.task.JoinCountdownTask;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.packets.playerworlds.PacketNoLongerHostingWorld;
@@ -32,7 +31,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.util.HashMap;
@@ -216,26 +214,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
         }
 
         langLoaded.send(player);
-
-        User user = getPlugin().getUserManager().getUser(player);
-        BukkitRunnable bukkitRunnable = new BukkitRunnable() {
-            int countdown = 10;
-
-            @Override
-            public void run() {
-                langTeleportCountdown.send(player, countdown--);
-
-                if (countdown <= 0) {
-                    user.detachUserData(JoinCountdownData.class);
-                    spawnInWorld(player, world);
-                    cancel();
-                }
-            }
-        };
-
-        JoinCountdownData joinCountdownData = new JoinCountdownData(user, bukkitRunnable);
-        user.attachUserData(joinCountdownData);
-        bukkitRunnable.runTaskTimer(getPlugin(), 20L, 20L);
+        new JoinCountdownTask(this, langTeleportCountdown, getPlugin().getUserManager().getUser(player), world).runTaskTimer(getPlugin(), 20L, 20L);
     }
 
     public void spawnInWorld(Player player, World world) {

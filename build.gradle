@@ -257,6 +257,7 @@ project(':core-bungee') {
     dependencies {
         compile project(path: ':core', configuration: 'shadow')
         compile group: 'net.md-5', name: 'bungeecord-api', version: parent.ext.bungeeVersion
+        compile group: 'net.md-5', name: 'bungeecord-proxy', version: '1.4.7-SNAPSHOT' // BungeeServerInfo
         compile group: 'lc.vq', name: 'exhaust-bungee', version: parent.ext.exhaustVersion
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-bungeecord', version: parent.ext.pmfVersion
         compile group: 'com.imaginarycode.minecraft', name: 'RedisBungee', version: '0.3.5'

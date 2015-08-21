@@ -212,12 +212,12 @@ project(':core-bukkit') {
             url 'http://nexus.theyeticave.net/content/repositories/pub_releases'
         }
 
-        maven { // ProtocolLib (releases requires snapshots for parent)
-            url 'http://repo.dmulloy2.net/content/repositories/snapshots/'
+        maven { // ProtocolLib
+            url 'http://repo.dmulloy2.net/content/groups/public/'
         }
 
-        maven { // ProtocolLib
-            url 'http://repo.dmulloy2.net/content/repositories/releases/'
+        flatDir { // todo ProtocolLib workaround
+            dirs 'lib'
         }
     }
 
@@ -228,7 +228,8 @@ project(':core-bukkit') {
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-bukkit', version: parent.ext.pmfVersion
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-packets-bungeecord', version: parent.ext.pmfVersion
         compile group: 'net.milkbowl.vault', name: 'VaultAPI', version: parent.ext.vaultVersion
-        compile group: 'com.comphenix.protocol', name: 'ProtocolLib', version: parent.ext.protocolLibVersion
+        //compile group: 'com.comphenix.protocol', name: 'ProtocolLib', version: parent.ext.protocolLibVersion todo currently broken
+        compile name: 'ProtocolLib' // todo workaround for above
     }
 
     shadowJar {
@@ -257,7 +258,6 @@ project(':core-bungee') {
     dependencies {
         compile project(path: ':core', configuration: 'shadow')
         compile group: 'net.md-5', name: 'bungeecord-api', version: parent.ext.bungeeVersion
-        compile group: 'net.md-5', name: 'bungeecord-proxy', version: '1.4.7-SNAPSHOT' // BungeeServerInfo
         compile group: 'lc.vq', name: 'exhaust-bungee', version: parent.ext.exhaustVersion
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-bungeecord', version: parent.ext.pmfVersion
         compile group: 'com.imaginarycode.minecraft', name: 'RedisBungee', version: '0.3.5'

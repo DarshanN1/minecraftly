@@ -228,8 +228,7 @@ project(':core-bukkit') {
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-bukkit', version: parent.ext.pmfVersion
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-packets-bungeecord', version: parent.ext.pmfVersion
         compile group: 'net.milkbowl.vault', name: 'VaultAPI', version: parent.ext.vaultVersion
-        //compile group: 'com.comphenix.protocol', name: 'ProtocolLib', version: parent.ext.protocolLibVersion todo currently broken
-        compile name: 'ProtocolLib' // todo workaround for above
+        compile group: 'com.comphenix.protocol', name: 'ProtocolLib', version: parent.ext.protocolLibVersion
     }
 
     shadowJar {

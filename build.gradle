@@ -216,14 +216,14 @@ project(':core-bukkit') {
             url 'http://repo.dmulloy2.net/content/groups/public/'
         }
 
-        flatDir { // todo ProtocolLib workaround
+        flatDir {
             dirs 'lib'
         }
     }
 
     dependencies {
         compile project(path: ':core', configuration: 'shadow')
-        compile group: 'org.bukkit', name: 'bukkit', version: parent.ext.bukkitVersion
+        compile name: 'paperspigot-1.8.8'
         compile group: 'lc.vq', name: 'exhaust-bukkit', version: parent.ext.exhaustVersion
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-bukkit', version: parent.ext.pmfVersion
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-packets-bungeecord', version: parent.ext.pmfVersion

@@ -234,7 +234,9 @@ public class ModulePlayerWorlds extends Module implements Listener {
             spawnLocation = BukkitUtilities.getSafeSpawnLocation(world.getSpawnLocation());
         }
 
-        player.teleport(spawnLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+        world.getChunkAtAsync(spawnLocation, chunk -> {
+            player.teleport(spawnLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+        });
     }
 
     public World getOrLoadWorld(String worldName, World.Environment environment) {

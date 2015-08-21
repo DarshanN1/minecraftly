@@ -3,12 +3,12 @@ package com.minecraftly.core.bungee.handlers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.imaginarycode.minecraft.redisbungee.events.PubSubMessageEvent;
-import net.md_5.bungee.BungeeServerInfo;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
+import java.lang.reflect.Constructor;
 import java.net.InetSocketAddress;
 
 /**
@@ -36,8 +36,14 @@ public class SlaveHandler implements Listener {
             String name = jsonObject.get("name").getAsString();
             InetSocketAddress inetSocketAddress = InetSocketAddress.createUnresolved(jsonObject.get("ip").getAsString(), jsonObject.get("port").getAsInt());
 
-            ServerInfo serverInfo = new BungeeServerInfo(name, inetSocketAddress, false);
-            ProxyServer.getInstance().getServers().put(name, serverInfo);
+            try {
+                Class<?> serverInfoClass = Class.forName("net.md_5.bungee.BungeeServerInfo");
+                Constructor<?> constructor = serverInfoClass.getConstructor(String.class, InetSocketAddress.class, Boolean.class);
+                ServerInfo serverInfo = (ServerInfo) constructor.newInstance(name, inetSocketAddress, false);
+                ProxyServer.getInstance().getServers().put(name, serverInfo);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
         }
     }
 

@@ -55,7 +55,13 @@ public class JoinCountdownTask extends BukkitRunnable {
     private void checkForExistingTasks() {
         JoinCountdownData joinCountdownData = user.getSingletonUserData(JoinCountdownData.class);
 
-        if (joinCountdownData != null && joinCountdownData.getCountdownTask() == this) {
+        if (joinCountdownData != null) {
+            BukkitRunnable existingTask = joinCountdownData.getCountdownTask();
+
+            if (existingTask != null && existingTask != this) { // second check prevents infinite loop
+                existingTask.cancel();
+            }
+
             user.detachUserData(joinCountdownData);
         }
     }

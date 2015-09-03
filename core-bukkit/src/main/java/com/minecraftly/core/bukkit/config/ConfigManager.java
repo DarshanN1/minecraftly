@@ -64,8 +64,8 @@ public class ConfigManager {
                 Class typeClass = value.getTypeClass();
                 Object castedValue;
 
-                if (typeClass == Long.class && obj instanceof Integer) { // hack
-                    castedValue = (long) (int) obj;
+                if (typeClass == Long.class && obj instanceof Number) { // hack :(
+                    castedValue = ((Number) obj).longValue();
                 } else {
                     castedValue = typeClass.cast(obj);
                 }

@@ -98,7 +98,10 @@ public class SlaveHandler implements Listener, Runnable {
                 addNewServer(id, inetSocketAddress);
                 break;
             case RedisHelper.CHANNEL_SERVER_GOING_DOWN:
-                ProxyServer.getInstance().getServers().remove(message);
+                if (!message.equals(mainServerId)) {
+                    ProxyServer.getInstance().getServers().remove(message);
+                }
+
                 break;
         }
     }
@@ -123,8 +126,9 @@ public class SlaveHandler implements Listener, Runnable {
 
             while (iterator.hasNext()) { // remove old servers
                 Map.Entry<String, ServerInfo> entry = iterator.next();
+                String serverId = entry.getKey();
 
-                if (!heartbeats.containsKey(entry.getKey())) {
+                if (!heartbeats.containsKey(serverId) && !serverId.equals(mainServerId) && !serverId.equals("dummy-server")) { // main server always exists
                     iterator.remove();
                 }
             }

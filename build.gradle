@@ -356,21 +356,21 @@ task('deployForTesting') {
                     assert outputFiles.length == 1, 'There must be exactly 1 output JAR for each module.'
 
                     File sourceFile = outputFiles[0];
-                    List<String> targetLocations = new ArrayList<>()
+                    String targetLocation;
+                    String secondaryCommand;
 
                     if (project.getName().equals("core-bukkit")) {
-                        targetLocations.add(baseFolder + 'slave_1/plugins/')
-                        targetLocations.add(baseFolder + 'slave_2/plugins/')
+                        targetLocation = baseFolder + 'slave_1/plugins/'
+                        secondaryCommand = 'cp -f ' + baseFolder + 'slave_1/plugins/' + sourceFile.name + ' ' + baseFolder + 'slave_2/plugins/'
                     } else if (project.getName().equals("core-bungee")) {
-                        targetLocations.add(baseFolder + 'bungee_proxy_1/plugins/')
-                        targetLocations.add(baseFolder + 'bungee_proxy_2/plugins/')
+                        targetLocation = baseFolder + 'bungee_proxy_1/plugins/'
+                        secondaryCommand = 'cp -f ' + baseFolder + 'bungee_proxy_1/plugins/' + sourceFile.name + ' ' + baseFolder + 'bungee_proxy_2/plugins/'
                     } else {
                         continue;
                     }
 
-                    for (String targetLocation : targetLocations) {
-                        put from: sourceFile.path, into: targetLocation
-                    }
+                    put from: sourceFile.path, into: targetLocation
+                    execute secondaryCommand
                 }
             }
         }

@@ -68,9 +68,21 @@ public class SlaveHandler implements Listener, Runnable {
         ProxyServer proxyServer = ProxyServer.getInstance();
         Map<String, ServerInfo> servers = proxyServer.getServers();
         boolean sameInstance = id.equals(mainServerId);
+        String motd = "";
 
-        if (sameInstance && !socketAddress.getHostString().equals("localhost")) {
-            socketAddress = new InetSocketAddress("localhost", socketAddress.getPort());
+        if (sameInstance) {
+            if (!socketAddress.getHostString().equals("localhost")) {
+                socketAddress = new InetSocketAddress("localhost", socketAddress.getPort());
+            }
+
+            // set motd (have to do this manually)
+            for (ListenerInfo listenerInfo : proxyServer.getConfig().getListeners()) {
+                motd = listenerInfo.getMotd();
+
+                if (motd != null && !motd.isEmpty()) {
+                    break;
+                }
+            }
         } else if (firstServer) { // bungee doesn't like to startup with no servers, crappy workaround
             firstServer = false;
             servers.remove("dummy-server");
@@ -87,7 +99,7 @@ public class SlaveHandler implements Listener, Runnable {
             }
         }
 
-        servers.put(id, proxyServer.constructServerInfo(id, socketAddress, null, false));
+        servers.put(id, proxyServer.constructServerInfo(id, socketAddress, motd, false));
     }
 
     @EventHandler
@@ -102,7 +114,7 @@ public class SlaveHandler implements Listener, Runnable {
                 InetSocketAddress inetSocketAddress = serverInstanceData.getSocketAddress();
 
                 logger.info("New server - " + id + " (" + inetSocketAddress.toString() + ").");
-                addNewServer(String.valueOf(id), inetSocketAddress);
+                addNewServer(id, inetSocketAddress);
                 break;
             case RedisHelper.CHANNEL_SERVER_GOING_DOWN:
                 ProxyServer.getInstance().getServers().remove(message);

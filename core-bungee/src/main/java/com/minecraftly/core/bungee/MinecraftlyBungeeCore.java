@@ -15,7 +15,7 @@ import net.md_5.bungee.config.Configuration;
  */
 public interface MinecraftlyBungeeCore {
 
-    long getComputeUniqueId();
+    String getComputeUniqueId();
 
     ProxyServer getProxy();
 

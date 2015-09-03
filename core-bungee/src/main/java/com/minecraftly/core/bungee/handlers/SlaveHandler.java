@@ -67,8 +67,11 @@ public class SlaveHandler implements Listener, Runnable {
     public void addNewServer(String id, InetSocketAddress socketAddress) {
         ProxyServer proxyServer = ProxyServer.getInstance();
         Map<String, ServerInfo> servers = proxyServer.getServers();
+        boolean sameInstance = id.equals(mainServerId);
 
-        if (firstServer && !id.equals(mainServerId)) { // bungee doesn't like to startup with no servers, crappy workaround
+        if (sameInstance && !socketAddress.getHostString().equals("localhost")) {
+            socketAddress = new InetSocketAddress("localhost", socketAddress.getPort());
+        } else if (firstServer) { // bungee doesn't like to startup with no servers, crappy workaround
             firstServer = false;
             servers.remove("dummy-server");
 
@@ -95,7 +98,7 @@ public class SlaveHandler implements Listener, Runnable {
             default: break;
             case ServerInstanceData.CHANNEL:
                 ServerInstanceData serverInstanceData = gson.fromJson(message, ServerInstanceData.class);
-                long id = serverInstanceData.getId();
+                String id = serverInstanceData.getId();
                 InetSocketAddress inetSocketAddress = serverInstanceData.getSocketAddress();
 
                 logger.info("New server - " + id + " (" + inetSocketAddress.toString() + ").");

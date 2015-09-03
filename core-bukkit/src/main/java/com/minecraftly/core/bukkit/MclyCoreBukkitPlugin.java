@@ -58,7 +58,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     private static MclyCoreBukkitPlugin instance;
 
     // from Google Compute
-    private long computeUniqueId;
+    private String computeUniqueId;
     private InetSocketAddress instanceExternalSocketAddress;
 
     private ConfigManager configManager;
@@ -89,7 +89,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     public final DataValue<Integer> CFG_JEDIS_PORT = new DataValue<>(6379, Integer.class);
     public final DataValue<String> CFG_JEDIS_PASS = new DataValue<>("", String.class);
 
-    public final DataValue<Long> CFG_DEBUG_UNIQUE_ID = new DataValue<>(-1L, Long.class);
+    public final DataValue<String> CFG_DEBUG_UNIQUE_ID = new DataValue<>("-1", String.class);
     public final DataValue<String> CFG_DEBUG_IP_ADDRESS = new DataValue<>("", String.class);
 
     private final Map<String, DataValue> configValues = new HashMap<String, DataValue>() {{
@@ -268,7 +268,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     }
 
     @Override
-    public long getComputeUniqueId() {
+    public String getComputeUniqueId() {
         return computeUniqueId;
     }
 

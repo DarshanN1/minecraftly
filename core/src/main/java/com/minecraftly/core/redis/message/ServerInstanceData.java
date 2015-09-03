@@ -9,15 +9,15 @@ public class ServerInstanceData {
 
     public static final String CHANNEL = "NewServer";
 
-    private long id;
+    private String id;
     private InetSocketAddress inetSocketAddress;
 
-    public ServerInstanceData(long id, InetSocketAddress inetSocketAddress) {
+    public ServerInstanceData(String id, InetSocketAddress inetSocketAddress) {
         this.id = id;
         this.inetSocketAddress = inetSocketAddress;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 

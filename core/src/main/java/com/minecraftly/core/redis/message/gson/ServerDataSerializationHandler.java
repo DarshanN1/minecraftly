@@ -34,7 +34,7 @@ public class ServerDataSerializationHandler implements JsonSerializer<ServerInst
     @Override
     public ServerInstanceData deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = json.getAsJsonObject();
-        long id = jsonObject.get("id").getAsLong();
+        String id = jsonObject.get("id").getAsString();
 
         JsonObject socketAddressObject = jsonObject.get("socketAddress").getAsJsonObject();
         InetSocketAddress inetSocketAddress = new InetSocketAddress(socketAddressObject.get("host").getAsString(), socketAddressObject.get("port").getAsInt());

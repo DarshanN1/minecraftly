@@ -16,10 +16,10 @@ import java.net.InetSocketAddress;
 public class JedisService {
 
     private JedisPool jedisPool;
-    private long computeUniqueId;
+    private String computeUniqueId;
     private InetSocketAddress instanceExternalSocketAddress;
 
-    public JedisService(long computeUniqueId, InetSocketAddress instanceExternalSocketAddress, String jedisHost, int jedisPort, String jedisPassword) {
+    public JedisService(String computeUniqueId, InetSocketAddress instanceExternalSocketAddress, String jedisHost, int jedisPort, String jedisPassword) {
         if (instanceExternalSocketAddress == null) {
             throw new IllegalArgumentException("InstanceExternalSocketAddress cannot be null.");
         }
@@ -54,7 +54,7 @@ public class JedisService {
 
     public void heartbeat() {
         try (Jedis jedis = jedisPool.getResource()) {
-            jedis.hset("mcly:heartbeats", String.valueOf(computeUniqueId), String.valueOf(System.currentTimeMillis()));
+            jedis.hset("mcly:heartbeats", computeUniqueId, String.valueOf(System.currentTimeMillis()));
         }
     }
 
@@ -62,7 +62,7 @@ public class JedisService {
         heartbeat();
 
         try (Jedis jedis = jedisPool.getResource()) {
-            jedis.hset("mcly:instance_addresses", String.valueOf(computeUniqueId), instanceExternalSocketAddress.toString());
+            jedis.hset("mcly:instance_addresses", computeUniqueId, instanceExternalSocketAddress.toString());
 
             ServerInstanceData serverInstanceData = new ServerInstanceData(computeUniqueId, instanceExternalSocketAddress);
             jedis.publish(ServerInstanceData.CHANNEL, gson.toJson(serverInstanceData));

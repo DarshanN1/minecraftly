@@ -20,8 +20,8 @@ public class GComputeUtilities {
      * @return the instance's unique id
      * @throws IOException
      */
-    public static long queryUniqueId() throws IOException {
-        return Long.parseLong(queryComputeAPI("http://metadata.google.internal/computeMetadata/v1/instance/id"));
+    public static String queryUniqueId() throws IOException {
+        return queryComputeAPI("http://metadata.google.internal/computeMetadata/v1/instance/id");
     }
 
     /**

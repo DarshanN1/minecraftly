@@ -57,7 +57,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
     public static final BaseComponent[] MESSAGE_NOT_HUMAN = new ComponentBuilder("You must first confirm you are human.").color(ChatColor.RED).create();
 
-    private long computeUniqueId;
+    private String computeUniqueId;
     private File configurationFile;
     private ConfigurationProvider configurationProvider;
     private Configuration configuration;
@@ -99,8 +99,8 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         }
 
         try {
-            long configUniqueId = configuration.getLong("debug.uniqueId");
-            computeUniqueId = configUniqueId == -1 ? GComputeUtilities.queryUniqueId() : configUniqueId;
+            String configUniqueId = configuration.getString("debug.uniqueId");
+            computeUniqueId = configUniqueId.equals("-1") ? GComputeUtilities.queryUniqueId() : configUniqueId;
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "Error querying Compute API.", e);
             return;
@@ -202,7 +202,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
     }
 
     @Override
-    public long getComputeUniqueId() {
+    public String getComputeUniqueId() {
         return computeUniqueId;
     }
 

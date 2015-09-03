@@ -19,7 +19,7 @@ import java.util.function.Supplier;
  */
 public interface MinecraftlyCore extends Plugin {
 
-    long getComputeUniqueId();
+    String getComputeUniqueId();
 
     InetSocketAddress getInstanceExternalSocketAddress();
 

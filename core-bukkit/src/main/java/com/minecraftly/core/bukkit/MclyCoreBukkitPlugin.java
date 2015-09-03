@@ -1,9 +1,9 @@
 package com.minecraftly.core.bukkit;
 
+import com.google.gson.Gson;
 import com.ikeirnez.pluginmessageframework.bukkit.BukkitGatewayProvider;
 import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
 import com.minecraftly.core.MinecraftlyCommon;
-import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bukkit.commands.MinecraftlyCommand;
 import com.minecraftly.core.bukkit.config.ConfigManager;
 import com.minecraftly.core.bukkit.config.DataValue;
@@ -22,6 +22,9 @@ import com.minecraftly.core.bukkit.user.UserListener;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.bukkit.utilities.PrefixedLogger;
+import com.minecraftly.core.redis.RedisHelper;
+import com.minecraftly.core.redis.message.gson.GsonHelper;
+import com.minecraftly.core.utilities.Utilities;
 import com.sk89q.intake.fluent.DispatcherNode;
 import lc.vq.exhaust.bukkit.command.CommandManager;
 import net.milkbowl.vault.permission.Permission;
@@ -34,9 +37,15 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitScheduler;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +59,11 @@ import java.util.logging.Level;
 public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore {
 
     private static MclyCoreBukkitPlugin instance;
+
+    // from Google Compute
+    private long computeUniqueId;
+    private InetSocketAddress instanceExternalSocketAddress;
+
     private ConfigManager configManager;
     private DatabaseManager databaseManager;
     private LanguageManager languageManager;
@@ -58,11 +72,13 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     private PluginManager pluginManager;
     private ServerGateway<Player> gateway;
     private PlayerSwitchJobManager playerSwitchJobManager;
+    private JedisService jedisService;
     private File generalDataDirectory = new File(getDataFolder(), "data");
     private File backupDirectory = new File(getDataFolder(), "backups");
     private boolean skipDisable = false;
 
     private Permission permission;
+    private Gson gson = GsonHelper.getGsonWithAdapters();
 
     private List<Module> modules = new ArrayList<>();
 
@@ -72,14 +88,30 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     public final DataValue<String> CFG_DB_PASS = new DataValue<>("", String.class);
     public final DataValue<String> CFG_DB_DATABASE = new DataValue<>("minecraftly", String.class);
 
+    public final DataValue<String> CFG_JEDIS_HOST = new DataValue<>("localhost", String.class);
+    public final DataValue<Integer> CFG_JEDIS_PORT = new DataValue<>(6379, Integer.class);
+    public final DataValue<String> CFG_JEDIS_PASS = new DataValue<>("", String.class);
+
+    public final DataValue<Long> CFG_DEBUG_UNIQUE_ID = new DataValue<>(-1L, Long.class);
+    public final DataValue<String> CFG_DEBUG_IP_ADDRESS = new DataValue<>("", String.class);
+
     private final Map<String, DataValue> configValues = new HashMap<String, DataValue>() {{
         String dbPrefix = "database.";
+        String jedisPrefix = "jedis.";
+        String debugPrefix = "debug.";
 
         put(dbPrefix + "host", CFG_DB_HOST);
         put(dbPrefix + "port", CFG_DB_PORT);
         put(dbPrefix + "username", CFG_DB_USER);
         put(dbPrefix + "password", CFG_DB_PASS);
         put(dbPrefix + "database", CFG_DB_DATABASE);
+
+        put(jedisPrefix + "host", CFG_JEDIS_HOST);
+        put(jedisPrefix + "port", CFG_JEDIS_PORT);
+        put(jedisPrefix + "password", CFG_JEDIS_PASS);
+
+        put(debugPrefix + "uniqueId", CFG_DEBUG_UNIQUE_ID);
+        put(debugPrefix + "ipAddress", CFG_DEBUG_IP_ADDRESS);
     }};
 
     private final Supplier<QueryRunner> queryRunnerSupplier = () -> getDatabaseManager().getQueryRunner();
@@ -94,6 +126,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
 
     @Override
     public void onEnable() {
+        BukkitScheduler scheduler = getServer().getScheduler();
         pluginManager = getServer().getPluginManager();
         RegisteredServiceProvider<Permission> economyServiceProvider = getServer().getServicesManager().getRegistration(Permission.class);
         if (economyServiceProvider == null) {
@@ -119,7 +152,6 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         configManager.registerAll(configValues);
 
         if (firstRun) { // display warning and disable plugin instead of nasty errors
-            configManager.save();
             getLogger().severe("This is the first time this plugin has run and therefore no configuration exists for it.");
             getLogger().severe("Please configure settings such as database connections in the configuration.");
             getLogger().severe("Once done start the server up again and watch.");
@@ -129,6 +161,34 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
             pluginManager.disablePlugin(this);
             return;
         }
+
+        try {
+            computeUniqueId = CFG_DEBUG_UNIQUE_ID.isValueDefault()
+                    ? Long.parseLong(getComputeResponse("http://metadata.google.internal/computeMetadata/v1/instance/id"))
+                    : CFG_DEBUG_UNIQUE_ID.getValue();
+
+            int port = Bukkit.getPort();
+            instanceExternalSocketAddress = InetSocketAddress.createUnresolved(
+                    CFG_DEBUG_IP_ADDRESS.isValueDefault()
+                            ? getComputeResponse("http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip")
+                            : CFG_DEBUG_IP_ADDRESS.getValue(),
+                    port
+            );
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Error fetching from Compute API.", e);
+            skipDisable = true;
+            pluginManager.disablePlugin(this);
+            return;
+        } catch (NumberFormatException e) {
+            getLogger().log(Level.SEVERE, "Error parsing Compute API response.", e);
+            skipDisable = true;
+            pluginManager.disablePlugin(this);
+            return;
+        }
+
+        jedisService = new JedisService(computeUniqueId, instanceExternalSocketAddress, CFG_JEDIS_HOST.getValue(), CFG_JEDIS_PORT.getValue(), CFG_JEDIS_PASS.getValue());
+        scheduler.runTaskTimer(this, jedisService::heartbeat, 20L * RedisHelper.HEARTBEAT_INTERVAL, 20L * RedisHelper.HEARTBEAT_INTERVAL);
+        scheduler.runTask(this, () -> jedisService.instanceAlive(gson)); // delay to next tick so that broadcast will be made when all plugins are enabled
 
         try {
             languageManager = new LanguageManager(BukkitUtilities.getLogger(this, LanguageManager.class, "Language"), new File(getDataFolder(), "language.yml"));
@@ -165,6 +225,19 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         languageManager.save(); // saves any new language values to file
     }
 
+    private String getComputeResponse(String url) throws IOException {
+        try {
+            URLConnection computeIdUrlConnection = new URL(url).openConnection();
+            computeIdUrlConnection.addRequestProperty("Metadata-Flavor", "Google");
+
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(computeIdUrlConnection.getInputStream()))) {
+                return reader.readLine(); // compute is single line response
+            }
+        } catch (IOException e) {
+            throw new IOException("Error retrieving response from Google Compute API.", e);
+        }
+    }
+
     private DispatcherNode registerCoreCommands() {
         commandManager = new CommandManager(this);
         commandManager.injector().install(new MinecraftlyModule(this));
@@ -178,11 +251,18 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
 
     @Override
     public void onDisable() {
+        if (jedisService != null) {
+            jedisService.destroy();
+        }
+
+        if (configManager != null) {
+            configManager.save();
+        }
+
         if (!skipDisable) {
             userManager.unloadAll();
             modules.forEach(Module::onDisable);
             languageManager.save();
-            configManager.save();
 
             if (databaseManager != null) {
                 databaseManager.disconnect();
@@ -201,6 +281,16 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     @Override
     public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
         return new DoNothingWorldGenerator();
+    }
+
+    @Override
+    public long getComputeUniqueId() {
+        return computeUniqueId;
+    }
+
+    @Override
+    public InetSocketAddress getInstanceExternalSocketAddress() {
+        return instanceExternalSocketAddress;
     }
 
     @Override

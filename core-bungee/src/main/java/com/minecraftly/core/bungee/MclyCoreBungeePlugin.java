@@ -7,9 +7,9 @@ import com.ikeirnez.pluginmessageframework.gateway.ProxySide;
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.minecraftly.core.MinecraftlyCommon;
-import com.minecraftly.core.Utilities;
 import com.minecraftly.core.bungee.handlers.MOTDHandler;
 import com.minecraftly.core.bungee.handlers.RedisMessagingHandler;
+import com.minecraftly.core.bungee.handlers.SlaveHandler;
 import com.minecraftly.core.bungee.handlers.job.JobManager;
 import com.minecraftly.core.bungee.handlers.job.handlers.ConnectHandler;
 import com.minecraftly.core.bungee.handlers.job.handlers.HumanCheckHandler;
@@ -17,6 +17,10 @@ import com.minecraftly.core.bungee.handlers.job.queue.ConnectJobQueue;
 import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
 import com.minecraftly.core.bungee.handlers.module.PlayerWorldsHandler;
 import com.minecraftly.core.bungee.handlers.module.TpaHandler;
+import com.minecraftly.core.redis.RedisHelper;
+import com.minecraftly.core.redis.message.ServerInstanceData;
+import com.minecraftly.core.redis.message.gson.GsonHelper;
+import com.minecraftly.core.utilities.Utilities;
 import lc.vq.exhaust.bungee.command.CommandManager;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -57,8 +61,9 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
     private CommandManager commandManager;
     private ProxyGateway<ProxiedPlayer, Server, ServerInfo> gateway;
     private RedisBungeeAPI redisBungeeAPI;
-    private Gson gson = new Gson();
+    private Gson gson = GsonHelper.getGsonWithAdapters();
 
+    private SlaveHandler slaveHandler;
     private final JobManager jobManager = new JobManager();
     private final HumanCheckManager humanCheckManager = new HumanCheckManager();
 
@@ -90,9 +95,15 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         }
 
         PluginManager pluginManager = getProxy().getPluginManager();
+        TaskScheduler taskScheduler = getProxy().getScheduler();
         gateway = BungeeGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
 
-        redisBungeeAPI.registerPubSubChannels(RedisMessagingHandler.MESSAGE_PLAYER_CHANNEL);
+        slaveHandler = new SlaveHandler(gson, ((RedisBungee) pluginManager.getPlugin("RedisBungee")).getPool(), getLogger());
+        pluginManager.registerListener(this, slaveHandler);
+        taskScheduler.schedule(this, slaveHandler, RedisHelper.HEARTBEAT_INTERVAL, RedisHelper.HEARTBEAT_INTERVAL, TimeUnit.SECONDS);
+        slaveHandler.initialize();
+
+        redisBungeeAPI.registerPubSubChannels(RedisMessagingHandler.MESSAGE_PLAYER_CHANNEL, ServerInstanceData.CHANNEL, RedisHelper.CHANNEL_SERVER_GOING_DOWN);
         pluginManager.registerListener(this, new RedisMessagingHandler());
 
         HumanCheckJobQueue humanCheckJobQueue = new HumanCheckJobQueue(humanCheckManager);
@@ -122,7 +133,6 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         pluginManager.registerListener(this, preSwitchHandler);
         pluginManager.registerListener(this, new MOTDHandler(jobManager, new File(getDataFolder(), "motd.json"), getLogger()));
 
-        TaskScheduler taskScheduler = getProxy().getScheduler();
         taskScheduler.schedule(this, tpaHandler, 5, TimeUnit.MINUTES);
     }
 

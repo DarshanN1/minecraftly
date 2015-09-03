@@ -79,6 +79,7 @@ subprojects {
 
     dependencies {
         testCompile group: 'junit', name: 'junit', version: '4.12'
+        compile group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
     }
 
     test {
@@ -229,6 +230,8 @@ project(':core-bukkit') {
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-packets-bungeecord', version: parent.ext.pmfVersion
         compile group: 'net.milkbowl.vault', name: 'VaultAPI', version: parent.ext.vaultVersion
         compile group: 'com.comphenix.protocol', name: 'ProtocolLib', version: parent.ext.protocolLibVersion
+        compile group: 'redis.clients', name: 'jedis', version: '2.7.2'
+        compile group: 'org.apache.commons', name: 'commons-pool2', version: '2.4.2' // required by Jedis
     }
 
     shadowJar {
@@ -237,6 +240,8 @@ project(':core-bukkit') {
             include(dependency('lc.vq:exhaust-bukkit'))
             include(dependency('com.ikeirnez.pluginmessageframework:pmf-bukkit'))
             include(dependency('com.ikeirnez.pluginmessageframework:pmf-packets-bungeecord'))
+            include(dependency('redis.clients:jedis'))
+            include(dependency('org.apache.commons:commons-pool2'))
         }
     }
 

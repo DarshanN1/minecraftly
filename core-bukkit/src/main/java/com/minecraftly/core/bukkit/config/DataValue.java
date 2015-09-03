@@ -24,6 +24,15 @@ public class DataValue<T> {
         setValue(def);
     }
 
+    /**
+     * Gets if the value has been changed from the default value.
+     *
+     * @return is value changed
+     */
+    public boolean isValueDefault() {
+        return getValue().equals(getDefaultValue());
+    }
+
     public T getDefaultValue() {
         return def;
     }

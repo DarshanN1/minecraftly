@@ -2,7 +2,7 @@ package com.minecraftly.core.bukkit.modules.playerworlds.data.world;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.minecraftly.core.Utilities;
+import com.minecraftly.core.utilities.Utilities;
 import com.minecraftly.core.bukkit.database.DatabaseManager;
 import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
 import com.minecraftly.core.bukkit.modules.playerworlds.WorldDimension;

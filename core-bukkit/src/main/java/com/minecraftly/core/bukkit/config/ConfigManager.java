@@ -61,7 +61,16 @@ public class ConfigManager {
         } else {
             Object obj = configWrapper.getConfig().get(key);
             if (obj != null) {
-                value.setValue(value.getTypeClass().cast(obj));
+                Class typeClass = value.getTypeClass();
+                Object castedValue;
+
+                if (typeClass == Long.class && obj instanceof Integer) { // hack
+                    castedValue = (long) (int) obj;
+                } else {
+                    castedValue = typeClass.cast(obj);
+                }
+
+                value.setValue(castedValue);
             }
 
             values.put(key, value);

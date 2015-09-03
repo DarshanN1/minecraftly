@@ -1,4 +1,4 @@
-package com.minecraftly.core;
+package com.minecraftly.core.utilities;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -6,6 +6,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -73,6 +75,12 @@ public class Utilities {
         }
 
         return true;
+    }
+
+    public static void removeFinal(Field field) throws NoSuchFieldException, IllegalAccessException {
+        Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
     }
 
 }

@@ -1,6 +1,6 @@
 package com.minecraftly.core.bukkit.modules.playerworlds.command;
 
-import com.minecraftly.core.Utilities;
+import com.minecraftly.core.utilities.Utilities;
 import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;

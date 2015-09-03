@@ -1,6 +1,6 @@
 package com.minecraftly.core.bukkit.modules.chest.data;
 
-import com.minecraftly.core.Utilities;
+import com.minecraftly.core.utilities.Utilities;
 import com.minecraftly.core.bukkit.database.DatabaseManager;
 import com.minecraftly.core.bukkit.database.YamlConfigurationResultHandler;
 import com.minecraftly.core.bukkit.user.User;

@@ -11,12 +11,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
+import java.net.InetSocketAddress;
 import java.util.function.Supplier;
 
 /**
  * Created by Keir on 20/03/2015.
  */
 public interface MinecraftlyCore extends Plugin {
+
+    long getComputeUniqueId();
+
+    InetSocketAddress getInstanceExternalSocketAddress();
 
     ConfigManager getConfigManager();
 

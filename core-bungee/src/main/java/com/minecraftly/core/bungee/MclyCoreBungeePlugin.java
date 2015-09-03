@@ -17,6 +17,7 @@ import com.minecraftly.core.bungee.handlers.job.queue.ConnectJobQueue;
 import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
 import com.minecraftly.core.bungee.handlers.module.PlayerWorldsHandler;
 import com.minecraftly.core.bungee.handlers.module.TpaHandler;
+import com.minecraftly.core.bungee.utilities.BungeeUtilities;
 import com.minecraftly.core.redis.RedisHelper;
 import com.minecraftly.core.redis.message.ServerInstanceData;
 import com.minecraftly.core.redis.message.gson.GsonHelper;
@@ -26,7 +27,6 @@ import lc.vq.exhaust.bungee.command.CommandManager;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
@@ -40,7 +40,8 @@ import net.md_5.bungee.config.YamlConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
+import java.net.InetSocketAddress;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -106,8 +107,11 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
             return;
         }
 
+        Map<String, ServerInfo> servers = getProxy().getServers();
+        servers.put(computeUniqueId, getProxy().constructServerInfo(computeUniqueId, new InetSocketAddress("localhost", 1), null, false)); // put a placeholder in for now
+
         try {
-            forceSetDefaultServer(String.valueOf(computeUniqueId));
+            BungeeUtilities.setListenerInfoField("defaultServer", computeUniqueId);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             getLogger().log(Level.SEVERE, "Error whilst applying reflection for default server.", e);
             return;
@@ -189,15 +193,6 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
             configurationProvider.save(configuration, configurationFile);
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "Error saving configuration.", e);
-        }
-    }
-
-    private void forceSetDefaultServer(String server) throws NoSuchFieldException, IllegalAccessException {
-        for (ListenerInfo listenerInfo : getProxy().getConfig().getListeners()) {
-            Field defaultServerField = ListenerInfo.class.getDeclaredField("defaultServer");
-            defaultServerField.setAccessible(true);
-            Utilities.removeFinal(defaultServerField);
-            defaultServerField.set(listenerInfo, server);
         }
     }
 

@@ -6,19 +6,16 @@ import com.imaginarycode.minecraft.redisbungee.internal.jedis.Jedis;
 import com.imaginarycode.minecraft.redisbungee.internal.jedis.JedisPool;
 import com.minecraftly.core.redis.RedisHelper;
 import com.minecraftly.core.redis.message.ServerInstanceData;
-import com.minecraftly.core.utilities.Utilities;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
-import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -30,8 +27,6 @@ public class SlaveHandler implements Listener, Runnable {
     private JedisPool jedisPool;
     private Logger logger;
     private String mainServerId;
-
-    private boolean firstServer = true;
 
     public SlaveHandler(Gson gson, JedisPool jedisPool, Logger logger, String mainServerName) {
         this.gson = gson;
@@ -81,20 +76,6 @@ public class SlaveHandler implements Listener, Runnable {
 
                 if (motd != null && !motd.isEmpty()) {
                     break;
-                }
-            }
-        } else if (firstServer) { // bungee doesn't like to startup with no servers, crappy workaround
-            firstServer = false;
-            servers.remove("dummy-server");
-
-            for (ListenerInfo listenerInfo : proxyServer.getConfig().getListeners()) {
-                try { // hacky reflection -_-
-                    Field fallbackServerField = ListenerInfo.class.getDeclaredField("fallbackServer");
-                    fallbackServerField.setAccessible(true);
-                    Utilities.removeFinal(fallbackServerField);
-                    fallbackServerField.set(listenerInfo, id);
-                } catch (NoSuchFieldException | IllegalAccessException e) {
-                    logger.log(Level.SEVERE, "Exception whilst applying reflection for fallback server.", e);
                 }
             }
         }

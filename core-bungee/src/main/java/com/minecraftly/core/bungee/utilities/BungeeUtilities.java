@@ -1,9 +1,12 @@
 package com.minecraftly.core.bungee.utilities;
 
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
+import com.minecraftly.core.utilities.Utilities;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
 
 /**
@@ -54,6 +57,15 @@ public class BungeeUtilities {
     public static ProxiedPlayer easyMatchPlayer(String name) {
         Collection<ProxiedPlayer> results = ProxyServer.getInstance().matchPlayer(name);
         return results.size() > 0 ? results.iterator().next() : null;
+    }
+
+    public static void setListenerInfoField(String fieldName, Object value) throws NoSuchFieldException, IllegalAccessException {
+        for (ListenerInfo listenerInfo : ProxyServer.getInstance().getConfig().getListeners()) {
+            Field field = ListenerInfo.class.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            Utilities.removeFinal(field);
+            field.set(listenerInfo, value);
+        }
     }
 
 }

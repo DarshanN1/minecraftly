@@ -24,6 +24,7 @@ import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.bukkit.utilities.PrefixedLogger;
 import com.minecraftly.core.redis.RedisHelper;
 import com.minecraftly.core.redis.message.gson.GsonHelper;
+import com.minecraftly.core.utilities.GComputeUtilities;
 import com.minecraftly.core.utilities.Utilities;
 import com.sk89q.intake.fluent.DispatcherNode;
 import lc.vq.exhaust.bukkit.command.CommandManager;
@@ -39,13 +40,9 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -164,13 +161,13 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
 
         try {
             computeUniqueId = CFG_DEBUG_UNIQUE_ID.isValueDefault()
-                    ? Long.parseLong(getComputeResponse("http://metadata.google.internal/computeMetadata/v1/instance/id"))
+                    ? GComputeUtilities.queryUniqueId()
                     : CFG_DEBUG_UNIQUE_ID.getValue();
 
             int port = Bukkit.getPort();
             instanceExternalSocketAddress = InetSocketAddress.createUnresolved(
                     CFG_DEBUG_IP_ADDRESS.isValueDefault()
-                            ? getComputeResponse("http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip")
+                            ? GComputeUtilities.queryIpAddress()
                             : CFG_DEBUG_IP_ADDRESS.getValue(),
                     port
             );
@@ -223,19 +220,6 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         commandManager.build();
 
         languageManager.save(); // saves any new language values to file
-    }
-
-    private String getComputeResponse(String url) throws IOException {
-        try {
-            URLConnection computeIdUrlConnection = new URL(url).openConnection();
-            computeIdUrlConnection.addRequestProperty("Metadata-Flavor", "Google");
-
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(computeIdUrlConnection.getInputStream()))) {
-                return reader.readLine(); // compute is single line response
-            }
-        } catch (IOException e) {
-            throw new IOException("Error retrieving response from Google Compute API.", e);
-        }
     }
 
     private DispatcherNode registerCoreCommands() {

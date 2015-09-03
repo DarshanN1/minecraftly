@@ -20,11 +20,13 @@ import com.minecraftly.core.bungee.handlers.module.TpaHandler;
 import com.minecraftly.core.redis.RedisHelper;
 import com.minecraftly.core.redis.message.ServerInstanceData;
 import com.minecraftly.core.redis.message.gson.GsonHelper;
+import com.minecraftly.core.utilities.GComputeUtilities;
 import com.minecraftly.core.utilities.Utilities;
 import lc.vq.exhaust.bungee.command.CommandManager;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
@@ -38,6 +40,7 @@ import net.md_5.bungee.config.YamlConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -54,6 +57,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
     public static final BaseComponent[] MESSAGE_NOT_HUMAN = new ComponentBuilder("You must first confirm you are human.").color(ChatColor.RED).create();
 
+    private long computeUniqueId;
     private File configurationFile;
     private ConfigurationProvider configurationProvider;
     private Configuration configuration;
@@ -94,11 +98,26 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
             return;
         }
 
+        try {
+            long configUniqueId = configuration.getLong("debug.uniqueId");
+            computeUniqueId = configUniqueId == -1 ? GComputeUtilities.queryUniqueId() : configUniqueId;
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Error querying Compute API.", e);
+            return;
+        }
+
+        try {
+            forceSetDefaultServer(String.valueOf(computeUniqueId));
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            getLogger().log(Level.SEVERE, "Error whilst applying reflection for default server.", e);
+            return;
+        }
+
         PluginManager pluginManager = getProxy().getPluginManager();
         TaskScheduler taskScheduler = getProxy().getScheduler();
         gateway = BungeeGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
 
-        slaveHandler = new SlaveHandler(gson, ((RedisBungee) pluginManager.getPlugin("RedisBungee")).getPool(), getLogger());
+        slaveHandler = new SlaveHandler(gson, ((RedisBungee) pluginManager.getPlugin("RedisBungee")).getPool(), getLogger(), String.valueOf(computeUniqueId));
         pluginManager.registerListener(this, slaveHandler);
         taskScheduler.schedule(this, slaveHandler, RedisHelper.HEARTBEAT_INTERVAL, RedisHelper.HEARTBEAT_INTERVAL, TimeUnit.SECONDS);
         slaveHandler.initialize();
@@ -147,7 +166,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         try (InputStream inputStream = getResourceAsStream("config.yml")) {
             defaultConfiguration = configurationProvider.load(inputStream);
         } catch (IOException e) {
-            getLogger().log(Level.WARNING, "Error copy defaults to config.", e);
+            getLogger().log(Level.WARNING, "Error copying defaults to config.", e);
             return;
         }
 
@@ -171,6 +190,20 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "Error saving configuration.", e);
         }
+    }
+
+    private void forceSetDefaultServer(String server) throws NoSuchFieldException, IllegalAccessException {
+        for (ListenerInfo listenerInfo : getProxy().getConfig().getListeners()) {
+            Field defaultServerField = ListenerInfo.class.getDeclaredField("defaultServer");
+            defaultServerField.setAccessible(true);
+            Utilities.removeFinal(defaultServerField);
+            defaultServerField.set(listenerInfo, server);
+        }
+    }
+
+    @Override
+    public long getComputeUniqueId() {
+        return computeUniqueId;
     }
 
     @Override

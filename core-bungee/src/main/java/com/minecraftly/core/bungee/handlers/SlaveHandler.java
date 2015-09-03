@@ -29,11 +29,15 @@ public class SlaveHandler implements Listener, Runnable {
     private Gson gson;
     private JedisPool jedisPool;
     private Logger logger;
+    private String mainServerId;
 
-    public SlaveHandler(Gson gson, JedisPool jedisPool, Logger logger) {
+    private boolean firstServer = true;
+
+    public SlaveHandler(Gson gson, JedisPool jedisPool, Logger logger, String mainServerName) {
         this.gson = gson;
         this.jedisPool = jedisPool;
         this.logger = logger;
+        this.mainServerId = mainServerName;
     }
 
     public void initialize() {
@@ -64,22 +68,18 @@ public class SlaveHandler implements Listener, Runnable {
         ProxyServer proxyServer = ProxyServer.getInstance();
         Map<String, ServerInfo> servers = proxyServer.getServers();
 
-        if (servers.size() == 1 && servers.containsKey("dummy-server")) { // bungee doesn't like to startup with no servers, crappy workaround
+        if (firstServer && !id.equals(mainServerId)) { // bungee doesn't like to startup with no servers, crappy workaround
+            firstServer = false;
             servers.remove("dummy-server");
 
             for (ListenerInfo listenerInfo : proxyServer.getConfig().getListeners()) {
                 try { // hacky reflection -_-
-                    Field defaultServerField = ListenerInfo.class.getDeclaredField("defaultServer");
-                    defaultServerField.setAccessible(true);
-                    Utilities.removeFinal(defaultServerField);
-                    defaultServerField.set(listenerInfo, id);
-
                     Field fallbackServerField = ListenerInfo.class.getDeclaredField("fallbackServer");
                     fallbackServerField.setAccessible(true);
                     Utilities.removeFinal(fallbackServerField);
                     fallbackServerField.set(listenerInfo, id);
                 } catch (NoSuchFieldException | IllegalAccessException e) {
-                    logger.log(Level.SEVERE, "Exception whilst applying reflection for default and fallback server.", e);
+                    logger.log(Level.SEVERE, "Exception whilst applying reflection for fallback server.", e);
                 }
             }
         }

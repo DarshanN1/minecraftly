@@ -128,11 +128,12 @@ public class SlaveHandler implements Listener, Runnable {
             Map<String, String> heartbeats = jedis.hgetAll("mcly:heartbeats");
 
             for (Map.Entry<String, String> entry : heartbeats.entrySet()) {
-                long id = Long.parseLong(entry.getKey());
+                String id = entry.getKey();
                 long lastHeartbeat = Long.parseLong(entry.getValue());
                 long lastHeartbeatDifference = System.currentTimeMillis() - lastHeartbeat;
 
                 if (lastHeartbeatDifference > TimeUnit.SECONDS.toMillis(RedisHelper.HEARTBEAT_INTERVAL + 5)) { // +5 = tolerance
+                    // todo remove?
                     logger.warning("Server instance '" + id + "' seems to have gone down (or system clock incorrect). Not seen for " + TimeUnit.MILLISECONDS.toSeconds(lastHeartbeatDifference));
                 }
             }

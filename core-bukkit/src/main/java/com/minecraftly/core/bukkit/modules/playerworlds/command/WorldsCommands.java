@@ -167,7 +167,7 @@ public class WorldsCommands implements Listener {
         UUID worldOwnerUUID = module.getWorldOwner(WorldDimension.getBaseWorld(player.getWorld()));
 
         if (worldOwnerUUID != null) {
-            WorldUserData worldUserData = userManager.getUser(worldOwnerUUID).getSingletonUserData(WorldUserDataContainer.class).get(player.getUniqueId());
+            WorldUserData worldUserData = userManager.getUser(worldOwnerUUID).getSingletonUserData(WorldUserDataContainer.class).getOrLoad(player.getUniqueId());
 
             if (worldUserData.isMuted()) {
                 languageMutedAttemptChat.send(player);

@@ -102,6 +102,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         try {
             String configUniqueId = configuration.getString("debug.uniqueId");
             computeUniqueId = configUniqueId.equals("-1") ? GComputeUtilities.queryUniqueId() : configUniqueId;
+            getLogger().info("Instance ID - " + computeUniqueId);
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "Error querying Compute API.", e);
             return;

@@ -171,6 +171,9 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
                             : CFG_DEBUG_IP_ADDRESS.getValue(),
                     port
             );
+
+            getLogger().info("Instance ID - " + computeUniqueId);
+            getLogger().info("Instance Address - " + instanceExternalSocketAddress.toString());
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "Error fetching from Compute API.", e);
             skipDisable = true;

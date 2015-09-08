@@ -24,7 +24,7 @@ import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.bukkit.utilities.PrefixedLogger;
 import com.minecraftly.core.redis.RedisHelper;
 import com.minecraftly.core.redis.message.gson.GsonHelper;
-import com.minecraftly.core.utilities.GComputeUtilities;
+import com.minecraftly.core.utilities.ComputeEngineAPI;
 import com.minecraftly.core.utilities.Utilities;
 import com.sk89q.intake.fluent.DispatcherNode;
 import lc.vq.exhaust.bukkit.command.CommandManager;
@@ -161,13 +161,13 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
 
         try {
             computeUniqueId = CFG_DEBUG_UNIQUE_ID.isValueDefault()
-                    ? GComputeUtilities.queryUniqueId()
+                    ? ComputeEngineAPI.queryUniqueId()
                     : CFG_DEBUG_UNIQUE_ID.getValue();
 
             int port = Bukkit.getPort();
             instanceExternalSocketAddress = InetSocketAddress.createUnresolved(
                     CFG_DEBUG_IP_ADDRESS.isValueDefault()
-                            ? GComputeUtilities.queryIpAddress()
+                            ? ComputeEngineAPI.queryIpAddress()
                             : CFG_DEBUG_IP_ADDRESS.getValue(),
                     port
             );

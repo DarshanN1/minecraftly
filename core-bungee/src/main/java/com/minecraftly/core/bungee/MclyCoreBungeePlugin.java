@@ -21,7 +21,7 @@ import com.minecraftly.core.bungee.utilities.BungeeUtilities;
 import com.minecraftly.core.redis.RedisHelper;
 import com.minecraftly.core.redis.message.ServerInstanceData;
 import com.minecraftly.core.redis.message.gson.GsonHelper;
-import com.minecraftly.core.utilities.GComputeUtilities;
+import com.minecraftly.core.utilities.ComputeEngineAPI;
 import com.minecraftly.core.utilities.Utilities;
 import lc.vq.exhaust.bungee.command.CommandManager;
 import net.md_5.bungee.api.ChatColor;
@@ -101,7 +101,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
         try {
             String configUniqueId = configuration.getString("debug.uniqueId");
-            computeUniqueId = configUniqueId.equals("-1") ? GComputeUtilities.queryUniqueId() : configUniqueId;
+            computeUniqueId = configUniqueId.equals("-1") ? ComputeEngineAPI.queryUniqueId() : configUniqueId;
             getLogger().info("Instance ID - " + computeUniqueId);
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "Error querying Compute API.", e);

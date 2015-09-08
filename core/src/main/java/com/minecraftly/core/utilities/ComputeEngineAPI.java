@@ -7,11 +7,11 @@ import java.net.URL;
 import java.net.URLConnection;
 
 /**
- * These methods will only work in Google Compute environments, running these elsewhere will result in failure.
+ * These methods will only work in Google Compute Engine environments, running these elsewhere will result in failure.
  */
-public class GComputeUtilities {
+public class ComputeEngineAPI {
 
-    private GComputeUtilities() {}
+    private ComputeEngineAPI() {}
 
     /**
      * Gets this instance's unique id.

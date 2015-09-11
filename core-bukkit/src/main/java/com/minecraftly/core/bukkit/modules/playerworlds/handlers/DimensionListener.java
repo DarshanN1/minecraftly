@@ -49,24 +49,28 @@ public class DimensionListener implements Listener {
 
             World.Environment environment = from.getWorld().getEnvironment();
             PlayerTeleportEvent.TeleportCause teleportCause = e.getCause();
-            Location newLocation = player.getLocation().clone();
+            final Location newLocation = player.getLocation().clone();
 
             if (environment == World.Environment.NORMAL) {
                 travelAgent.setSearchRadius(5);
 
                 if (teleportCause == PlayerTeleportEvent.TeleportCause.NETHER_PORTAL) {
                     if (permission.playerHas(null, offlineOwner, PERMISSION_NETHER.getName())) {
-                        newLocation.setWorld(WorldDimension.NETHER.convertTo(fromWorld, true));
-                        newLocation.multiply(1D / 8D);
-                        player.teleport(travelAgent.findOrCreate(newLocation), PlayerTeleportEvent.TeleportCause.NETHER_PORTAL);
+                        WorldDimension.NETHER.convertToLoad(fromWorld, world -> {
+                            newLocation.setWorld(world);
+                            newLocation.multiply(1D / 8D);
+                            player.teleport(travelAgent.findOrCreate(newLocation), PlayerTeleportEvent.TeleportCause.NETHER_PORTAL);
+                        });
                     } else {
                         languageNoPermission.send(player, WorldDimension.NETHER.getNiceName());
                     }
                 } else if (teleportCause == PlayerTeleportEvent.TeleportCause.END_PORTAL) {
                     if (permission.playerHas(null, offlineOwner, PERMISSION_THE_END.getName())) {
-                        newLocation.setWorld(WorldDimension.THE_END.convertTo(fromWorld, true));
-                        newLocation.multiply(8D);
-                        player.teleport(travelAgent.findOrCreate(newLocation), PlayerTeleportEvent.TeleportCause.END_PORTAL);
+                        WorldDimension.THE_END.convertToLoad(fromWorld, world -> {
+                            newLocation.setWorld(world);
+                            newLocation.multiply(8D);
+                            player.teleport(travelAgent.findOrCreate(newLocation), PlayerTeleportEvent.TeleportCause.END_PORTAL);
+                        });
                     } else {
                         languageNoPermission.send(player, WorldDimension.THE_END.getNiceName());
                     }
@@ -77,8 +81,8 @@ public class DimensionListener implements Listener {
                 travelAgent.setSearchRadius(5);
                 player.teleport(travelAgent.findOrCreate(newLocation), PlayerTeleportEvent.TeleportCause.NETHER_PORTAL);
             } else if (environment == World.Environment.THE_END && teleportCause == PlayerTeleportEvent.TeleportCause.END_PORTAL) {
-                newLocation = WorldDimension.getBaseWorld(fromWorld).getSpawnLocation();
-                player.teleport(newLocation, PlayerTeleportEvent.TeleportCause.END_PORTAL);
+                Location spawnLocation = WorldDimension.getBaseWorld(fromWorld).getSpawnLocation(); // couldn't use newLocation var, it's final
+                player.teleport(spawnLocation, PlayerTeleportEvent.TeleportCause.END_PORTAL);
             }
         }
     }

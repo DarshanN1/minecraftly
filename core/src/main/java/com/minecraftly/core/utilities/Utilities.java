@@ -83,4 +83,28 @@ public class Utilities {
         modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
     }
 
+    /**
+     * Performs an rsync function (only works on systems with rsync installed).
+     * This method is blocking.
+     *
+     * @param source source path
+     * @param destination destination path
+     * @return boolean value containing whether or not the source file existed
+     * @throws IOException thrown if there is an io exception whilst executing the rsync command
+     * @throws InterruptedException thrown if the thread is interrupted whilst waiting for the rsync command to finish
+     */
+    public static boolean googleCloudRSync(String source, String destination) throws IOException, InterruptedException {
+        ProcessBuilder processBuilder = new ProcessBuilder("gsutil", "-m", "rsync", "-r", "-d", source, destination);
+        Process process = processBuilder.start();
+        int returnCode = process.waitFor();
+
+        if (returnCode == 3) {
+            return false;
+        } else if (returnCode != 0) {
+            throw new RuntimeException("Exception during RSync; command = \"" + String.join(" ", processBuilder.command()) + "\"; code = " + returnCode);
+        } else {
+            return true;
+        }
+    }
+
 }

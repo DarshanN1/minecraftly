@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Helper class for converting to and from different dimensions (worlds).
@@ -61,19 +62,22 @@ public enum WorldDimension {
     }
 
     public World convertTo(World world) {
-        return convertTo(world, false);
+        checkNotNull(world);
+        return Bukkit.getWorld(convertTo(world.getName()));
     }
 
-    public World convertTo(World world, boolean load) {
+    public void convertToLoad(World world, Consumer<World> consumer) {
         checkNotNull(world);
-        String newWorldName = convertTo(world.getName());
-        World newWorld = Bukkit.getWorld(newWorldName);
+        checkNotNull(consumer);
 
-        if (newWorld == null && load) {
-            newWorld = ModulePlayerWorlds.getInstance().getOrLoadWorld(newWorldName, getEnvironment()); // todo static
+        World loadedWorld = convertTo(world);
+
+        if (loadedWorld != null) {
+            consumer.accept(loadedWorld);
+        } else {
+            String newWorldName = convertTo(world.getName());
+            ModulePlayerWorlds.getInstance().loadWorld(newWorldName, getEnvironment(), consumer);
         }
-
-        return newWorld;
     }
 
     public static WorldDimension fromEnvironment(World.Environment environment) {

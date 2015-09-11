@@ -18,6 +18,7 @@ import com.minecraftly.core.bukkit.modules.playerworlds.task.JoinCountdownTask;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.packets.playerworlds.PacketNoLongerHostingWorld;
+import com.minecraftly.core.utilities.Utilities;
 import com.sk89q.intake.fluent.DispatcherNode;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -31,11 +32,15 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
+import org.bukkit.scheduler.BukkitScheduler;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.logging.Level;
 
 public class ModulePlayerWorlds extends Module implements Listener {
 
@@ -52,7 +57,8 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
     private final LanguageValue langLoadingOwner = new LanguageValue("&bOne moment whilst we load your world.");
     private final LanguageValue langLoadingGuest = new LanguageValue("&bOne moment whilst we load that world.");
-    private final LanguageValue langLoadFailed = new LanguageValue("&cWe were unable to load that world, please contact a member of staff.");
+    public final LanguageValue langLoadStillLoading = new LanguageValue("&bThis is taking longer than expected...");
+    public final LanguageValue langLoadFailed = new LanguageValue("&cWe were unable to load that world, please contact a member of staff.");
     private final LanguageValue langLoaded = new LanguageValue("&bWorld has been loaded, please wait...");
     private final LanguageValue langTeleportCountdown = new LanguageValue("&bTeleporting in &6%s &bseconds.");
 
@@ -95,6 +101,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
         languageManager.registerAll(new HashMap<String, LanguageValue>(){{
             put(getLanguageSection() + ".loading.owner", langLoadingOwner);
             put(getLanguageSection() + ".loading.guest", langLoadingGuest);
+            put(getLanguageSection() + ".loading.stillLoading", langLoadStillLoading);
             put(getLanguageSection() + ".error.loadFailed", langLoadFailed);
             put(getLanguageSection() + ".loaded.message", langLoaded);
             put(getLanguageSection() + ".loaded.teleportCountdown", langTeleportCountdown);
@@ -182,39 +189,34 @@ public class ModulePlayerWorlds extends Module implements Listener {
         World world = playerWorlds.get(uuid);
 
         if (world == null) {
-            world = getOrLoadWorld(uuid.toString(), World.Environment.NORMAL);
+            throw new IllegalStateException("Player world is not loaded.");
         }
 
         return world;
     }
 
-    public void delayedJoinWorld(Player player, OfflinePlayer offlinePlayer) {
-        delayedJoinWorld(player, offlinePlayer.getUniqueId());
+    public void delayedJoinWorld(Player player) {
+        delayedJoinWorld(player, player.getUniqueId());
     }
 
     public void delayedJoinWorld(Player player, UUID worldUUID) {
+        Preconditions.checkNotNull(player);
+        Preconditions.checkNotNull(worldUUID);
+
+        UUID playerUUID = player.getUniqueId();
+
         if (!isWorldLoaded(worldUUID)) {
-            if (player.getUniqueId().equals(worldUUID)) {
+            if (playerUUID.equals(worldUUID)) {
                 langLoadingOwner.send(player);
             } else {
                 langLoadingGuest.send(player);
             }
         }
 
-        delayedJoinWorld(player, getPlayerWorld(worldUUID));
-    }
-
-    public void delayedJoinWorld(Player player, World world) {
-        Preconditions.checkNotNull(player);
-        UUID playerUUID = player.getUniqueId();
-
-        if (world == null) {
-            langLoadFailed.send(player);
-            return;
-        }
-
         langLoaded.send(player);
-        new JoinCountdownTask(this, langTeleportCountdown, getPlugin().getUserManager().getUser(player), world).runTaskTimer(getPlugin(), 20L, 20L);
+        JoinCountdownTask joinCountdownTask = new JoinCountdownTask(this, langTeleportCountdown, getPlugin().getUserManager().getUser(player));
+        loadWorld(worldUUID.toString(), World.Environment.NORMAL, joinCountdownTask);
+        joinCountdownTask.runTaskTimer(getPlugin(), 20L, 20L);
     }
 
     public void spawnInWorld(Player player, World world) {
@@ -239,21 +241,46 @@ public class ModulePlayerWorlds extends Module implements Listener {
         });
     }
 
-    public World getOrLoadWorld(String worldName, World.Environment environment) {
-        World world = Bukkit.getWorld(worldName);
+    public World getWorld(String worldName) {
+        return Bukkit.getWorld(worldName);
+    }
 
-        if (world == null) {
-            File worldDirectory = new File(Bukkit.getWorldContainer(), worldName);
+    public void loadWorld(String worldName, World.Environment environment, Consumer<World> consumer) {
+        BukkitScheduler scheduler = Bukkit.getScheduler();
+        World existingWorld = getWorld(worldName);
 
-            if (worldDirectory.exists() && !worldDirectory.isDirectory()) {
-                throw new IllegalArgumentException(worldDirectory.getPath() + " exists, but is not a directory.");
-            }
+        if (existingWorld == null) {
+            scheduler.runTaskAsynchronously(getPlugin(), () -> {
+                File worldDirectory = new File(Bukkit.getWorldContainer(), worldName);
 
-            world = new WorldCreator(worldName).environment(environment).createWorld();
-            initializeWorld(world);
+                try {
+                    Utilities.googleCloudRSync("gs://worlds/" + worldName, worldDirectory.getPath());
+                } catch (IOException | InterruptedException e) {
+                    getLogger().log(Level.SEVERE, "Error retrieving existingWorld from cloud storage.", e);
+
+                    if (consumer != null) {
+                        scheduler.runTask(getPlugin(), () -> consumer.accept(null));
+                    }
+
+                    return;
+                }
+
+                if (worldDirectory.exists() && !worldDirectory.isDirectory()) {
+                    throw new IllegalArgumentException(worldDirectory.getPath() + " exists, but is not a directory.");
+                }
+
+                scheduler.runTask(getPlugin(), () -> {
+                    World world = new WorldCreator(worldName).environment(environment).createWorld();
+                    initializeWorld(world);
+
+                    if (consumer != null) {
+                        consumer.accept(world);
+                    }
+                });
+            });
+        } else if (consumer != null) {
+            scheduler.runTask(getPlugin(), () -> consumer.accept(existingWorld));
         }
-
-        return world;
     }
 
     public void initializeWorld(World world) {

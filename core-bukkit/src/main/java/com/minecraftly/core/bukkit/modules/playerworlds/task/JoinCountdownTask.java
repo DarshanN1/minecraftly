@@ -8,23 +8,24 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.function.Consumer;
+
 /**
  * Created by Keir on 18/08/2015.
  */
-public class JoinCountdownTask extends BukkitRunnable {
+public class JoinCountdownTask extends BukkitRunnable implements Consumer<World> {
 
     private ModulePlayerWorlds modulePlayerWorlds;
     private LanguageValue langTeleportCountdown;
     private User user;
-    private World world;
+    private World world = null;
 
     private int countdown = 5;
 
-    public JoinCountdownTask(ModulePlayerWorlds modulePlayerWorlds, LanguageValue langTeleportCountdown, User user, World world) {
+    public JoinCountdownTask(ModulePlayerWorlds modulePlayerWorlds, LanguageValue langTeleportCountdown, User user) {
         this.modulePlayerWorlds = modulePlayerWorlds;
         this.langTeleportCountdown = langTeleportCountdown;
         this.user = user;
-        this.world = world;
 
         checkForExistingTasks();
         user.attachUserData(new JoinCountdownData(user, this));
@@ -41,7 +42,12 @@ public class JoinCountdownTask extends BukkitRunnable {
         langTeleportCountdown.send(player, countdown--);
 
         if (countdown <= 0) {
-            modulePlayerWorlds.spawnInWorld(player, world);
+            if (world != null) {
+                modulePlayerWorlds.spawnInWorld(player, world);
+            } else {
+                modulePlayerWorlds.langLoadStillLoading.send(player);
+            }
+
             cancel();
         }
     }
@@ -50,6 +56,24 @@ public class JoinCountdownTask extends BukkitRunnable {
     public synchronized void cancel() throws IllegalStateException {
         checkForExistingTasks();
         super.cancel();
+    }
+
+    @Override
+    public void accept(World world) {
+        this.world = world;
+
+        Player player = user.getPlayer();
+
+        if (player != null) {
+            if (world == null) {
+                modulePlayerWorlds.langLoadFailed.send(player);
+                cancel();
+            }
+
+            if (countdown <= 0) {
+                modulePlayerWorlds.spawnInWorld(player, world);
+            }
+        }
     }
 
     private void checkForExistingTasks() {
@@ -65,4 +89,5 @@ public class JoinCountdownTask extends BukkitRunnable {
             user.detachUserData(joinCountdownData);
         }
     }
+
 }

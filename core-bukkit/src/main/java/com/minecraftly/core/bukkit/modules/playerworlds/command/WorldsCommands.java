@@ -138,7 +138,7 @@ public class WorldsCommands implements Listener {
 
             if (!error) {
                 module.getPlugin().getUserManager().getUser(player).getSingletonUserData(WorldUserDataContainer.class).getOrLoad(player.getUniqueId()).reset();
-                module.delayedJoinWorld(player, player);
+                module.delayedJoinWorld(player);
             } else {
                 languageError.send(player);
             }

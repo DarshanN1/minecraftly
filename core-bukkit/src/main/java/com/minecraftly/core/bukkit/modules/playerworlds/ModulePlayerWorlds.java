@@ -18,7 +18,7 @@ import com.minecraftly.core.bukkit.modules.playerworlds.task.JoinCountdownTask;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.packets.playerworlds.PacketNoLongerHostingWorld;
-import com.minecraftly.core.utilities.Utilities;
+import com.minecraftly.core.utilities.ComputeEngineAPI;
 import com.sk89q.intake.fluent.DispatcherNode;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -165,6 +165,12 @@ public class ModulePlayerWorlds extends Module implements Listener {
         UUID ownerUUID = getWorldOwner(world);
 
         if (ownerUUID != null) {
+            try {
+                ComputeEngineAPI.rsync(e.getWorld().getWorldFolder().getCanonicalPath(), "gs://worlds/" + ownerUUID);
+            } catch (IOException | InterruptedException e1) {
+                getLogger().log(Level.SEVERE, "Error whilst rsync'ing world to GCS.", e1);
+            }
+
             playerWorlds.remove(ownerUUID);
             gateway.sendPacket(new PacketNoLongerHostingWorld(ownerUUID), false); // notify proxy if possible
             getLogger().info("Unloaded world for player: " + ownerUUID + ".");
@@ -254,9 +260,11 @@ public class ModulePlayerWorlds extends Module implements Listener {
                 File worldDirectory = new File(Bukkit.getWorldContainer(), worldName);
 
                 try {
-                    Utilities.googleCloudRSync("gs://worlds/" + worldName, worldDirectory.getPath());
+                    if (ComputeEngineAPI.worldExists(worldName)) {
+                        ComputeEngineAPI.rsync("gs://worlds/" + worldName, worldDirectory.getCanonicalPath());
+                    }
                 } catch (IOException | InterruptedException e) {
-                    getLogger().log(Level.SEVERE, "Error retrieving existingWorld from cloud storage.", e);
+                    getLogger().log(Level.SEVERE, "Error retrieving existing world from cloud storage.", e);
 
                     if (consumer != null) {
                         scheduler.runTask(getPlugin(), () -> consumer.accept(null));

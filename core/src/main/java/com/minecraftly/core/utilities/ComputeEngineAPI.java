@@ -56,4 +56,48 @@ public class ComputeEngineAPI {
         }
     }
 
+    /**
+     * Checks if a world exists in Google Cloud Storage.
+     *
+     * @param worldName the name of the world to check for existance
+     * @return true if the world exists, false otherwise
+     * @throws IOException thrown if there is an io exception whilst executing the stat command
+     * @throws InterruptedException thrown if the thread is interrupted whilst waiting for the stat command to finish
+     */
+    public static boolean worldExists(String worldName) throws IOException, InterruptedException {
+        ProcessBuilder processBuilder = new ProcessBuilder("gsutil", "stat", "gs://worlds/" + worldName + "/level.dat");
+        Process process = processBuilder.start();
+        int returnCode = process.waitFor();
+
+        if (returnCode != 0 && returnCode != 1) {
+            throw new RuntimeException("Exception during statistic; command = \"" + String.join(" ", processBuilder.command()) + "\"; code = " + returnCode);
+        }
+
+        return returnCode == 0;
+    }
+
+    /**
+     * Performs an rsync function (only works on systems with rsync installed).
+     * This method is blocking.
+     *
+     * @param source source path
+     * @param destination destination path
+     * @return boolean value containing whether or not the source file existed
+     * @throws IOException thrown if there is an io exception whilst executing the rsync command
+     * @throws InterruptedException thrown if the thread is interrupted whilst waiting for the rsync command to finish
+     */
+    public static boolean rsync(String source, String destination) throws IOException, InterruptedException {
+        ProcessBuilder processBuilder = new ProcessBuilder("gsutil", "-m", "rsync", "-r", "-d", source, destination);
+        Process process = processBuilder.start();
+        int returnCode = process.waitFor();
+
+        if (returnCode == 3) {
+            return false;
+        } else if (returnCode != 0) {
+            throw new RuntimeException("Exception during RSync; command = \"" + String.join(" ", processBuilder.command()) + "\"; code = " + returnCode);
+        } else {
+            return true;
+        }
+    }
+
 }

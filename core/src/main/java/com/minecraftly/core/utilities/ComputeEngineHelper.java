@@ -9,9 +9,9 @@ import java.net.URLConnection;
 /**
  * These methods will only work in Google Compute Engine environments, running these elsewhere will result in failure.
  */
-public class ComputeEngineAPI {
+public class ComputeEngineHelper {
 
-    private ComputeEngineAPI() {}
+    private ComputeEngineHelper() {}
 
     /**
      * Gets this instance's unique id.

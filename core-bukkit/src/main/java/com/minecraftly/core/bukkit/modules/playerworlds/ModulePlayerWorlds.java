@@ -18,8 +18,9 @@ import com.minecraftly.core.bukkit.modules.playerworlds.task.JoinCountdownTask;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.packets.playerworlds.PacketNoLongerHostingWorld;
-import com.minecraftly.core.utilities.ComputeEngineAPI;
+import com.minecraftly.core.utilities.ComputeEngineHelper;
 import com.sk89q.intake.fluent.DispatcherNode;
+import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -166,7 +167,20 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
         if (ownerUUID != null) {
             try {
-                ComputeEngineAPI.rsync(e.getWorld().getWorldFolder().getCanonicalPath(), "gs://worlds/" + ownerUUID);
+                final File worldFolder = e.getWorld().getWorldFolder();
+                boolean rsyncSuccess = ComputeEngineHelper.rsync(worldFolder.getCanonicalPath(), "gs://worlds/" + ownerUUID);
+
+                if (rsyncSuccess) {
+                    Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
+                        try {
+                            FileUtils.deleteDirectory(worldFolder);
+                        } catch (IOException e1) {
+                            getLogger().log(Level.SEVERE, "Error whilst deleting world directory: " + worldFolder.getPath() + ".", e1);
+                        }
+                    }, 20L * 30);
+                } else {
+                    getLogger().log(Level.SEVERE, "RSync for world failed, will not delete directory (" + worldFolder.getPath() + ")");
+                }
             } catch (IOException | InterruptedException e1) {
                 getLogger().log(Level.SEVERE, "Error whilst rsync'ing world to GCS.", e1);
             }
@@ -260,8 +274,12 @@ public class ModulePlayerWorlds extends Module implements Listener {
                 File worldDirectory = new File(Bukkit.getWorldContainer(), worldName);
 
                 try {
-                    if (ComputeEngineAPI.worldExists(worldName)) {
-                        ComputeEngineAPI.rsync("gs://worlds/" + worldName, worldDirectory.getCanonicalPath());
+                    if (ComputeEngineHelper.worldExists(worldName)) {
+                        if (!worldDirectory.exists() && !worldDirectory.mkdir()) {
+                            getLogger().severe("Error creating directory: " + worldDirectory.getPath() + ".");
+                        }
+
+                        ComputeEngineHelper.rsync("gs://worlds/" + worldName, worldDirectory.getCanonicalPath());
                     }
                 } catch (IOException | InterruptedException e) {
                     getLogger().log(Level.SEVERE, "Error retrieving existing world from cloud storage.", e);

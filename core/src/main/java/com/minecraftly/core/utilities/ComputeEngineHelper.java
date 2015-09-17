@@ -87,7 +87,7 @@ public class ComputeEngineHelper {
      * @throws InterruptedException thrown if the thread is interrupted whilst waiting for the rsync command to finish
      */
     public static boolean rsync(String source, String destination) throws IOException, InterruptedException {
-        ProcessBuilder processBuilder = new ProcessBuilder("gsutil", "-m", "rsync", "-r", "-d", source, destination);
+        ProcessBuilder processBuilder = new ProcessBuilder("gsutil", "-m", "rsync", "-c", "-d", "-r", source, destination);
         Process process = processBuilder.start();
         int returnCode = process.waitFor();
 

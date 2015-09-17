@@ -15,12 +15,12 @@ import com.minecraftly.core.bukkit.modules.playerworlds.handlers.DimensionListen
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.PlayerListener;
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.WorldMessagesListener;
 import com.minecraftly.core.bukkit.modules.playerworlds.task.JoinCountdownTask;
+import com.minecraftly.core.bukkit.modules.playerworlds.task.RSyncUploadWorldTask;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.packets.playerworlds.PacketNoLongerHostingWorld;
 import com.minecraftly.core.utilities.ComputeEngineHelper;
 import com.sk89q.intake.fluent.DispatcherNode;
-import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -56,6 +57,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
     private ServerGateway<Player> gateway;
 
     public final Map<UUID, World> playerWorlds = new HashMap<>();
+    private final AtomicBoolean disabling = new AtomicBoolean(false);
 
     private final LanguageValue langLoadingOwner = new LanguageValue("&bOne moment whilst we load your world.");
     private final LanguageValue langLoadingGuest = new LanguageValue("&bOne moment whilst we load that world.");
@@ -110,6 +112,14 @@ public class ModulePlayerWorlds extends Module implements Listener {
         }});
     }
 
+    private void runAsyncUnlessDisabling(Runnable runnable) {
+        if (disabling.get()) {
+            runnable.run();
+        } else {
+            Bukkit.getScheduler().runTaskAsynchronously(getPlugin(), runnable);
+        }
+    }
+
     @Override
     public void registerCommands(DispatcherNode dispatcherNode) {
         dispatcherNode.registerMethods(new OwnerCommands(this));
@@ -121,6 +131,8 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
     @Override
     public void onDisable() {
+        disabling.set(true);
+
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.kickPlayer(null);
         }
@@ -186,25 +198,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
             }
         }
 
-        final UUID finalOwnerUUID = ownerUUID;
-        Bukkit.getScheduler().runTaskAsynchronously(getPlugin(), () -> {
-            try {
-                final File worldFolder = e.getWorld().getWorldFolder();
-                boolean rsyncSuccess = ComputeEngineHelper.rsync(worldFolder.getCanonicalPath(), "gs://worlds/" + finalOwnerUUID);
-
-                if (rsyncSuccess) {
-                    try {
-                        FileUtils.deleteDirectory(worldFolder);
-                    } catch (IOException e1) {
-                        getLogger().log(Level.SEVERE, "Error whilst deleting world directory: " + worldFolder.getPath() + ".", e1);
-                    }
-                } else {
-                    getLogger().log(Level.SEVERE, "RSync for world failed, will not delete directory (" + worldFolder.getPath() + ")");
-                }
-            } catch (IOException | InterruptedException e1) {
-                getLogger().log(Level.SEVERE, "Error whilst rsync'ing world to GCS.", e1);
-            }
-        });
+        runAsyncUnlessDisabling(new RSyncUploadWorldTask(world, ownerUUID, getLogger()));
     }
 
     public UUID getWorldOwner(World world) {

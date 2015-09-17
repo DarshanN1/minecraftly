@@ -32,6 +32,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.WorldLoadEvent;
+import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.scheduler.BukkitScheduler;
 
@@ -166,29 +167,44 @@ public class ModulePlayerWorlds extends Module implements Listener {
         UUID ownerUUID = getWorldOwner(world);
 
         if (ownerUUID != null) {
+            playerWorlds.remove(ownerUUID);
+            gateway.sendPacket(new PacketNoLongerHostingWorld(ownerUUID), false); // notify proxy if possible
+            getLogger().info("Unloaded world for player: " + ownerUUID + ".");
+        }
+    }
+
+    @EventHandler
+    public void onWorldSave(WorldSaveEvent e) {
+        World world = e.getWorld();
+        UUID ownerUUID = getWorldOwner(world);
+
+        if (ownerUUID == null) {
+            try {
+                ownerUUID = UUID.fromString(world.getName()); // manually parse since cached value may have been removed
+            } catch (IllegalArgumentException ignored) {
+                return;
+            }
+        }
+
+        final UUID finalOwnerUUID = ownerUUID;
+        Bukkit.getScheduler().runTaskAsynchronously(getPlugin(), () -> {
             try {
                 final File worldFolder = e.getWorld().getWorldFolder();
-                boolean rsyncSuccess = ComputeEngineHelper.rsync(worldFolder.getCanonicalPath(), "gs://worlds/" + ownerUUID);
+                boolean rsyncSuccess = ComputeEngineHelper.rsync(worldFolder.getCanonicalPath(), "gs://worlds/" + finalOwnerUUID);
 
                 if (rsyncSuccess) {
-                    Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
-                        try {
-                            FileUtils.deleteDirectory(worldFolder);
-                        } catch (IOException e1) {
-                            getLogger().log(Level.SEVERE, "Error whilst deleting world directory: " + worldFolder.getPath() + ".", e1);
-                        }
-                    }, 20L * 30);
+                    try {
+                        FileUtils.deleteDirectory(worldFolder);
+                    } catch (IOException e1) {
+                        getLogger().log(Level.SEVERE, "Error whilst deleting world directory: " + worldFolder.getPath() + ".", e1);
+                    }
                 } else {
                     getLogger().log(Level.SEVERE, "RSync for world failed, will not delete directory (" + worldFolder.getPath() + ")");
                 }
             } catch (IOException | InterruptedException e1) {
                 getLogger().log(Level.SEVERE, "Error whilst rsync'ing world to GCS.", e1);
             }
-
-            playerWorlds.remove(ownerUUID);
-            gateway.sendPacket(new PacketNoLongerHostingWorld(ownerUUID), false); // notify proxy if possible
-            getLogger().info("Unloaded world for player: " + ownerUUID + ".");
-        }
+        });
     }
 
     public UUID getWorldOwner(World world) {

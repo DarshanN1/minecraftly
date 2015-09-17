@@ -28,6 +28,14 @@ public class RSyncUploadWorldTask implements Runnable {
     @Override
     public void run() {
         try {
+            File sessionLock = new File(worldFolder, "session.lock");
+
+            if (sessionLock.exists()) {
+                if (!sessionLock.delete()) {
+                    logger.warning("Error deleting session lock file for RSync upload.");
+                }
+            }
+
             boolean rsyncSuccess = ComputeEngineHelper.rsync(worldFolder.getCanonicalPath(), "gs://worlds/" + worldOwner);
 
             if (rsyncSuccess) {

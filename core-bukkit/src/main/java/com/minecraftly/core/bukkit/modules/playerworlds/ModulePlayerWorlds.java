@@ -290,6 +290,11 @@ public class ModulePlayerWorlds extends Module implements Listener {
                         }
 
                         ComputeEngineHelper.rsync("gs://worlds/" + worldName, worldDirectory.getCanonicalPath());
+
+                        File sessionLockFile = new File(worldDirectory, "session.lock");
+                        if (sessionLockFile.exists() && !sessionLockFile.delete()) {
+                            getLogger().warning("Unable to delete session.lock file, world will fail to load.");
+                        }
                     }
                 } catch (IOException | InterruptedException e) {
                     getLogger().log(Level.SEVERE, "Error retrieving existing world from cloud storage.", e);

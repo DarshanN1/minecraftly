@@ -198,7 +198,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
             }
         }
 
-        runAsyncUnlessDisabling(new RSyncUploadWorldTask(world, ownerUUID, getLogger()));
+        runAsyncUnlessDisabling(new RSyncUploadWorldTask(world, ownerUUID, disabling.get(), getLogger()));
     }
 
     public UUID getWorldOwner(World world) {

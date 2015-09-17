@@ -17,11 +17,13 @@ public class RSyncUploadWorldTask implements Runnable {
 
     private File worldFolder;
     private UUID worldOwner;
+    private boolean deleteLocally;
     private Logger logger;
 
-    public RSyncUploadWorldTask(World world, UUID worldOwner, Logger logger) {
+    public RSyncUploadWorldTask(World world, UUID worldOwner, boolean deleteLocally, Logger logger) {
         this.worldFolder = world.getWorldFolder();
         this.worldOwner = worldOwner;
+        this.deleteLocally = deleteLocally;
         this.logger = logger;
     }
 
@@ -30,7 +32,7 @@ public class RSyncUploadWorldTask implements Runnable {
         try {
             File sessionLock = new File(worldFolder, "session.lock");
 
-            if (sessionLock.exists()) {
+            if (deleteLocally && sessionLock.exists()) {
                 if (!sessionLock.delete()) {
                     logger.warning("Error deleting session lock file for RSync upload.");
                 }
@@ -38,7 +40,7 @@ public class RSyncUploadWorldTask implements Runnable {
 
             boolean rsyncSuccess = ComputeEngineHelper.rsync(worldFolder.getCanonicalPath(), "gs://worlds/" + worldOwner);
 
-            if (rsyncSuccess) {
+            if (deleteLocally && rsyncSuccess) {
                 try {
                     FileUtils.deleteDirectory(worldFolder);
                 } catch (IOException e1) {

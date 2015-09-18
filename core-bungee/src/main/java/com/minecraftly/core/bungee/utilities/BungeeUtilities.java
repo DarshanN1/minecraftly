@@ -1,18 +1,29 @@
 package com.minecraftly.core.bungee.utilities;
 
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
+import com.minecraftly.core.bungee.MclyCoreBungeePlugin;
 import com.minecraftly.core.utilities.Utilities;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.config.Configuration;
+import net.md_5.bungee.config.ConfigurationProvider;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A collection of utility methods to aid in the writing of BungeeCord stuff.
  */
 public class BungeeUtilities {
+
+    private static MclyCoreBungeePlugin bungeePlugin = MclyCoreBungeePlugin.getInstance();
+    private static Logger logger = bungeePlugin.getLogger();
 
     private BungeeUtilities() {}
 
@@ -65,6 +76,34 @@ public class BungeeUtilities {
             field.setAccessible(true);
             Utilities.removeFinal(field);
             field.set(listenerInfo, value);
+        }
+    }
+
+    public static void copyDefaultsFromJarFile(Configuration configuration, String defaultFileName, ConfigurationProvider configurationProvider, File configFile) {
+        Configuration defaultConfiguration;
+
+        try (InputStream inputStream = bungeePlugin.getResourceAsStream(defaultFileName)) {
+            defaultConfiguration = configurationProvider.load(inputStream);
+        } catch (IOException e) {
+            logger.log(Level.WARNING, "Error copying defaults to config.", e);
+            return;
+        }
+
+        boolean updated = false;
+
+        for (String key : defaultConfiguration.getKeys()) {
+            if (configuration.get(key) == null) {
+                configuration.set(key, defaultConfiguration.get(key));
+                updated = true;
+            }
+        }
+
+        if (updated) {
+            try {
+                configurationProvider.save(configuration, configFile);
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, "Error saving configuration with new defaults to file.", e);
+            }
         }
     }
 

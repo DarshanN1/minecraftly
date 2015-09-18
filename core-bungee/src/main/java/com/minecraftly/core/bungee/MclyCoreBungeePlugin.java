@@ -39,7 +39,6 @@ import net.md_5.bungee.config.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -86,7 +85,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         try {
             configurationFile.createNewFile();
             configuration = configurationProvider.load(configurationFile);
-            copyDefaults();
+            BungeeUtilities.copyDefaultsFromJarFile(configuration, "config.yml", configurationProvider, configurationFile);
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "Error loading configuration.", e);
             return;
@@ -155,7 +154,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         pluginManager.registerListener(this, playerWorldsHandler);
         pluginManager.registerListener(this, tpaHandler);
         pluginManager.registerListener(this, preSwitchHandler);
-        pluginManager.registerListener(this, new MOTDHandler(jobManager, new File(getDataFolder(), "motd.json"), getLogger()));
+        pluginManager.registerListener(this, new MOTDHandler(jobManager, new File(getDataFolder(), "motd.yml"), getLogger()));
 
         taskScheduler.schedule(this, tpaHandler, 5, TimeUnit.MINUTES);
     }
@@ -163,30 +162,6 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
     @Override
     public void onDisable() {
         instance = null;
-    }
-
-    private void copyDefaults() {
-        Configuration defaultConfiguration;
-
-        try (InputStream inputStream = getResourceAsStream("config.yml")) {
-            defaultConfiguration = configurationProvider.load(inputStream);
-        } catch (IOException e) {
-            getLogger().log(Level.WARNING, "Error copying defaults to config.", e);
-            return;
-        }
-
-        boolean updated = false;
-
-        for (String key : defaultConfiguration.getKeys()) {
-            if (configuration.get(key) == null) {
-                configuration.set(key, defaultConfiguration.get(key));
-                updated = true;
-            }
-        }
-
-        if (updated) {
-            saveConfig();
-        }
     }
 
     private void saveConfig() {

@@ -68,6 +68,7 @@ public class MOTDHandler implements Listener {
         this.motdFile = motdFile;
 
         try {
+            motdFile.createNewFile();
             Configuration yamlConfiguration = yamlConfigurationProvider.load(motdFile);
 
             if (yamlConfiguration.getStringList("messages").size() == 0) {

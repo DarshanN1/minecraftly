@@ -40,14 +40,16 @@ public class RSyncUploadWorldTask implements Runnable {
 
             boolean rsyncSuccess = ComputeEngineHelper.rsync(worldFolder.getCanonicalPath(), "gs://worlds/" + worldOwner);
 
-            if (deleteLocally && rsyncSuccess) {
-                try {
-                    FileUtils.deleteDirectory(worldFolder);
-                } catch (IOException e1) {
-                    logger.log(Level.SEVERE, "Error whilst deleting world directory: " + worldFolder.getPath() + ".", e1);
+            if (deleteLocally) {
+                if (rsyncSuccess) {
+                    try {
+                        FileUtils.deleteDirectory(worldFolder);
+                    } catch (IOException e1) {
+                        logger.log(Level.SEVERE, "Error whilst deleting world directory: " + worldFolder.getPath() + ".", e1);
+                    }
+                } else {
+                    logger.log(Level.SEVERE, "RSync for world failed, will not delete directory (" + worldFolder.getPath() + ")");
                 }
-            } else {
-                logger.log(Level.SEVERE, "RSync for world failed, will not delete directory (" + worldFolder.getPath() + ")");
             }
         } catch (IOException | InterruptedException e1) {
             logger.log(Level.SEVERE, "Error whilst rsync'ing world to GCS.", e1);

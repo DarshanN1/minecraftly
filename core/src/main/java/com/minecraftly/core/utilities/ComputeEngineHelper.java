@@ -91,11 +91,11 @@ public class ComputeEngineHelper {
         Process process = processBuilder.start();
         int returnCode = process.waitFor();
 
-        if (returnCode == 3) {
+        if (returnCode == 3) { // Errors selecting input/output files, dirs
             return false;
-        } else if (returnCode != 0) {
+        } else if (returnCode != 0) { // Some other failure
             throw new RuntimeException("Exception during RSync; command = \"" + String.join(" ", processBuilder.command()) + "\"; code = " + returnCode);
-        } else {
+        } else { // Success
             return true;
         }
     }

@@ -2,7 +2,6 @@ package com.minecraftly.core.bungee.handlers;
 
 import com.minecraftly.core.bungee.handlers.job.JobManager;
 import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
-import com.minecraftly.core.utilities.Utilities;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -53,10 +52,10 @@ public class MOTDHandler implements Listener {
                 .append(" to go to your world.").color(ChatColor.AQUA)
                 .create();
 
-        defaultMessages.add(Utilities.prettifyJson(ComponentSerializer.toString(defaultMotd1)));
-        defaultMessages.add(Utilities.prettifyJson(ComponentSerializer.toString(defaultMotd2)));
-        defaultMessages.add(Utilities.prettifyJson(ComponentSerializer.toString(defaultMotd3)));
-        defaultMessages.add(Utilities.prettifyJson(ComponentSerializer.toString(defaultMotd4)));
+        defaultMessages.add(ComponentSerializer.toString(defaultMotd1));
+        defaultMessages.add(ComponentSerializer.toString(defaultMotd2));
+        defaultMessages.add(ComponentSerializer.toString(defaultMotd3));
+        defaultMessages.add(ComponentSerializer.toString(defaultMotd4));
     }
 
     private final JobManager jobManager;

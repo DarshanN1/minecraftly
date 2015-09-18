@@ -187,18 +187,20 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
     @EventHandler
     public void onWorldSave(WorldSaveEvent e) {
-        World world = e.getWorld();
-        UUID ownerUUID = getWorldOwner(world);
+        if (!getPlugin().CFG_DEBUG_SKIP_RSYNC.getValue()) {
+            World world = e.getWorld();
+            UUID ownerUUID = getWorldOwner(world);
 
-        if (ownerUUID == null) {
-            try {
-                ownerUUID = UUID.fromString(world.getName()); // manually parse since cached value may have been removed
-            } catch (IllegalArgumentException ignored) {
-                return;
+            if (ownerUUID == null) {
+                try {
+                    ownerUUID = UUID.fromString(world.getName()); // manually parse since cached value may have been removed
+                } catch (IllegalArgumentException ignored) {
+                    return;
+                }
             }
-        }
 
-        runAsyncUnlessDisabling(new RSyncUploadWorldTask(world, ownerUUID, !playerWorlds.containsKey(ownerUUID), getLogger()));
+            runAsyncUnlessDisabling(new RSyncUploadWorldTask(world, ownerUUID, !playerWorlds.containsKey(ownerUUID), getLogger()));
+        }
     }
 
     public UUID getWorldOwner(World world) {
@@ -284,7 +286,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
                 File worldDirectory = new File(Bukkit.getWorldContainer(), worldName);
 
                 try {
-                    if (ComputeEngineHelper.worldExists(worldName)) {
+                    if (!getPlugin().CFG_DEBUG_SKIP_RSYNC.getValue() && ComputeEngineHelper.worldExists(worldName)) {
                         if (!worldDirectory.exists() && !worldDirectory.mkdir()) {
                             getLogger().severe("Error creating directory: " + worldDirectory.getPath() + ".");
                         }

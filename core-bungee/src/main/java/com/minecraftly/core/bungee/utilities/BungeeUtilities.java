@@ -11,7 +11,6 @@ import net.md_5.bungee.config.ConfigurationProvider;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.logging.Level;
@@ -80,15 +79,10 @@ public class BungeeUtilities {
     }
 
     public static void copyDefaultsFromJarFile(Configuration configuration, String defaultFileName, ConfigurationProvider configurationProvider, File configFile) {
-        Configuration defaultConfiguration;
+        copyDefaultsFromJarFile(configuration, configurationProvider.load(bungeePlugin.getResourceAsStream(defaultFileName)), configurationProvider, configFile);
+    }
 
-        try (InputStream inputStream = bungeePlugin.getResourceAsStream(defaultFileName)) {
-            defaultConfiguration = configurationProvider.load(inputStream);
-        } catch (IOException e) {
-            logger.log(Level.WARNING, "Error copying defaults to config.", e);
-            return;
-        }
-
+    public static void copyDefaultsFromJarFile(Configuration configuration, Configuration defaultConfiguration, ConfigurationProvider configurationProvider, File configFile) {
         boolean updated = false;
 
         for (String key : defaultConfiguration.getKeys()) {

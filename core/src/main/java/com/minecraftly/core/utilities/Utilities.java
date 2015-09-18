@@ -3,6 +3,10 @@ package com.minecraftly.core.utilities;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
+
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +24,8 @@ import java.util.regex.Pattern;
  * Created by Keir on 05/04/2015.
  */
 public class Utilities {
+
+    private static final Gson prettyGson = new GsonBuilder().setPrettyPrinting().create();
 
     private Utilities(){}
 
@@ -81,6 +87,10 @@ public class Utilities {
         Field modifiersField = Field.class.getDeclaredField("modifiers");
         modifiersField.setAccessible(true);
         modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+    }
+
+    public static String prettifyJson(String json) {
+        return prettyGson.toJson(new JsonParser().parse(json));
     }
 
 }

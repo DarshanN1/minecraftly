@@ -1,9 +1,8 @@
 package com.minecraftly.core.bungee.handlers;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
 import com.minecraftly.core.bungee.handlers.job.JobManager;
 import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
+import com.minecraftly.core.utilities.Utilities;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -11,84 +10,93 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.chat.ComponentSerializer;
+import net.md_5.bungee.config.Configuration;
+import net.md_5.bungee.config.ConfigurationProvider;
+import net.md_5.bungee.config.YamlConfiguration;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Displays the motd to players when they join.
  */
 public class MOTDHandler implements Listener {
 
+    private static final ConfigurationProvider yamlConfigurationProvider = ConfigurationProvider.getProvider(YamlConfiguration.class);
+    private static final List<String> defaultMessages = new ArrayList<>();
+
+    static {
+        BaseComponent[] defaultMotd1 = new ComponentBuilder("Welcome to Minecraftly Worlds.").color(ChatColor.AQUA).create();
+
+        BaseComponent[] defaultMotd2 = new ComponentBuilder("Type ").color(ChatColor.AQUA)
+                .append("/m").color(ChatColor.GOLD)
+                .event(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/m "))
+                .append(" to message other players.").color(ChatColor.AQUA)
+                .create();
+
+        BaseComponent[] defaultMotd3 = new ComponentBuilder("MEOW rank can type ").color(ChatColor.AQUA)
+                .append("/g").color(ChatColor.GOLD)
+                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/g"))
+                .append(" for global chat.").color(ChatColor.AQUA)
+                .create();
+
+        BaseComponent[] defaultMotd4 = new ComponentBuilder("Type ").color(ChatColor.AQUA)
+                .append("/home").color(ChatColor.GOLD)
+                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/home"))
+                .append(" to go to your world.").color(ChatColor.AQUA)
+                .create();
+
+        defaultMessages.add(Utilities.prettifyJson(ComponentSerializer.toString(defaultMotd1)));
+        defaultMessages.add(Utilities.prettifyJson(ComponentSerializer.toString(defaultMotd2)));
+        defaultMessages.add(Utilities.prettifyJson(ComponentSerializer.toString(defaultMotd3)));
+        defaultMessages.add(Utilities.prettifyJson(ComponentSerializer.toString(defaultMotd4)));
+    }
+
     private final JobManager jobManager;
     private final Logger logger;
-
-    private File motdFile;
+    private final File motdFile;
 
     public MOTDHandler(JobManager jobManager, File motdFile, Logger logger) {
         this.jobManager = jobManager;
-        this.logger = logger;
-
         this.motdFile = motdFile;
 
-        if (!this.motdFile.exists()) {
-            try {
-                BaseComponent[] defaultMotd = new ComponentBuilder("Welcome to Minecraftly Worlds.").color(ChatColor.AQUA)
-                        .append("\n")
-                        .append("Type ").color(ChatColor.AQUA)
-                            .append("/m").color(ChatColor.GOLD)
-                                .event(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/m "))
-                            .append(" to message other players.").color(ChatColor.AQUA)
-                            .append("\n")
-                        .append("MEOW rank can type ").color(ChatColor.AQUA)
-                            .append("/g").color(ChatColor.GOLD)
-                                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/g"))
-                            .append(" for global chat.").color(ChatColor.AQUA)
-                            .append("\n")
-                        .append("Type ").color(ChatColor.AQUA)
-                            .append("/home").color(ChatColor.GOLD)
-                                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/home"))
-                            .append(" to go to your world.").color(ChatColor.AQUA)
-                        .create();
+        try {
+            Configuration yamlConfiguration = yamlConfigurationProvider.load(motdFile);
 
-                this.motdFile.createNewFile();
-                Files.write(this.motdFile.toPath(), Collections.singletonList(prettifyJson(ComponentSerializer.toString(defaultMotd))));
-            } catch (IOException e) {
-                logger.log(Level.SEVERE, "Couldn't write default motd file.", e);
+            if (yamlConfiguration.getStringList("messages").size() == 0) {
+                yamlConfiguration.set("messages", defaultMessages);
+                yamlConfigurationProvider.save(yamlConfiguration, motdFile);
             }
+        } catch (IOException e) {
+            logger.log(Level.WARNING, "Error loading MOTD configuration file.", e);
         }
-    }
 
-    public String prettifyJson(String json) {
-        return new GsonBuilder().setPrettyPrinting().create().toJson(new JsonParser().parse(json));
+        this.logger = logger;
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerPostLogin(PostLoginEvent e) {
         jobManager.getJobQueue(HumanCheckJobQueue.class).addJob(e.getPlayer(), ((proxiedPlayer, human) -> {
             if (human) {
-                BaseComponent[] motdComponents = getMotdFromFile();
+                List<BaseComponent[]> motdComponents = getMotdFromFile();
                 if (motdComponents != null) {
-                    proxiedPlayer.sendMessage(motdComponents);
+                    motdComponents.forEach(proxiedPlayer::sendMessage);
                 }
             }
         }));
     }
 
-    public BaseComponent[] getMotdFromFile() {
+    public List<BaseComponent[]> getMotdFromFile() {
         try {
-            String data = "";
-            for (String line : Files.readAllLines(motdFile.toPath())) {
-                data += line;
-            }
-
-            return ComponentSerializer.parse(data);
+            return yamlConfigurationProvider.load(motdFile).getStringList("messages")
+                    .parallelStream().map(ComponentSerializer::parse).collect(Collectors.toList());
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Error reading MOTD file.", e);
         }

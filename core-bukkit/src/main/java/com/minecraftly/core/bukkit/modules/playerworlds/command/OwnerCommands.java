@@ -1,6 +1,8 @@
-package com.minecraftly.core.bukkit.modules.playerworlds;
+package com.minecraftly.core.bukkit.modules.playerworlds.command;
 
 import com.minecraftly.core.bukkit.language.LanguageValue;
+import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
+import com.minecraftly.core.bukkit.modules.playerworlds.WorldDimension;
 import com.sk89q.intake.Command;
 import lc.vq.exhaust.command.annotation.Sender;
 import org.apache.commons.lang.WordUtils;
@@ -40,12 +42,12 @@ public class OwnerCommands {
         }});
     }
 
-    @Command(aliases = {"survival"}, desc = "Puts a player in survival mode.", usage = "<target>", min = 1, max = 1)
+    @Command(aliases = {"trust", "survival"}, desc = "Puts a player in survival mode.", usage = "<target>", min = 1, max = 1)
     public void setGuestSurvival(@Sender Player player, Player target) {
         setGuestGameMode(player, target, GameMode.SURVIVAL);
     }
 
-    @Command(aliases = {"adventure"}, desc = "Puts a player in adventure mode.", usage = "<target>", min = 1, max = 1)
+    @Command(aliases = {"untrust", "adventure"}, desc = "Puts a player in adventure mode.", usage = "<target>", min = 1, max = 1)
     public void setGuestAdventure(@Sender Player player, Player target) {
         setGuestGameMode(player, target, GameMode.ADVENTURE);
     }

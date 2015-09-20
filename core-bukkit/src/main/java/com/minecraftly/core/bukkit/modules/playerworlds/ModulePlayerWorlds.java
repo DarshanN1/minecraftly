@@ -6,6 +6,7 @@ import com.minecraftly.core.bukkit.MclyCoreBukkitPlugin;
 import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.modules.Module;
+import com.minecraftly.core.bukkit.modules.playerworlds.command.OwnerCommands;
 import com.minecraftly.core.bukkit.modules.playerworlds.command.WorldsCommands;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.global.GlobalStorageHandler;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldStorageHandler;

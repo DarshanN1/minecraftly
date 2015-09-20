@@ -4,6 +4,7 @@ import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
 import com.minecraftly.core.bukkit.modules.playerworlds.WorldDimension;
+import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -59,7 +60,7 @@ public class DimensionListener implements Listener {
                         WorldDimension.NETHER.convertToLoad(fromWorld, world -> {
                             newLocation.setWorld(world);
                             newLocation.multiply(1D / 8D);
-                            player.teleport(travelAgent.findOrCreate(newLocation), PlayerTeleportEvent.TeleportCause.NETHER_PORTAL);
+                            BukkitUtilities.asyncLoadAndTeleport(player, travelAgent.findOrCreate(newLocation), PlayerTeleportEvent.TeleportCause.NETHER_PORTAL);
                         });
                     } else {
                         languageNoPermission.send(player, WorldDimension.NETHER.getNiceName());
@@ -69,7 +70,7 @@ public class DimensionListener implements Listener {
                         WorldDimension.THE_END.convertToLoad(fromWorld, world -> {
                             newLocation.setWorld(world);
                             newLocation.multiply(8D);
-                            player.teleport(travelAgent.findOrCreate(newLocation), PlayerTeleportEvent.TeleportCause.END_PORTAL);
+                            BukkitUtilities.asyncLoadAndTeleport(player, travelAgent.findOrCreate(newLocation), PlayerTeleportEvent.TeleportCause.END_PORTAL);
                         });
                     } else {
                         languageNoPermission.send(player, WorldDimension.THE_END.getNiceName());
@@ -79,10 +80,10 @@ public class DimensionListener implements Listener {
                 newLocation.setWorld(WorldDimension.getBaseWorld(fromWorld));
                 newLocation.multiply(8D);
                 travelAgent.setSearchRadius(5);
-                player.teleport(travelAgent.findOrCreate(newLocation), PlayerTeleportEvent.TeleportCause.NETHER_PORTAL);
+                BukkitUtilities.asyncLoadAndTeleport(player, travelAgent.findOrCreate(newLocation), PlayerTeleportEvent.TeleportCause.NETHER_PORTAL);
             } else if (environment == World.Environment.THE_END && teleportCause == PlayerTeleportEvent.TeleportCause.END_PORTAL) {
                 Location spawnLocation = WorldDimension.getBaseWorld(fromWorld).getSpawnLocation(); // couldn't use newLocation var, it's final
-                player.teleport(spawnLocation, PlayerTeleportEvent.TeleportCause.END_PORTAL);
+                BukkitUtilities.asyncLoadAndTeleport(player, spawnLocation, PlayerTeleportEvent.TeleportCause.END_PORTAL);
             }
         }
     }

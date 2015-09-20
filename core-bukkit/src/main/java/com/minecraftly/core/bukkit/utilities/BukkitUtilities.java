@@ -9,6 +9,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.Plugin;
 
 import java.text.SimpleDateFormat;
@@ -175,6 +176,19 @@ public class BukkitUtilities {
 
     public static String getFriendlyName(Enum<?> e) {
         return WordUtils.capitalize(e.name().toLowerCase().replace("_", " "));
+    }
+
+    /**
+     * Loads the location (chunk) asynchronously and teleports the player to the location once the chunk is loaded.
+     *
+     * @param player the player to teleport
+     * @param location the location (chunk) to load and then teleport the player to
+     * @param teleportCause the cause for the teleport
+     */
+    public static void asyncLoadAndTeleport(Player player, Location location, PlayerTeleportEvent.TeleportCause teleportCause) {
+        location.getWorld().getChunkAtAsync(location, chunk -> {
+            player.teleport(location, teleportCause);
+        });
     }
 
 }

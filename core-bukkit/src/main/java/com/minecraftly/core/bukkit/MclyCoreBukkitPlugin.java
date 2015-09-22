@@ -94,7 +94,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     public final DataValue<String> CFG_DEBUG_UNIQUE_ID = new DataValue<>("-1", String.class);
     public final DataValue<String> CFG_DEBUG_IP_ADDRESS = new DataValue<>("", String.class);
     public final DataValue<Boolean> CFG_DEBUG_SKIP_RSYNC = new DataValue<>(false, Boolean.class);
-    public final DataValue<Integer> CFG_DEBUG_WEB_PORT = new DataValue<>(82, Integer.class);
+    public final DataValue<Integer> CFG_DEBUG_WEB_PORT = new DataValue<>(81, Integer.class);
 
     private final Map<String, DataValue> configValues = new HashMap<String, DataValue>() {{
         String dbPrefix = "database.";

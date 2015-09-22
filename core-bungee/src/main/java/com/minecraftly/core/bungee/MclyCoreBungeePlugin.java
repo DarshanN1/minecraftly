@@ -18,6 +18,7 @@ import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
 import com.minecraftly.core.bungee.handlers.module.PlayerWorldsHandler;
 import com.minecraftly.core.bungee.handlers.module.TpaHandler;
 import com.minecraftly.core.bungee.utilities.BungeeUtilities;
+import com.minecraftly.core.healthcheck.HealthyWebServer;
 import com.minecraftly.core.redis.RedisHelper;
 import com.minecraftly.core.redis.message.ServerInstanceData;
 import com.minecraftly.core.redis.message.gson.GsonHelper;
@@ -57,7 +58,10 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
     public static final BaseComponent[] MESSAGE_NOT_HUMAN = new ComponentBuilder("You must first confirm you are human.").color(ChatColor.RED).create();
 
+    // Google Compute
     private String computeUniqueId;
+    private HealthyWebServer healthyWebServer;
+
     private File configurationFile;
     private ConfigurationProvider configurationProvider;
     private Configuration configuration;
@@ -78,6 +82,9 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
     @Override
     public void onEnable() {
+        PluginManager pluginManager = getProxy().getPluginManager();
+        TaskScheduler taskScheduler = getProxy().getScheduler();
+
         Utilities.createDirectory(getDataFolder());
         configurationFile = new File(getDataFolder(), "config.yml");
         configurationProvider = ConfigurationProvider.getProvider(YamlConfiguration.class);
@@ -107,6 +114,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
             return;
         }
 
+        healthyWebServer = new HealthyWebServer(configuration.getInt("debug.webPort"), (r) -> taskScheduler.schedule(this, r, 0L, TimeUnit.MILLISECONDS));
         Map<String, ServerInfo> servers = getProxy().getServers();
         servers.put(computeUniqueId, getProxy().constructServerInfo(computeUniqueId, new InetSocketAddress("localhost", 1), null, false)); // put a placeholder in for now
 
@@ -117,8 +125,6 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
             return;
         }
 
-        PluginManager pluginManager = getProxy().getPluginManager();
-        TaskScheduler taskScheduler = getProxy().getScheduler();
         gateway = BungeeGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
 
         slaveHandler = new SlaveHandler(gson, ((RedisBungee) pluginManager.getPlugin("RedisBungee")).getPool(), getLogger(), String.valueOf(computeUniqueId));
@@ -161,6 +167,11 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
     @Override
     public void onDisable() {
+        if (healthyWebServer != null) {
+            healthyWebServer.close();
+            healthyWebServer = null;
+        }
+
         instance = null;
     }
 

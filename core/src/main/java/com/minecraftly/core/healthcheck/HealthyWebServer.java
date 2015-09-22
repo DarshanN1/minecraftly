@@ -27,6 +27,7 @@ public class HealthyWebServer implements Runnable {
     private final Consumer<Runnable> runOnMainThread;
 
     private AtomicBoolean running = new AtomicBoolean(true);
+    private Thread thread;
 
     private Lock lock = new ReentrantLock();
     private Condition mainThreadResponse = lock.newCondition();
@@ -38,6 +39,8 @@ public class HealthyWebServer implements Runnable {
 
     @Override
     public void run() {
+        thread = Thread.currentThread();
+
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             while (running.get()) {
                 try (Socket clientSocket = serverSocket.accept()) {
@@ -81,6 +84,8 @@ public class HealthyWebServer implements Runnable {
     }
 
     public void close() {
-        running.set(false);
+        if (running.getAndSet(false)) {
+            thread.interrupt(); // only interrupt if running *was* true
+        }
     }
 }

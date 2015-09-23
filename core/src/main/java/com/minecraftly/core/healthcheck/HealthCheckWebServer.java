@@ -24,6 +24,7 @@ import java.util.function.Consumer;
  */
 public class HealthCheckWebServer implements HttpRequestHandler {
 
+    private final String serviceName;
     private final Consumer<Runnable> runOnMainThread;
 
     protected final HttpServer httpServer;
@@ -32,7 +33,7 @@ public class HealthCheckWebServer implements HttpRequestHandler {
     private Condition mainThreadResponse = lock.newCondition();
 
     public static void main(String[] args) { // testing purposes
-        HealthCheckWebServer webServer = new HealthCheckWebServer(80, (r) -> {
+        HealthCheckWebServer webServer = new HealthCheckWebServer("Test", 80, (r) -> {
             new Thread(() -> {
                 try {
                     Thread.sleep(10);
@@ -51,7 +52,8 @@ public class HealthCheckWebServer implements HttpRequestHandler {
         }
     }
 
-    public HealthCheckWebServer(int port, Consumer<Runnable> runOnMainThread) {
+    public HealthCheckWebServer(String serviceName, int port, Consumer<Runnable> runOnMainThread) {
+        this.serviceName = serviceName;
         this.runOnMainThread = runOnMainThread;
 
         SocketConfig socketConfig = SocketConfig.custom()
@@ -79,7 +81,7 @@ public class HealthCheckWebServer implements HttpRequestHandler {
         response.setStatusCode(mainServerResponding ? 200 : 503);
 
         StringEntity entity = new StringEntity(
-                "<html><body><h1>" + (mainServerResponding ? "OK" : "Not OK") + "</h1></body></html>\n",
+                "<html><head><title>" + serviceName + " Status</title></head><body><h1>" + (mainServerResponding ? "OK" : "Not OK") + "</h1></body></html>\n",
                 ContentType.create("text/html", "UTF-8")
         );
 

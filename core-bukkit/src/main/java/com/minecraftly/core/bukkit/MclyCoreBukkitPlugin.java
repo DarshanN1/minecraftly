@@ -192,7 +192,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
             return;
         }
 
-        healthCheckWebServer = new HealthCheckWebServer(CFG_DEBUG_WEB_PORT.getValue(), (r) -> scheduler.runTaskLater(this, r, 2L));
+        healthCheckWebServer = new HealthCheckWebServer("Bukkit (" + computeUniqueId + ")", CFG_DEBUG_WEB_PORT.getValue(), (r) -> scheduler.runTaskLater(this, r, 2L));
         jedisService = new JedisService(computeUniqueId, instanceExternalSocketAddress, CFG_JEDIS_HOST.getValue(), CFG_JEDIS_PORT.getValue(), CFG_JEDIS_PASS.getValue());
         scheduler.runTaskTimer(this, jedisService::heartbeat, 20L * RedisHelper.HEARTBEAT_INTERVAL, 20L * RedisHelper.HEARTBEAT_INTERVAL);
         scheduler.runTask(this, () -> jedisService.instanceAlive(gson)); // delay to next tick so that broadcast will be made when all plugins are enabled

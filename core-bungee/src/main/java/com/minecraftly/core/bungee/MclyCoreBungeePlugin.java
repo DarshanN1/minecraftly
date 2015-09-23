@@ -116,7 +116,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         }
 
         // run async to bypass security manager
-        taskScheduler.runAsync(this, () -> healthCheckWebServer = new HealthCheckWebServer(configuration.getInt("debug.webPort"), (r) -> taskScheduler.schedule(MclyCoreBungeePlugin.this, r, 100L, TimeUnit.MILLISECONDS)));
+        taskScheduler.runAsync(this, () -> healthCheckWebServer = new HealthCheckWebServer("BungeeCord (" + computeUniqueId + ")", configuration.getInt("debug.webPort"), (r) -> taskScheduler.schedule(MclyCoreBungeePlugin.this, r, 100L, TimeUnit.MILLISECONDS)));
 
         Map<String, ServerInfo> servers = getProxy().getServers();
         servers.put(computeUniqueId, getProxy().constructServerInfo(computeUniqueId, new InetSocketAddress("localhost", 1), null, false)); // put a placeholder in for now

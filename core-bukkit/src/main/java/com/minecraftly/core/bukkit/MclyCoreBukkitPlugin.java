@@ -22,7 +22,7 @@ import com.minecraftly.core.bukkit.user.UserListener;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.bukkit.utilities.PrefixedLogger;
-import com.minecraftly.core.healthcheck.HealthyWebServer;
+import com.minecraftly.core.healthcheck.HealthCheckWebServer;
 import com.minecraftly.core.redis.RedisHelper;
 import com.minecraftly.core.redis.message.gson.GsonHelper;
 import com.minecraftly.core.utilities.ComputeEngineHelper;
@@ -61,7 +61,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     // Google Compute
     private String computeUniqueId;
     private InetSocketAddress instanceExternalSocketAddress;
-    private HealthyWebServer healthyWebServer;
+    private HealthCheckWebServer healthCheckWebServer;
 
     private ConfigManager configManager;
     private DatabaseManager databaseManager;
@@ -192,7 +192,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
             return;
         }
 
-        healthyWebServer = new HealthyWebServer(CFG_DEBUG_WEB_PORT.getValue(), (r) -> scheduler.runTask(this, r));
+        healthCheckWebServer = new HealthCheckWebServer(CFG_DEBUG_WEB_PORT.getValue(), (r) -> scheduler.runTaskLater(this, r, 2L));
         jedisService = new JedisService(computeUniqueId, instanceExternalSocketAddress, CFG_JEDIS_HOST.getValue(), CFG_JEDIS_PORT.getValue(), CFG_JEDIS_PASS.getValue());
         scheduler.runTaskTimer(this, jedisService::heartbeat, 20L * RedisHelper.HEARTBEAT_INTERVAL, 20L * RedisHelper.HEARTBEAT_INTERVAL);
         scheduler.runTask(this, () -> jedisService.instanceAlive(gson)); // delay to next tick so that broadcast will be made when all plugins are enabled
@@ -230,8 +230,6 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         commandManager.build();
 
         languageManager.save(); // saves any new language values to file
-
-        scheduler.runTaskAsynchronously(this, healthyWebServer);
     }
 
     private DispatcherNode registerCoreCommands() {
@@ -252,9 +250,9 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         }
 
         if (!skipDisable) {
-            if (healthyWebServer != null) {
-                healthyWebServer.close();
-                healthyWebServer = null;
+            if (healthCheckWebServer != null) {
+                healthCheckWebServer.stop();
+                healthCheckWebServer = null;
             }
 
             if (jedisService != null) {

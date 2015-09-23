@@ -18,7 +18,7 @@ import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
 import com.minecraftly.core.bungee.handlers.module.PlayerWorldsHandler;
 import com.minecraftly.core.bungee.handlers.module.TpaHandler;
 import com.minecraftly.core.bungee.utilities.BungeeUtilities;
-import com.minecraftly.core.healthcheck.HealthyWebServer;
+import com.minecraftly.core.healthcheck.HealthCheckWebServer;
 import com.minecraftly.core.redis.RedisHelper;
 import com.minecraftly.core.redis.message.ServerInstanceData;
 import com.minecraftly.core.redis.message.gson.GsonHelper;
@@ -42,6 +42,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -60,7 +61,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
     // Google Compute
     private String computeUniqueId;
-    private HealthyWebServer healthyWebServer;
+    private HealthCheckWebServer healthCheckWebServer;
 
     private File configurationFile;
     private ConfigurationProvider configurationProvider;
@@ -114,7 +115,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
             return;
         }
 
-        healthyWebServer = new HealthyWebServer(configuration.getInt("debug.webPort"), (r) -> taskScheduler.schedule(this, r, 0L, TimeUnit.MILLISECONDS));
+        healthCheckWebServer = new HealthCheckWebServer(configuration.getInt("debug.webPort"), (r) -> taskScheduler.schedule(this, r, 100L, TimeUnit.MILLISECONDS));
         Map<String, ServerInfo> servers = getProxy().getServers();
         servers.put(computeUniqueId, getProxy().constructServerInfo(computeUniqueId, new InetSocketAddress("localhost", 1), null, false)); // put a placeholder in for now
 
@@ -167,9 +168,9 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
     @Override
     public void onDisable() {
-        if (healthyWebServer != null) {
-            healthyWebServer.close();
-            healthyWebServer = null;
+        if (healthCheckWebServer != null) {
+            healthCheckWebServer.stop();
+            healthCheckWebServer = null;
         }
 
         instance = null;

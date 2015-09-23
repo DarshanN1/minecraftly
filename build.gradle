@@ -57,8 +57,8 @@ subprojects {
     }
 
     repositories {
-        mavenCentral()
         mavenLocal() // PluginMessageFramework
+        mavenCentral()
 
         maven {
             url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
@@ -181,6 +181,7 @@ project(':core') {
         compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
         compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.12'
 
+        compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.3'
         compile group: 'commons-dbutils', name: 'commons-dbutils', version: '1.6'
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-core', version: parent.ext.pmfVersion
     }
@@ -195,6 +196,7 @@ project(':core') {
             include(dependency('org.slf4j:slf4j-api'))
             include(dependency('org.slf4j:slf4j-simple'))
 
+            include(dependency('org.apache.httpcomponents:httpcore'))
             include(dependency('commons-dbutils:commons-dbutils'))
             include(dependency('com.ikeirnez.pluginmessageframework:pmf-core'))
         }

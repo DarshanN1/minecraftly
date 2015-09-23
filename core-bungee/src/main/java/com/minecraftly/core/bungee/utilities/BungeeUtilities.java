@@ -83,10 +83,11 @@ public class BungeeUtilities {
     }
 
     public static void copyDefaultsFromJarFile(Configuration configuration, Configuration defaultConfiguration, ConfigurationProvider configurationProvider, File configFile) {
+        Collection<String> keys = configuration.getKeys();
         boolean updated = false;
 
         for (String key : defaultConfiguration.getKeys()) {
-            if (configuration.get(key) == null) {
+            if (keys.contains(key)) {
                 configuration.set(key, defaultConfiguration.get(key));
                 updated = true;
             }
@@ -94,6 +95,7 @@ public class BungeeUtilities {
 
         if (updated) {
             try {
+                System.out.println("Save");
                 configurationProvider.save(configuration, configFile);
             } catch (IOException e) {
                 logger.log(Level.SEVERE, "Error saving configuration with new defaults to file.", e);

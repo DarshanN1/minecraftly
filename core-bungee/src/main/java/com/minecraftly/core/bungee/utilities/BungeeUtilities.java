@@ -95,7 +95,6 @@ public class BungeeUtilities {
 
         if (updated) {
             try {
-                System.out.println("Save");
                 configurationProvider.save(configuration, configFile);
             } catch (IOException e) {
                 logger.log(Level.SEVERE, "Error saving configuration with new defaults to file.", e);

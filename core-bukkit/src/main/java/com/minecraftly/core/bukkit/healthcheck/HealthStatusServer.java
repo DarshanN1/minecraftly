@@ -1,4 +1,4 @@
-package com.minecraftly.core.healthcheck;
+package com.minecraftly.core.bukkit.healthcheck;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -22,7 +22,7 @@ import java.util.function.Consumer;
  * Single-threaded simple HTTP server to respond with code 200 (success) when a client connection is received.
  * This allows Java applications to respond to Google Compute health checks.
  */
-public class HealthCheckWebServer implements HttpRequestHandler {
+public class HealthStatusServer {
 
     private final String serviceName;
     private final Consumer<Runnable> runOnMainThread;
@@ -33,7 +33,7 @@ public class HealthCheckWebServer implements HttpRequestHandler {
     private Condition mainThreadResponse = lock.newCondition();
 
     public static void main(String[] args) { // testing purposes
-        HealthCheckWebServer webServer = new HealthCheckWebServer("Test", 80, (r) -> {
+        HealthStatusServer webServer = new HealthStatusServer("Test", 80, (r) -> {
             new Thread(() -> {
                 try {
                     Thread.sleep(10);
@@ -52,8 +52,8 @@ public class HealthCheckWebServer implements HttpRequestHandler {
         }
     }
 
-    public HealthCheckWebServer(String serviceName, int port, Consumer<Runnable> runOnMainThread) {
-        this.serviceName = serviceName;
+    public HealthStatusServer(String instanceName, int port, Consumer<Runnable> runOnMainThread) {
+        this.serviceName = instanceName;
         this.runOnMainThread = runOnMainThread;
 
         SocketConfig socketConfig = SocketConfig.custom()
@@ -65,7 +65,7 @@ public class HealthCheckWebServer implements HttpRequestHandler {
                 .setListenerPort(port)
                 .setServerInfo("Minecraftly/1.1")
                 .setSocketConfig(socketConfig)
-                .registerHandler("*", this)
+                .registerHandler("*", new HealthStatusHttpServer())
                 .create();
 
         try {
@@ -74,20 +74,6 @@ public class HealthCheckWebServer implements HttpRequestHandler {
             e.printStackTrace();
         }
     }
-
-    @Override
-    public void handle(HttpRequest request, HttpResponse response, HttpContext context) throws HttpException, IOException {
-        boolean mainServerResponding = isMainThreadResponding();
-        response.setStatusCode(mainServerResponding ? 200 : 503);
-
-        StringEntity entity = new StringEntity(
-                "<html><head><title>" + serviceName + " Status</title></head><body><h1>" + (mainServerResponding ? "OK" : "Not OK") + "</h1></body></html>\n",
-                ContentType.create("text/html", "UTF-8")
-        );
-
-        response.setEntity(entity);
-    }
-
 
     public boolean isMainThreadResponding() {
         lock.lock();
@@ -116,6 +102,21 @@ public class HealthCheckWebServer implements HttpRequestHandler {
 
     public void stop() {
         httpServer.stop();
+    }
+
+    private class HealthStatusHttpServer implements HttpRequestHandler {
+        @Override
+        public void handle(HttpRequest request, HttpResponse response, HttpContext context) throws HttpException, IOException {
+            boolean mainServerResponding = isMainThreadResponding();
+            response.setStatusCode(mainServerResponding ? 200 : 503);
+
+            StringEntity entity = new StringEntity(
+                    "<html><head><title>" + serviceName + " Status</title></head><body><h1>" + (mainServerResponding ? "OK" : "Not OK") + "</h1></body></html>\n",
+                    ContentType.create("text/html", "UTF-8")
+            );
+
+            response.setEntity(entity);
+        }
     }
 
 }

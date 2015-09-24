@@ -1,5 +1,6 @@
 package com.minecraftly.core.bukkit.healthcheck;
 
+import com.minecraftly.core.MinecraftlyCommon;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -12,6 +13,13 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.net.SocketException;
+import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -28,9 +36,11 @@ public class HealthStatusServer {
     private final Consumer<Runnable> runOnMainThread;
 
     protected final HttpServer httpServer;
+    private boolean running = true;
 
     private Lock lock = new ReentrantLock();
     private Condition mainThreadResponse = lock.newCondition();
+    private long proxyLastHeartbeat = System.currentTimeMillis();
 
     public static void main(String[] args) { // testing purposes
         HealthStatusServer webServer = new HealthStatusServer("Test", 80, (r) -> {
@@ -100,22 +110,68 @@ public class HealthStatusServer {
         }
     }
 
+    public HeartbeatDatagramPacketHandler getNewHeartbeatHandler(int port) throws SocketException {
+        return new HeartbeatDatagramPacketHandler(port);
+    }
+
     public void stop() {
+        running = false;
         httpServer.stop();
     }
 
     private class HealthStatusHttpServer implements HttpRequestHandler {
+
+        private final static String OK = "<span style=\"color:green\">OK</span>";
+        private final static String NOT_OK = "<span style=\"color:red\">Not OK</span>";
+
         @Override
         public void handle(HttpRequest request, HttpResponse response, HttpContext context) throws HttpException, IOException {
-            boolean mainServerResponding = isMainThreadResponding();
-            response.setStatusCode(mainServerResponding ? 200 : 503);
+            boolean mainThreadResponding = isMainThreadResponding();
+            long lastProxyResponseTime = System.currentTimeMillis() - proxyLastHeartbeat;
+            boolean proxyHealthy = lastProxyResponseTime <= TimeUnit.SECONDS.toMillis(3);
+            boolean overallHealthy = mainThreadResponding && proxyHealthy;
 
-            StringEntity entity = new StringEntity(
-                    "<html><head><title>" + serviceName + " Status</title></head><body><h1>" + (mainServerResponding ? "OK" : "Not OK") + "</h1></body></html>\n",
-                    ContentType.create("text/html", "UTF-8")
-            );
+            response.setStatusCode(overallHealthy ? 200 : 503);
 
-            response.setEntity(entity);
+            String html = "<html><head><title>" + serviceName + " Status</title></head>"
+                    + "<body><h1>" + (overallHealthy ? OK : NOT_OK) + "</h1>"
+                    + "Bukkit (Real-time) - " + (mainThreadResponding ? OK : NOT_OK) + ""
+                    + "<br />BungeeCord - Last Response " + TimeUnit.MILLISECONDS.toSeconds(lastProxyResponseTime) + " seconds ago, " + (proxyHealthy ? OK : NOT_OK)
+                    + "</body></html>\n";
+
+            response.setEntity(new StringEntity(html, ContentType.create("text/html", "UTF-8")));
+        }
+    }
+
+    /**
+     * Handles incoming heartbeat datagram packets.
+     * This should be run asynchronously as blocking methods are used.
+     */
+    private class HeartbeatDatagramPacketHandler implements Runnable {
+
+        private final DatagramSocket datagramSocket;
+
+        public HeartbeatDatagramPacketHandler(int port) throws SocketException {
+            this.datagramSocket = new DatagramSocket(port);
+        }
+
+        @Override
+        public void run() {
+            while (running) {
+                byte[] buffer = new byte[MinecraftlyCommon.UDP_HEARTBEAT_CONTENTS.getBytes().length]; // this is the only thing we send, so that's as big as it gets
+                DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
+
+                try {
+                    datagramSocket.receive(datagramPacket);
+                    String message = new String(datagramPacket.getData(), 0, datagramPacket.getLength(), Charset.forName("UTF-8"));
+
+                    if (message.equals(MinecraftlyCommon.UDP_HEARTBEAT_CONTENTS)) {
+                        proxyLastHeartbeat = System.currentTimeMillis();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

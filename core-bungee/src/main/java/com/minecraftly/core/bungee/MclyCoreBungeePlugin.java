@@ -7,7 +7,9 @@ import com.ikeirnez.pluginmessageframework.gateway.ProxySide;
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.minecraftly.core.MinecraftlyCommon;
+import com.minecraftly.core.bungee.handlers.HeartbeatTask;
 import com.minecraftly.core.bungee.handlers.MOTDHandler;
+import com.minecraftly.core.bungee.handlers.PreSwitchHandler;
 import com.minecraftly.core.bungee.handlers.RedisMessagingHandler;
 import com.minecraftly.core.bungee.handlers.SlaveHandler;
 import com.minecraftly.core.bungee.handlers.job.JobManager;
@@ -18,7 +20,6 @@ import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
 import com.minecraftly.core.bungee.handlers.module.PlayerWorldsHandler;
 import com.minecraftly.core.bungee.handlers.module.TpaHandler;
 import com.minecraftly.core.bungee.utilities.BungeeUtilities;
-import com.minecraftly.core.healthcheck.HealthCheckWebServer;
 import com.minecraftly.core.redis.RedisHelper;
 import com.minecraftly.core.redis.message.ServerInstanceData;
 import com.minecraftly.core.redis.message.gson.GsonHelper;
@@ -41,8 +42,8 @@ import net.md_5.bungee.config.YamlConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.util.Map;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -61,7 +62,6 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
     // Google Compute
     private String computeUniqueId;
-    private HealthCheckWebServer healthCheckWebServer = null;
 
     private File configurationFile;
     private ConfigurationProvider configurationProvider;
@@ -115,8 +115,12 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
             return;
         }
 
-        // run async to bypass security manager
-        taskScheduler.runAsync(this, () -> healthCheckWebServer = new HealthCheckWebServer("BungeeCord (" + computeUniqueId + ")", configuration.getInt("debug.webPort"), (r) -> taskScheduler.schedule(MclyCoreBungeePlugin.this, r, 100L, TimeUnit.MILLISECONDS)));
+        try {
+            taskScheduler.schedule(this, new HeartbeatTask(25566), 0, MinecraftlyCommon.UDP_HEARTBEAT_INTERVAL, TimeUnit.SECONDS);
+        } catch (SocketException e) {
+            getLogger().log(Level.SEVERE, "Error initializing UDP socket.", e);
+            return;
+        }
 
         Map<String, ServerInfo> servers = getProxy().getServers();
         servers.put(computeUniqueId, getProxy().constructServerInfo(computeUniqueId, new InetSocketAddress("localhost", 1), null, false)); // put a placeholder in for now
@@ -170,11 +174,6 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
     @Override
     public void onDisable() {
-        if (healthCheckWebServer != null) {
-            healthCheckWebServer.stop();
-            healthCheckWebServer = null;
-        }
-
         instance = null;
     }
 

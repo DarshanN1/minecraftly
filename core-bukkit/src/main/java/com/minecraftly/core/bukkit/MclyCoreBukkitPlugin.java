@@ -44,6 +44,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -193,6 +194,16 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         }
 
         healthStatusServer = new HealthStatusServer("Instance #" + computeUniqueId, CFG_DEBUG_WEB_PORT.getValue(), (r) -> scheduler.runTaskLater(this, r, 2L));
+
+        try {
+            scheduler.runTaskAsynchronously(this, healthStatusServer.getNewHeartbeatHandler(25566));
+        } catch (SocketException e) {
+            getLogger().log(Level.SEVERE, "Error initializing UDP port (25566).");
+            skipDisable = true;
+            pluginManager.disablePlugin(this);
+            return;
+        }
+
         jedisService = new JedisService(computeUniqueId, instanceExternalSocketAddress, CFG_JEDIS_HOST.getValue(), CFG_JEDIS_PORT.getValue(), CFG_JEDIS_PASS.getValue());
         scheduler.runTaskTimer(this, jedisService::heartbeat, 20L * RedisHelper.HEARTBEAT_INTERVAL, 20L * RedisHelper.HEARTBEAT_INTERVAL);
         scheduler.runTask(this, () -> jedisService.instanceAlive(gson)); // delay to next tick so that broadcast will be made when all plugins are enabled

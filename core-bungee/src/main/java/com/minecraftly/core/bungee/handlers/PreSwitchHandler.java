@@ -1,4 +1,4 @@
-package com.minecraftly.core.bungee;
+package com.minecraftly.core.bungee.handlers;
 
 import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.ikeirnez.pluginmessageframework.packet.PacketHandler;

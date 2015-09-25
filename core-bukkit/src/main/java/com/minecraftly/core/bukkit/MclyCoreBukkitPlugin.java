@@ -196,7 +196,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         healthStatusServer = new HealthStatusServer("Instance #" + computeUniqueId, CFG_DEBUG_WEB_PORT.getValue(), (r) -> scheduler.runTaskLater(this, r, 2L));
 
         try {
-            scheduler.runTaskAsynchronously(this, healthStatusServer.getNewHeartbeatHandler(25566));
+            scheduler.runTaskAsynchronously(this, healthStatusServer.new HeartbeatDatagramPacketHandler(25566));
         } catch (SocketException e) {
             getLogger().log(Level.SEVERE, "Error initializing UDP port (25566).");
             skipDisable = true;

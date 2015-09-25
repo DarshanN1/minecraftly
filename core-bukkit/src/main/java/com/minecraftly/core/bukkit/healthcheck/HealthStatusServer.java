@@ -110,10 +110,6 @@ public class HealthStatusServer {
         }
     }
 
-    public HeartbeatDatagramPacketHandler getNewHeartbeatHandler(int port) throws SocketException {
-        return new HeartbeatDatagramPacketHandler(port);
-    }
-
     public void stop() {
         running = false;
         httpServer.stop();
@@ -147,7 +143,7 @@ public class HealthStatusServer {
      * Handles incoming heartbeat datagram packets.
      * This should be run asynchronously as blocking methods are used.
      */
-    private class HeartbeatDatagramPacketHandler implements Runnable {
+    public class HeartbeatDatagramPacketHandler implements Runnable {
 
         private final DatagramSocket datagramSocket;
 

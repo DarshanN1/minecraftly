@@ -15,7 +15,7 @@ import java.net.InetSocketAddress;
 /**
  * Created by Keir on 28/08/2015.
  */
-public class ServerDataSerializationHandler implements JsonSerializer<ServerInstanceData>, JsonDeserializer<ServerInstanceData> {
+public class ServerDataAdapter implements JsonSerializer<ServerInstanceData>, JsonDeserializer<ServerInstanceData> {
 
     @Override
     public JsonElement serialize(ServerInstanceData src, Type typeOfSrc, JsonSerializationContext context) {

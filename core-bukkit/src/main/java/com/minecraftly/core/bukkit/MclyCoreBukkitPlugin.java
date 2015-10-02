@@ -1,6 +1,7 @@
 package com.minecraftly.core.bukkit;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.ikeirnez.pluginmessageframework.bukkit.BukkitGatewayProvider;
 import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
 import com.minecraftly.core.MinecraftlyCommon;
@@ -24,7 +25,8 @@ import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.bukkit.utilities.PrefixedLogger;
 import com.minecraftly.core.bukkit.healthcheck.HealthStatusServer;
 import com.minecraftly.core.redis.RedisHelper;
-import com.minecraftly.core.redis.message.gson.GsonHelper;
+import com.minecraftly.core.redis.message.ServerInstanceData;
+import com.minecraftly.core.redis.message.gson.ServerDataAdapter;
 import com.minecraftly.core.utilities.ComputeEngineHelper;
 import com.minecraftly.core.utilities.Utilities;
 import com.sk89q.intake.fluent.DispatcherNode;
@@ -78,7 +80,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     private boolean skipDisable = false;
 
     private Permission permission;
-    private Gson gson = GsonHelper.getGsonWithAdapters();
+    private Gson gson = new GsonBuilder().registerTypeAdapter(ServerInstanceData.class, new ServerDataAdapter()).create();
 
     private List<Module> modules = new ArrayList<>();
 

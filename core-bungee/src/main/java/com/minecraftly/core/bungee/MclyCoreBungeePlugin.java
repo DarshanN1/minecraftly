@@ -1,6 +1,7 @@
 package com.minecraftly.core.bungee;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.ikeirnez.pluginmessageframework.bungeecord.BungeeGatewayProvider;
 import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.ikeirnez.pluginmessageframework.gateway.ProxySide;
@@ -18,11 +19,13 @@ import com.minecraftly.core.bungee.handlers.job.handlers.HumanCheckHandler;
 import com.minecraftly.core.bungee.handlers.job.queue.ConnectJobQueue;
 import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
 import com.minecraftly.core.bungee.handlers.module.PlayerWorldsHandler;
-import com.minecraftly.core.bungee.handlers.module.TpaHandler;
+import com.minecraftly.core.bungee.handlers.module.tpa.TpaData;
+import com.minecraftly.core.bungee.handlers.module.tpa.TpaDataAdapter;
+import com.minecraftly.core.bungee.handlers.module.tpa.TpaHandler;
 import com.minecraftly.core.bungee.utilities.BungeeUtilities;
 import com.minecraftly.core.redis.RedisHelper;
 import com.minecraftly.core.redis.message.ServerInstanceData;
-import com.minecraftly.core.redis.message.gson.GsonHelper;
+import com.minecraftly.core.redis.message.gson.ServerDataAdapter;
 import com.minecraftly.core.utilities.ComputeEngineHelper;
 import com.minecraftly.core.utilities.Utilities;
 import lc.vq.exhaust.bungee.command.CommandManager;
@@ -70,7 +73,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
     private CommandManager commandManager;
     private ProxyGateway<ProxiedPlayer, Server, ServerInfo> gateway;
     private RedisBungeeAPI redisBungeeAPI;
-    private Gson gson = GsonHelper.getGsonWithAdapters();
+    private Gson gson;
 
     private SlaveHandler slaveHandler;
     private final JobManager jobManager = new JobManager();
@@ -79,6 +82,10 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
     @Override
     public void onLoad() {
         instance = this;
+        gson = new GsonBuilder()
+                .registerTypeAdapter(ServerInstanceData.class, new ServerDataAdapter())
+                .registerTypeAdapter(TpaData.class, new TpaDataAdapter())
+                .create();
     }
 
     @Override

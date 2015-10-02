@@ -87,7 +87,7 @@ public class BungeeUtilities {
         boolean updated = false;
 
         for (String key : defaultConfiguration.getKeys()) {
-            if (keys.contains(key)) {
+            if (!keys.contains(key)) {
                 configuration.set(key, defaultConfiguration.get(key));
                 updated = true;
             }

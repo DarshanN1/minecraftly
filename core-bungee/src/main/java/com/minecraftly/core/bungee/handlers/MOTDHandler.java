@@ -96,7 +96,7 @@ public class MOTDHandler implements Listener {
     public List<BaseComponent[]> getMotdFromFile() {
         try {
             return yamlConfigurationProvider.load(motdFile).getStringList("messages")
-                    .parallelStream().map(ComponentSerializer::parse).collect(Collectors.toList());
+                    .stream().map(ComponentSerializer::parse).collect(Collectors.toList());
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Error reading MOTD file.", e);
         }

@@ -122,10 +122,12 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
             return;
         }
 
+        int heartbeatPort = configuration.getInt("debug.heartbeatPort");
+
         try {
-            taskScheduler.schedule(this, new HeartbeatTask(25566), 0, MinecraftlyCommon.UDP_HEARTBEAT_INTERVAL, TimeUnit.SECONDS);
+            taskScheduler.schedule(this, new HeartbeatTask(heartbeatPort), 0, MinecraftlyCommon.UDP_HEARTBEAT_INTERVAL, TimeUnit.SECONDS);
         } catch (SocketException e) {
-            getLogger().log(Level.SEVERE, "Error initializing UDP socket.", e);
+            getLogger().log(Level.SEVERE, "Error initializing UDP socket (" + heartbeatPort + ").", e);
             return;
         }
 

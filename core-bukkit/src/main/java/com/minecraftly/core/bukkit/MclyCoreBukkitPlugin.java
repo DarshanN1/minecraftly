@@ -98,6 +98,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     public final DataValue<String> CFG_DEBUG_IP_ADDRESS = new DataValue<>("", String.class);
     public final DataValue<Boolean> CFG_DEBUG_SKIP_RSYNC = new DataValue<>(false, Boolean.class);
     public final DataValue<Integer> CFG_DEBUG_WEB_PORT = new DataValue<>(81, Integer.class);
+    public final DataValue<Integer> CFG_DEBUG_HEARTBEAT_PORT = new DataValue<>(25566, Integer.class);
 
     private final Map<String, DataValue> configValues = new HashMap<String, DataValue>() {{
         String dbPrefix = "database.";
@@ -118,6 +119,7 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         put(debugPrefix + "ipAddress", CFG_DEBUG_IP_ADDRESS);
         put(debugPrefix + "skipRSync", CFG_DEBUG_SKIP_RSYNC);
         put(debugPrefix + "webPort", CFG_DEBUG_WEB_PORT);
+        put(debugPrefix + "heartbeatPort", CFG_DEBUG_HEARTBEAT_PORT);
     }};
 
     private final Supplier<QueryRunner> queryRunnerSupplier = () -> getDatabaseManager().getQueryRunner();
@@ -198,9 +200,9 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
         healthStatusServer = new HealthStatusServer("Instance #" + computeUniqueId, CFG_DEBUG_WEB_PORT.getValue(), (r) -> scheduler.runTaskLater(this, r, 2L));
 
         try {
-            scheduler.runTaskAsynchronously(this, healthStatusServer.new HeartbeatDatagramPacketHandler(25566));
+            scheduler.runTaskAsynchronously(this, healthStatusServer.new HeartbeatDatagramPacketHandler(CFG_DEBUG_HEARTBEAT_PORT.getValue()));
         } catch (SocketException e) {
-            getLogger().log(Level.SEVERE, "Error initializing UDP port (25566).");
+            getLogger().log(Level.SEVERE, "Error initializing UDP port (" + CFG_DEBUG_HEARTBEAT_PORT.getValue() + ").");
             skipDisable = true;
             pluginManager.disablePlugin(this);
             return;

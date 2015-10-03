@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -83,23 +84,33 @@ public class BungeeUtilities {
     }
 
     public static void copyDefaultsFromJarFile(Configuration configuration, Configuration defaultConfiguration, ConfigurationProvider configurationProvider, File configFile) {
-        Collection<String> keys = configuration.getKeys();
-        boolean updated = false;
-
-        for (String key : defaultConfiguration.getKeys()) {
-            if (!keys.contains(key)) {
-                configuration.set(key, defaultConfiguration.get(key));
-                updated = true;
-            }
-        }
-
-        if (updated) {
+        if (copyDefaults(defaultConfiguration, configuration)) {
             try {
                 configurationProvider.save(configuration, configFile);
             } catch (IOException e) {
                 logger.log(Level.SEVERE, "Error saving configuration with new defaults to file.", e);
             }
         }
+    }
+
+    private static boolean copyDefaults(Configuration defaultConfiguration, Configuration configuration) {
+        Collection<String> keys = configuration.getKeys();
+        boolean updated = false;
+
+        for (String key : defaultConfiguration.getKeys()) {
+            Object defaultValue = defaultConfiguration.get(key);
+
+            if (defaultValue instanceof Map) {
+                if (copyDefaults(defaultConfiguration.getSection(key), configuration.getSection(key))) {
+                    updated = true;
+                }
+            } else if (!keys.contains(key)) {
+                configuration.set(key, defaultValue);
+                updated = true;
+            }
+        }
+
+        return updated;
     }
 
 }

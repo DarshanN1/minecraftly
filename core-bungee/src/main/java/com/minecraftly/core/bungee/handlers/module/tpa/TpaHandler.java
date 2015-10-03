@@ -103,12 +103,6 @@ public class TpaHandler implements Runnable, Listener {
             if (tpaData == null || hasExpired(tpaData.getTimeCreated())) {
                 teleportTarget.sendMessage(new ComponentBuilder("That player hasn't sent you a teleport request (expired?).").color(ChatColor.RED).create()); // todo dupe
             } else {
-                teleportTarget.sendMessage(new ComponentBuilder("Teleporting ").color(ChatColor.GREEN)
-                                .append(initiatorName).color(ChatColor.GOLD)
-                                .append(" to you.").color(ChatColor.GREEN)
-                                .create()
-                );
-
                 redisBungeeAPI.sendChannelMessage(CHANNEL_TPA_ACCEPT, plugin.getGson().toJson(tpaData));
             }
 
@@ -188,7 +182,7 @@ public class TpaHandler implements Runnable, Listener {
             final ProxiedPlayer movingPlayer = plugin.getProxy().getPlayer(tpaData.getMovingActor());
 
             if (movingPlayer != null) {
-                teleport(movingPlayer, tpaData.getTargetActor());
+                teleport(movingPlayer, tpaData.getDestinationActor());
             }
         }
     }

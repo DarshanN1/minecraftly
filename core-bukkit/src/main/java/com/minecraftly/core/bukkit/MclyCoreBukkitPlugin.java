@@ -197,7 +197,9 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
             return;
         }
 
-        healthStatusServer = new HealthStatusServer("Instance #" + computeUniqueId, CFG_DEBUG_WEB_PORT.getValue(), (r) -> scheduler.runTaskLater(this, r, 2L));
+        if (CFG_DEBUG_WEB_PORT.getValue() != -1) {
+            healthStatusServer = new HealthStatusServer("Instance #" + computeUniqueId, CFG_DEBUG_WEB_PORT.getValue(), (r) -> scheduler.runTaskLater(this, r, 2L));
+        }
 
         try {
             scheduler.runTaskAsynchronously(this, healthStatusServer.new HeartbeatDatagramPacketHandler(CFG_DEBUG_HEARTBEAT_PORT.getValue()));

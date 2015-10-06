@@ -30,7 +30,6 @@ import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
@@ -171,7 +170,9 @@ public class ModulePlayerWorlds extends Module implements Listener {
         UUID ownerUUID = getWorldOwner(world);
 
         if (ownerUUID != null) {
-            playerWorlds.remove(ownerUUID);
+            // late remove, so we can see if this was a player world
+            Bukkit.getScheduler().runTaskLater(getPlugin(), () -> playerWorlds.remove(ownerUUID), 1L);
+
             gateway.sendPacket(new PacketNoLongerHostingWorld(ownerUUID), false); // notify proxy if possible
             getLogger().info("Unloaded world for player: " + ownerUUID + ".");
         }

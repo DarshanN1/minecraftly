@@ -205,11 +205,9 @@ public class PlayerListener implements Listener, Consumer<Player> {
     }
 
     public void ownerLeftWorld(Player owner, World world) {
-        Location spawnLocation = Bukkit.getWorlds().get(0).getSpawnLocation();
-
         for (Player p : world.getPlayers()) {
             if (p != owner) {
-                p.teleport(spawnLocation, PlayerTeleportEvent.TeleportCause.PLUGIN); // put back in chat mode
+                module.spawnInWorld(p, module.getPlayerWorld(p));
             }
         }
     }

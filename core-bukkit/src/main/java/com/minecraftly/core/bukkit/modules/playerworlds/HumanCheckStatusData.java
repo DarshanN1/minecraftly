@@ -8,7 +8,8 @@ import com.minecraftly.core.bukkit.user.modularisation.SingletonUserData;
  */
 public class HumanCheckStatusData extends SingletonUserData {
 
-    private boolean status = false;
+    // when we receive the bot check packet, this will be set to false
+    private boolean status = true;
 
     public HumanCheckStatusData(User user) {
         super(user, null);

@@ -153,7 +153,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
         HumanCheckJobQueue humanCheckJobQueue = new HumanCheckJobQueue(humanCheckManager);
         ConnectJobQueue connectJobQueue = new ConnectJobQueue();
-        HumanCheckHandler humanCheckHandler = new HumanCheckHandler(jobManager, humanCheckManager);
+        HumanCheckHandler humanCheckHandler = new HumanCheckHandler(humanCheckManager, jobManager, gateway);
         jobManager.addJobQueue(humanCheckJobQueue);
         jobManager.addJobQueue(connectJobQueue);
         gateway.registerListener(humanCheckHandler);

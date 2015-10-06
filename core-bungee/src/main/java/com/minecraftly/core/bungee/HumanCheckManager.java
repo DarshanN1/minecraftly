@@ -1,6 +1,7 @@
 package com.minecraftly.core.bungee;
 
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.plugin.Listener;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -81,6 +81,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
         this.gateway = getPlugin().getGateway();
         this.humanCheck = new HumanCheck(this);
         registerListener(this.humanCheck);
+        gateway.registerListener(this.humanCheck);
         Bukkit.getScheduler().runTaskTimer(getPlugin(), this.humanCheck, 20L, 20L);
 
         LanguageManager languageManager = getPlugin().getLanguageManager();
@@ -151,16 +152,6 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
     public boolean isPlayerWorld(World world) {
         return playerWorlds.values().contains(world);
-    }
-
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent e) {
-        Bukkit.getScheduler().runTaskLater(getPlugin(), new Runnable() {
-            @Override
-            public void run() {
-                humanCheck.showHumanCheck(e.getPlayer());
-            }
-        }, 5L);
     }
 
     @EventHandler

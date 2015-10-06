@@ -1,5 +1,6 @@
 package com.minecraftly.core.bukkit.modules.playerworlds;
 
+import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
 import com.minecraftly.core.packets.PacketBotCheck;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -56,6 +57,16 @@ public class HumanCheck implements Listener, Runnable {
 
     public void deleteInventoryCache(Player player) {
         player.removeMetadata(KEY_HUMAN_CHECK_INVENTORY, module.getPlugin());
+    }
+
+    @PacketHandler
+    public void onPacketBotCheck(Player player, PacketBotCheck packet) {
+        if (packet.getStage() != 0) {
+            throw new UnsupportedOperationException("Expecting stage 0.");
+        }
+
+        // make player do bot check
+        module.getPlugin().getUserManager().getUser(player).getSingletonUserData(HumanCheckStatusData.class).setStatus(false);
     }
 
     @EventHandler

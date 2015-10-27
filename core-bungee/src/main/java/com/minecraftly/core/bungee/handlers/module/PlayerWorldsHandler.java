@@ -5,10 +5,13 @@ import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.minecraftly.core.bungee.HumanCheckManager;
 import com.minecraftly.core.bungee.MclyCoreBungeePlugin;
 import com.minecraftly.core.bungee.handlers.job.JobManager;
+import com.minecraftly.core.bungee.handlers.job.queue.ConnectJobQueue;
 import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
 import com.minecraftly.core.packets.playerworlds.PacketPlayerGotoWorld;
 import com.sk89q.intake.Command;
 import lc.vq.exhaust.command.annotation.Sender;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
@@ -18,14 +21,19 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Keir on 29/04/2015.
  */
 public class PlayerWorldsHandler implements Listener {
+
+    private static final Pattern domainPattern = Pattern.compile("^(\\w+)\\.minecraftly\\.org$", Pattern.CASE_INSENSITIVE);
 
     private final ProxyGateway<ProxiedPlayer, Server, ServerInfo> gateway;
     private final JobManager jobManager;
@@ -108,7 +116,29 @@ public class PlayerWorldsHandler implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerPostLogin(PostLoginEvent e) { // go to players world once they are confirmed to not be a bot
         ProxiedPlayer proxiedPlayer = e.getPlayer();
-        playerGotoWorld(proxiedPlayer, proxiedPlayer.getUniqueId(), false);
+        UUID destination = proxiedPlayer.getUniqueId();
+        InetSocketAddress virtualHost = proxiedPlayer.getPendingConnection().getVirtualHost();
+
+        // if connected with a sub-domain, go to the target player
+        if (virtualHost != null) {
+            String host = virtualHost.getHostString();
+            Matcher matcher = domainPattern.matcher(host);
+
+            if (matcher.find()) {
+                String player = matcher.group(1);
+                UUID targetUUID = redisBungeeAPI.getUuidFromName(player);
+
+                if (targetUUID != null) {
+                    destination = targetUUID;
+                } else {
+                    jobManager.getJobQueue(ConnectJobQueue.class).addJob(proxiedPlayer, (p, s) -> {
+                        p.sendMessage(new ComponentBuilder("Cannot find player: ").color(ChatColor.AQUA).append(player).color(ChatColor.GOLD).append(".").create());
+                    });
+                }
+            }
+        }
+
+        playerGotoWorld(proxiedPlayer, destination, false);
     }
 
 }

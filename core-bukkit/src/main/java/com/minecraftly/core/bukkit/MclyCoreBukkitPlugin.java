@@ -19,6 +19,7 @@ import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
 import com.minecraftly.core.bukkit.modules.readonlyworlds.DoNothingWorldGenerator;
 import com.minecraftly.core.bukkit.modules.readonlyworlds.ModuleReadOnlyWorlds;
 import com.minecraftly.core.bukkit.modules.spawn.ModuleSpawn;
+import com.minecraftly.core.bukkit.redis.JedisService;
 import com.minecraftly.core.bukkit.user.UserListener;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
@@ -309,6 +310,16 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
     @Override
     public InetSocketAddress getInstanceExternalSocketAddress() {
         return instanceExternalSocketAddress;
+    }
+
+    @Override
+    public JedisService getJedisService() {
+        return jedisService;
+    }
+
+    @Override
+    public Gson getGson() {
+        return gson;
     }
 
     @Override

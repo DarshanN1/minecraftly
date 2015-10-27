@@ -1,4 +1,4 @@
-package com.minecraftly.core.bukkit;
+package com.minecraftly.core.bukkit.redis;
 
 import com.google.gson.Gson;
 import com.minecraftly.core.redis.RedisHelper;

@@ -1,5 +1,6 @@
 package com.minecraftly.core.bukkit.modules.playerworlds.handlers;
 
+import com.google.common.cache.Cache;
 import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
@@ -7,6 +8,7 @@ import com.minecraftly.core.bukkit.modules.playerworlds.WorldDimension;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.JoinCountdownData;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserData;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserDataContainer;
+import com.minecraftly.core.bukkit.redis.CachedUUIDEntry;
 import com.minecraftly.core.bukkit.user.User;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
@@ -25,6 +27,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import redis.clients.jedis.Jedis;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -118,8 +121,21 @@ public class PlayerListener implements Listener, Consumer<Player> {
                         @Override
                         public void run() {
                             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(owner);
+                            String name = offlinePlayer instanceof Player ? ((Player) offlinePlayer).getDisplayName() : offlinePlayer.getName();
 
-                            langWelcomeGuest.send(player, offlinePlayer instanceof Player ? ((Player) offlinePlayer).getDisplayName() : offlinePlayer.getName());
+                            if (name == null) {
+                                try (Jedis jedis = module.getPlugin().getJedisService().getJedisPool().getResource()) {
+                                    String storedJson = jedis.hget("uuid-cache", owner.toString());
+
+                                    if (storedJson != null) { // todo refactor this
+                                        CachedUUIDEntry cachedUUIDEntry = module.getPlugin().getGson().fromJson(storedJson, CachedUUIDEntry.class);
+                                        name = cachedUUIDEntry.getName();
+                                        // todo expensive lookup if expired
+                                    }
+                                }
+                            }
+
+                            langWelcomeGuest.send(player, name);
                         }
                     });
                 }

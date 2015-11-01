@@ -3,6 +3,7 @@ package com.minecraftly.core.bukkit.modules.playerworlds.command;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
 import com.minecraftly.core.bukkit.modules.playerworlds.WorldDimension;
+import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;
 import lc.vq.exhaust.command.annotation.Sender;
@@ -57,7 +58,7 @@ public class SpawnCommands {
         World baseWorld = WorldDimension.getBaseWorld(player.getWorld());
 
         if (module.isPlayerWorld(baseWorld)) {
-            player.teleport(baseWorld.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
+            player.teleport(BukkitUtilities.getSafeSpawnLocation(baseWorld.getSpawnLocation()), PlayerTeleportEvent.TeleportCause.COMMAND);
         } else {
             module.langCannotUseCommandHere.send(player);
         }

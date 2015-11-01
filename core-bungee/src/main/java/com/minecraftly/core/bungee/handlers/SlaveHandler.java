@@ -37,6 +37,7 @@ public class SlaveHandler implements Listener, Runnable {
 
     public void initialize() {
         logger.info("Initializing servers.");
+        run(); // runs cleanup
         int added = 0;
 
         try (Jedis jedis = jedisPool.getResource()) {
@@ -117,8 +118,12 @@ public class SlaveHandler implements Listener, Runnable {
                 long lastHeartbeatDifference = System.currentTimeMillis() - lastHeartbeat;
 
                 if (lastHeartbeatDifference > TimeUnit.SECONDS.toMillis(RedisHelper.HEARTBEAT_INTERVAL + 5)) { // +5 = tolerance
-                    // todo remove?
-                    logger.warning("Server instance '" + id + "' seems to have gone down (or system clock incorrect). Not seen for " + TimeUnit.MILLISECONDS.toSeconds(lastHeartbeatDifference));
+                    if (lastHeartbeatDifference > TimeUnit.MINUTES.toMillis(1)) {
+                        logger.warning("Server instance '" + id + "' down for too long, assuming dead.");
+                        destroyData(id, jedis);
+                    } else {
+                        logger.warning("Server instance '" + id + "' seems to have gone down (or system clock incorrect). Not seen for " + TimeUnit.MILLISECONDS.toSeconds(lastHeartbeatDifference));
+                    }
                 }
             }
 
@@ -135,4 +140,8 @@ public class SlaveHandler implements Listener, Runnable {
         }
     }
 
+    private void destroyData(String id, Jedis jedis) {
+        jedis.hdel("mcly:heartbeats", id);
+        jedis.hdel("mcly:instance_addresses", id);
+    }
 }

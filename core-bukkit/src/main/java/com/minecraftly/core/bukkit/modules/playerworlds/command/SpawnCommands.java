@@ -10,8 +10,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.permissions.Permission;
-import org.bukkit.permissions.PermissionDefault;
 
 import java.util.HashMap;
 

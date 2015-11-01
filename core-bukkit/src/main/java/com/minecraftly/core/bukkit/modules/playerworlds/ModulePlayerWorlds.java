@@ -13,6 +13,7 @@ import com.minecraftly.core.bukkit.modules.playerworlds.data.global.GlobalStorag
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldStorageHandler;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserData;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserDataContainer;
+import com.minecraftly.core.bukkit.modules.playerworlds.command.BackCommand;
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.DimensionListener;
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.PlayerListener;
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.WorldMessagesListener;
@@ -132,9 +133,13 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
         WorldsCommands worldsCommands = new WorldsCommands(this, getPlugin().getUserManager(), getPlugin().getLanguageManager());
         dispatcherNode.registerMethods(worldsCommands);
-        Bukkit.getPluginManager().registerEvents(worldsCommands, getPlugin());
+        registerListener(worldsCommands);
 
         dispatcherNode.registerMethods(new SpawnCommands(this));
+
+        BackCommand backCommand = new BackCommand(this);
+        dispatcherNode.registerMethods(backCommand);
+        registerListener(backCommand);
     }
 
     @Override

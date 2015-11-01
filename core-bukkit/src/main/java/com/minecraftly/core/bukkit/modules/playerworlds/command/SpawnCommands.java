@@ -4,11 +4,14 @@ import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
 import com.minecraftly.core.bukkit.modules.playerworlds.WorldDimension;
 import com.sk89q.intake.Command;
+import com.sk89q.intake.Require;
 import lc.vq.exhaust.command.annotation.Sender;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
 
 import java.util.HashMap;
 
@@ -33,6 +36,7 @@ public class SpawnCommands {
     }
 
     @Command(aliases = "setspawn", desc = "Sets the spawn point for the world.", min = 0, max = 0)
+    @Require("minecraftly.setspawn")
     public void setSpawn(@Sender Player player) {
         World world = player.getWorld();
         World baseWorld = WorldDimension.getBaseWorld(world);

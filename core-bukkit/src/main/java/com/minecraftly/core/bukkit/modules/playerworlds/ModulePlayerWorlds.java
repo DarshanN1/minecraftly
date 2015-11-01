@@ -7,6 +7,7 @@ import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.modules.Module;
 import com.minecraftly.core.bukkit.modules.playerworlds.command.OwnerCommands;
+import com.minecraftly.core.bukkit.modules.playerworlds.command.SpawnCommands;
 import com.minecraftly.core.bukkit.modules.playerworlds.command.WorldsCommands;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.global.GlobalStorageHandler;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldStorageHandler;
@@ -65,6 +66,8 @@ public class ModulePlayerWorlds extends Module implements Listener {
     public final LanguageValue langLoadFailed = new LanguageValue("&cWe were unable to load that world, please contact a member of staff.");
     private final LanguageValue langLoaded = new LanguageValue("&bWorld has been loaded, please wait...");
     private final LanguageValue langTeleportCountdown = new LanguageValue("&bTeleporting in &6%s &bseconds.");
+    public final LanguageValue langNotOwner = new LanguageValue("&cYou are not the owner of this world.");
+    public final LanguageValue langCannotUseCommandHere = new LanguageValue("&cYou cannot use that command here.");
 
     public ModulePlayerWorlds(MclyCoreBukkitPlugin plugin) {
         super("PlayerWorlds", plugin);
@@ -110,6 +113,8 @@ public class ModulePlayerWorlds extends Module implements Listener {
             put(getLanguageSection() + ".error.loadFailed", langLoadFailed);
             put(getLanguageSection() + ".loaded.message", langLoaded);
             put(getLanguageSection() + ".loaded.teleportCountdown", langTeleportCountdown);
+            put(getLanguageSection() + ".error.notOwner", langNotOwner);
+            put(getLanguageSection() + ".error.cannotUseCommandHere", langCannotUseCommandHere);
         }});
     }
 
@@ -128,6 +133,8 @@ public class ModulePlayerWorlds extends Module implements Listener {
         WorldsCommands worldsCommands = new WorldsCommands(this, getPlugin().getUserManager(), getPlugin().getLanguageManager());
         dispatcherNode.registerMethods(worldsCommands);
         Bukkit.getPluginManager().registerEvents(worldsCommands, getPlugin());
+
+        dispatcherNode.registerMethods(new SpawnCommands(this));
     }
 
     @Override

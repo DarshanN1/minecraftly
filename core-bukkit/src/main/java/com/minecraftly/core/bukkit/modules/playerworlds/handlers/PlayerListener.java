@@ -163,21 +163,25 @@ public class PlayerListener implements Listener, Consumer<Player> {
             WorldUserData worldUserData = worldUserDataContainer.get(module.getWorldOwner(world));
 
             if (worldUserData != null) {
-                // todo can't help but think this could all be shortened
-                Location bedLocation = worldUserData.getBedLocation();
-                if (bedLocation == null) {
-                    bedLocation = player.getBedSpawnLocation();
+                // first, try home location
+                Location respawnLocation = worldUserData.getHomeLocation();
+                if (respawnLocation == null) {
+                    // if that fails, try using the players LOCAL bed location
+                    respawnLocation = player.getBedSpawnLocation();
 
-                    if (bedLocation != null && !world.equals(WorldDimension.getBaseWorld(bedLocation.getWorld()))) { // if bed location is in another "server"
-                        bedLocation = null;
+                    // check the bed location is good and that it isn't in another world
+                    if ((respawnLocation != null && !world.equals(WorldDimension.getBaseWorld(respawnLocation.getWorld()))) || respawnLocation == null) {
+                        // if that fails, try the players stored bed location
+                        respawnLocation = worldUserData.getBedLocation();
+
+                        if (respawnLocation == null) {
+                            // if all else fails, fallback to spawn location
+                            respawnLocation = BukkitUtilities.getSafeSpawnLocation(world.getSpawnLocation());
+                        }
                     }
                 }
 
-                if (bedLocation != null) {
-                    e.setRespawnLocation(bedLocation);
-                } else {
-                    e.setRespawnLocation(BukkitUtilities.getSafeSpawnLocation(world.getSpawnLocation()));
-                }
+                e.setRespawnLocation(respawnLocation);
             }
         }
     }

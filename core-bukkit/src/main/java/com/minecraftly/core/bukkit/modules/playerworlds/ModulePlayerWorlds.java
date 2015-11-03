@@ -6,14 +6,11 @@ import com.minecraftly.core.bukkit.MclyCoreBukkitPlugin;
 import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.modules.Module;
-import com.minecraftly.core.bukkit.modules.playerworlds.command.OwnerCommands;
-import com.minecraftly.core.bukkit.modules.playerworlds.command.SpawnCommands;
-import com.minecraftly.core.bukkit.modules.playerworlds.command.WorldsCommands;
+import com.minecraftly.core.bukkit.modules.playerworlds.command.*;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.global.GlobalStorageHandler;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldStorageHandler;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserData;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserDataContainer;
-import com.minecraftly.core.bukkit.modules.playerworlds.command.BackCommand;
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.DimensionListener;
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.PlayerListener;
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.WorldMessagesListener;
@@ -136,6 +133,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
         registerListener(worldsCommands);
 
         dispatcherNode.registerMethods(new SpawnCommands(this));
+        dispatcherNode.registerMethods(new HomeCommands(this));
 
         BackCommand backCommand = new BackCommand(this);
         dispatcherNode.registerMethods(backCommand);

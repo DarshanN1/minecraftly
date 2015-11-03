@@ -24,7 +24,8 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 /**
- * Created by Keir on 09/06/2015.
+ * Super crappy way of storing this data.
+ * TODO: Make this less crappy
  */
 public class WorldUserData extends UserData implements ResettableData {
 
@@ -59,6 +60,16 @@ public class WorldUserData extends UserData implements ResettableData {
         return yamlConfiguration.isConfigurationSection("bedLocation")
                 ? checkLocation(BukkitUtilities.getLocation(yamlConfiguration.getConfigurationSection("bedLocation").getValues(true)))
                 : null;
+    }
+
+    public Location getHomeLocation() {
+        return yamlConfiguration.isConfigurationSection("homeLocation")
+                ? checkLocation(BukkitUtilities.getLocation(yamlConfiguration.getConfigurationSection("homeLocation").getValues(true)))
+                : null;
+    }
+
+    public void setHomeLocation(Location location) {
+        yamlConfiguration.set("homeLocation", location != null ? BukkitUtilities.getLocationContainer(location).serialize() : null);
     }
 
     public int getRemainingAir() {
@@ -198,7 +209,7 @@ public class WorldUserData extends UserData implements ResettableData {
                 Utilities.convertToNoDashes(worldUUID),
                 Utilities.convertToNoDashes(getUser().getUniqueId()),
                 isMuted(),
-                yamlConfiguration.saveToString());
+                yamlConfiguration.saveToString()); // TODO make this less crappy (more efficient)
     }
 
     @Override

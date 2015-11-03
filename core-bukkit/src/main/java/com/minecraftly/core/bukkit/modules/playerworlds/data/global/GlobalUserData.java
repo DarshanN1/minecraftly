@@ -20,7 +20,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * Created by Keir on 08/06/2015.
+ * Super crappy way of storing this data.
+ * TODO: Make this less crappy
  */
 public class GlobalUserData extends SingletonUserData implements Consumer<Player> {
 
@@ -102,7 +103,7 @@ public class GlobalUserData extends SingletonUserData implements Consumer<Player
                 String.format("REPLACE INTO `%sglobal_user_data`(`uuid`, `extra_data`) VALUES(UNHEX(?), ?)",
                         DatabaseManager.TABLE_PREFIX),
                 Utilities.convertToNoDashes(getUser().getUniqueId()),
-                yamlConfiguration.saveToString()
+                yamlConfiguration.saveToString() // TODO make this less crappy (more efficient)
         );
     }
 

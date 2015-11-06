@@ -3,10 +3,10 @@ package com.minecraftly.core.bukkit.modules.playerworlds.command;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
 import com.minecraftly.core.bukkit.modules.playerworlds.WorldDimension;
+import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserData;
+import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserDataContainer;
 import com.sk89q.intake.Command;
 import lc.vq.exhaust.command.annotation.Sender;
-import org.apache.commons.lang.WordUtils;
-import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
@@ -24,8 +24,8 @@ public class OwnerCommands {
     private final LanguageValue langNotInWorld = new LanguageValue("&cThat player is not in your world.");
     private final LanguageValue langAttemptSelf = new LanguageValue("&cYou may not set your own game mode.");
     private final LanguageValue langAlreadyInGameMode = new LanguageValue("&cThat player is already in &6%s &cmode.");
-    private final LanguageValue langSuccessSender = new LanguageValue("&aSuccessfully set &6%s &ato &6%s &amode.");
-    private final LanguageValue langSuccessTarget = new LanguageValue("&aYou have been set to &6%s &amode by &6%s&a.");
+    private final LanguageValue langSuccessSender = new LanguageValue("&aSuccessfully set trust mode of &6%s &ato &6%s&a.");
+    private final LanguageValue langSuccessTarget = new LanguageValue("&aYou are now &6%s &ain &6%s&a's world.");
 
     public OwnerCommands(ModulePlayerWorlds module) {
         this.module = module;
@@ -42,35 +42,37 @@ public class OwnerCommands {
         }});
     }
 
-    @Command(aliases = {"trust", "survival"}, desc = "Puts a player in survival mode.", usage = "<target>", min = 1, max = 1)
-    public void setGuestSurvival(@Sender Player player, Player target) {
-        setGuestGameMode(player, target, GameMode.SURVIVAL);
+    @Command(aliases = {"trust"}, desc = "Trusts a player.", usage = "<target>", min = 1, max = 1)
+    public void setTrusted(@Sender Player sender, Player target) {
+        updatePlayerTrustStatus(sender, target, true);
     }
 
-    @Command(aliases = {"untrust", "adventure"}, desc = "Puts a player in adventure mode.", usage = "<target>", min = 1, max = 1)
-    public void setGuestAdventure(@Sender Player player, Player target) {
-        setGuestGameMode(player, target, GameMode.ADVENTURE);
+    @Command(aliases = {"untrust"}, desc = "Un-trusts a player.", usage = "<target>", min = 1, max = 1)
+    public void setUntrusted(@Sender Player sender, Player target) {
+        updatePlayerTrustStatus(sender, target, false);
     }
 
-    public void setGuestGameMode(Player sender, Player target, GameMode gameMode) {
+    public void updatePlayerTrustStatus(Player sender, Player target, boolean trusted) {
         World world = WorldDimension.getBaseWorld(sender.getWorld());
 
         if (module.isPlayerWorld(world)) {
-            UUID worldOwner = module.getWorldOwner(world);
+            UUID senderUUID = sender.getUniqueId();
+            UUID targetUUID = target.getUniqueId();
+            UUID worldOwnerUUID = module.getWorldOwner(world);
 
-            if (sender.getUniqueId().equals(worldOwner)) {
+            if (senderUUID.equals(worldOwnerUUID)) {
                 if (sender != target) {
                     if (WorldDimension.getBaseWorld(target.getWorld()) == world) {
-                        String gameModeCamelCase = WordUtils.capitalizeFully(gameMode.name().toLowerCase()).replace(" ", "");
+                        WorldUserData worldUserData = module.getPlugin().getUserManager()
+                                .getUser(worldOwnerUUID)
+                                .getSingletonUserData(WorldUserDataContainer.class)
+                                .getOrLoad(targetUUID);
 
-                        if (target.getGameMode() != gameMode) {
-                            target.setGameMode(gameMode);
+                        worldUserData.setTrusted(trusted); // this method also updates gamemode
 
-                            langSuccessSender.send(sender, target.getDisplayName(), gameModeCamelCase);
-                            langSuccessTarget.send(target, gameModeCamelCase, sender.getDisplayName());
-                        } else {
-                            langAlreadyInGameMode.send(sender, gameModeCamelCase);
-                        }
+                        String trustString = trusted ? "trusted" : "un-trusted";
+                        langSuccessSender.send(sender, target.getDisplayName(), trustString);
+                        langSuccessTarget.send(target, trustString, sender.getDisplayName());
                     } else {
                         langNotInWorld.send(sender);
                     }

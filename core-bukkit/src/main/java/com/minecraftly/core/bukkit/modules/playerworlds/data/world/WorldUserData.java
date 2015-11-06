@@ -12,6 +12,7 @@ import com.minecraftly.core.bukkit.user.modularisation.UserData;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import org.apache.commons.dbutils.QueryRunner;
 import org.bukkit.Achievement;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -40,6 +41,19 @@ public class WorldUserData extends UserData implements ResettableData {
 
     public UUID getWorldUUID() {
         return worldUUID;
+    }
+
+    public boolean isTrusted() {
+        return yamlConfiguration.getBoolean("trusted", false);
+    }
+
+    public void setTrusted(boolean trusted) {
+        yamlConfiguration.set("trusted", trusted);
+        Player player = getUser().getPlayer();
+
+        if (player != null) {
+            player.setGameMode(trusted ? GameMode.SURVIVAL : GameMode.ADVENTURE);
+        }
     }
 
     public boolean isMuted() {

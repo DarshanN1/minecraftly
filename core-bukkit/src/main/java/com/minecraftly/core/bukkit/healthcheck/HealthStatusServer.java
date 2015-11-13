@@ -43,7 +43,7 @@ public class HealthStatusServer {
     private long proxyLastHeartbeat = System.currentTimeMillis();
 
     public static void main(String[] args) { // testing purposes
-        HealthStatusServer webServer = new HealthStatusServer("Test", 80, (r) -> {
+        HealthStatusServer webServer = new HealthStatusServer("Test", 8080, (r) -> {
             new Thread(() -> {
                 try {
                     Thread.sleep(10);

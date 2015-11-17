@@ -33,7 +33,8 @@ import java.util.regex.Pattern;
  */
 public class PlayerWorldsHandler implements Listener {
 
-    private static final Pattern domainPattern = Pattern.compile("^(\\w+)\\.minecraftly\\.org$", Pattern.CASE_INSENSITIVE);
+                                            // ^<username (min 1, max 16)>.<domain (min 1, max inf)>.<extension (min 2, max 4)>
+    private static final Pattern DOMAIN_PATTERN = Pattern.compile("^(\\w{1,16})\\.(\\w+)\\.(\\w{2,4})", Pattern.CASE_INSENSITIVE);
 
     private final ProxyGateway<ProxiedPlayer, Server, ServerInfo> gateway;
     private final JobManager jobManager;
@@ -122,7 +123,7 @@ public class PlayerWorldsHandler implements Listener {
         // if connected with a sub-domain, go to the target player
         if (virtualHost != null) {
             String host = virtualHost.getHostString();
-            Matcher matcher = domainPattern.matcher(host);
+            Matcher matcher = DOMAIN_PATTERN.matcher(host);
 
             if (matcher.find()) {
                 String player = matcher.group(1);

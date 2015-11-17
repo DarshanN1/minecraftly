@@ -171,6 +171,8 @@ public class WorldUserData extends UserData implements ResettableData {
 
     @Override
     public void apply(Player player) {
+        player.setGameMode(isTrusted() ? GameMode.SURVIVAL : GameMode.ADVENTURE);
+
         player.setBedSpawnLocation(yamlConfiguration.isConfigurationSection("bedLocation")
                 ? BukkitUtilities.getLocation(yamlConfiguration.getConfigurationSection("bedLocation")) : null);
 

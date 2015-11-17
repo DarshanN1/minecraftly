@@ -112,11 +112,8 @@ public class PlayerListener implements Listener, Consumer<Player> {
                 worldUserData.apply(player);
 
                 if (uuid.equals(owner)) {
-                    player.setGameMode(GameMode.SURVIVAL);
                     langWelcomeOwner.send(player, player.getDisplayName());
                 } else {
-                    player.setGameMode(GameMode.ADVENTURE);
-
                     Bukkit.getScheduler().runTaskAsynchronously(module.getPlugin(), new Runnable() { // async for getOfflinePlayer
                         @Override
                         public void run() {

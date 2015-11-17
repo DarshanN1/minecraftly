@@ -125,7 +125,7 @@ public class PlayerWorldsHandler implements Listener {
             String host = virtualHost.getHostString();
             Matcher matcher = DOMAIN_PATTERN.matcher(host);
 
-            if (matcher.find()) {
+            if (matcher.matches() && matcher.find()) {
                 String player = matcher.group(1);
                 UUID targetUUID = redisBungeeAPI.getUuidFromName(player);
 

@@ -38,7 +38,7 @@ public class GlobalUserData extends SingletonUserData implements Consumer<Player
         PlayerInventory playerInventory = player.getInventory();
         ConfigurationSection playerInventorySection = BukkitUtilities.getOrCreateSection(yamlConfiguration, "playerInventory");
 
-        for (int i = 0; i < playerInventory.getSize(); i++) {
+        for (int i = 0; i < playerInventory.getSize() + playerInventory.getArmorContents().length; i++) { // +4 for armor slots
             ItemStack itemStack = playerInventory.getItem(i);
             playerInventorySection.set(String.valueOf(i), itemStack);
         }
@@ -77,7 +77,7 @@ public class GlobalUserData extends SingletonUserData implements Consumer<Player
         if (yamlConfiguration.contains("playerInventory")) {
             PlayerInventory playerInventory = player.getInventory();
             ConfigurationSection playerInventorySection = yamlConfiguration.getConfigurationSection("playerInventory");
-            for (int i = 0; i < playerInventory.getSize(); i++) {
+            for (int i = 0; i < playerInventory.getSize() + playerInventory.getArmorContents().length; i++) { // +4 for armor
                 String intString = String.valueOf(i);
                 ItemStack itemStack = playerInventorySection.contains(intString) ? playerInventorySection.getItemStack(intString) : null;
                 playerInventory.setItem(i, itemStack);

@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 public class PlayerWorldsHandler implements Listener {
 
                                             // ^<username (min 1, max 16)>.<domain (min 1, max inf)>.<extension (min 2, max 4)>
-    private static final Pattern DOMAIN_PATTERN = Pattern.compile("^(\\w{1,16})\\.(\\w+)\\.(\\w{2,4})", Pattern.CASE_INSENSITIVE);
+    private static final Pattern DOMAIN_PATTERN = Pattern.compile("^(\\w{1,16})\\.(\\w+)\\.(\\w{2,4})$", Pattern.CASE_INSENSITIVE);
 
     private final ProxyGateway<ProxiedPlayer, Server, ServerInfo> gateway;
     private final JobManager jobManager;
@@ -125,7 +125,7 @@ public class PlayerWorldsHandler implements Listener {
             String host = virtualHost.getHostString();
             Matcher matcher = DOMAIN_PATTERN.matcher(host);
 
-            if (matcher.matches() && matcher.find()) {
+            if (matcher.find()) {
                 String player = matcher.group(1);
                 UUID targetUUID = redisBungeeAPI.getUuidFromName(player);
 

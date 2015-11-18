@@ -43,16 +43,28 @@ public class WorldUserData extends UserData implements ResettableData {
         return worldUUID;
     }
 
+    public boolean canBuild() {
+        return isOwner() || isTrusted();
+    }
+
+    public boolean isOwner() {
+        return getUser().getUniqueId().equals(worldUUID);
+    }
+
     public boolean isTrusted() {
         return yamlConfiguration.getBoolean("trusted", false);
     }
 
     public void setTrusted(boolean trusted) {
-        yamlConfiguration.set("trusted", trusted);
+        yamlConfiguration.set("trusted", !isOwner() ? trusted : null); // this value shouldn't exist if owner
+        updateGameMode();
+    }
+
+    private void updateGameMode() {
         Player player = getUser().getPlayer();
 
         if (player != null) {
-            player.setGameMode(trusted ? GameMode.SURVIVAL : GameMode.ADVENTURE);
+            player.setGameMode(isOwner() || isTrusted() ? GameMode.SURVIVAL : GameMode.ADVENTURE);
         }
     }
 
@@ -171,7 +183,7 @@ public class WorldUserData extends UserData implements ResettableData {
 
     @Override
     public void apply(Player player) {
-        player.setGameMode(isTrusted() ? GameMode.SURVIVAL : GameMode.ADVENTURE);
+        updateGameMode();
 
         player.setBedSpawnLocation(yamlConfiguration.isConfigurationSection("bedLocation")
                 ? BukkitUtilities.getLocation(yamlConfiguration.getConfigurationSection("bedLocation")) : null);

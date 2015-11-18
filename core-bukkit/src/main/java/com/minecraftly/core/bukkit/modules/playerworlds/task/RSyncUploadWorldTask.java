@@ -7,6 +7,7 @@ import org.bukkit.World;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
+import java.util.function.BooleanSupplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,30 +18,22 @@ public class RSyncUploadWorldTask implements Runnable {
 
     private File worldFolder;
     private UUID worldOwner;
-    private boolean deleteLocally;
+    private BooleanSupplier deleteLocallySupplier;
     private Logger logger;
 
-    public RSyncUploadWorldTask(World world, UUID worldOwner, boolean deleteLocally, Logger logger) {
+    public RSyncUploadWorldTask(World world, UUID worldOwner, BooleanSupplier deleteLocallySupplier, Logger logger) {
         this.worldFolder = world.getWorldFolder();
         this.worldOwner = worldOwner;
-        this.deleteLocally = deleteLocally;
+        this.deleteLocallySupplier = deleteLocallySupplier;
         this.logger = logger;
     }
 
     @Override
     public void run() {
         try {
-            File sessionLock = new File(worldFolder, "session.lock");
-
-            if (deleteLocally && sessionLock.exists()) {
-                if (!sessionLock.delete()) {
-                    logger.warning("Error deleting session lock file for RSync upload.");
-                }
-            }
-
             boolean rsyncSuccess = ComputeEngineHelper.rsync(worldFolder.getCanonicalPath(), "gs://worlds/" + worldOwner);
 
-            if (deleteLocally) {
+            if (deleteLocallySupplier.getAsBoolean()) {
                 if (rsyncSuccess) {
                     try {
                         FileUtils.deleteDirectory(worldFolder);

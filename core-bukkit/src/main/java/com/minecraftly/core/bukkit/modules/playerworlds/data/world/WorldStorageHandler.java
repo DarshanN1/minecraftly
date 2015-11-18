@@ -66,7 +66,7 @@ public class WorldStorageHandler extends DataStorageHandler<WorldUserDataContain
                     worldUserDataContainer = user.getSingletonUserData(WorldUserDataContainer.class);
                 }
 
-                worldUserDataContainer.load(toWorldOwner, true);
+                worldUserDataContainer.load(toWorldOwner, true).apply(player);
             }
         }
     }

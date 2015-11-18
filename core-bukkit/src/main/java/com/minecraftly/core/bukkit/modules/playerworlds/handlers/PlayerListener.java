@@ -107,32 +107,15 @@ public class PlayerListener implements Listener, Consumer<Player> {
 
             if (module.isPlayerWorld(to)) {
                 final UUID owner = module.getWorldOwner(to);
-                WorldUserDataContainer worldUserDataContainer = userManager.getUser(player).getSingletonUserData(WorldUserDataContainer.class);
-                WorldUserData worldUserData = worldUserDataContainer.get(owner);
-                worldUserData.apply(player);
 
                 if (uuid.equals(owner)) {
                     langWelcomeOwner.send(player, player.getDisplayName());
                 } else {
-                    Bukkit.getScheduler().runTaskAsynchronously(module.getPlugin(), new Runnable() { // async for getOfflinePlayer
+                    Bukkit.getScheduler().runTaskAsynchronously(module.getPlugin(), new Runnable() { // async for getPlayerName which uses getOfflinePlayer and Redis
                         @Override
                         public void run() {
-                            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(owner);
-                            String name = offlinePlayer instanceof Player ? ((Player) offlinePlayer).getDisplayName() : offlinePlayer.getName();
-
-                            if (name == null) {
-                                try (Jedis jedis = module.getPlugin().getJedisService().getJedisPool().getResource()) {
-                                    String storedJson = jedis.hget("uuid-cache", owner.toString());
-
-                                    if (storedJson != null) { // todo refactor this
-                                        CachedUUIDEntry cachedUUIDEntry = module.getPlugin().getGson().fromJson(storedJson, CachedUUIDEntry.class);
-                                        name = cachedUUIDEntry.getName();
-                                        // todo expensive lookup if expired
-                                    }
-                                }
-                            }
-
-                            langWelcomeGuest.send(player, name);
+                            String ownerName = getPlayerName(owner);
+                            langWelcomeGuest.send(player, ownerName);
                         }
                     });
                 }
@@ -140,6 +123,32 @@ public class PlayerListener implements Listener, Consumer<Player> {
                 BukkitUtilities.broadcast(WorldDimension.getPlayersAllDimensions(to), player, langPlayerJoinedWorld.getValue(player.getName()));
             }
         }
+    }
+
+    /**
+     * Fetches a players name from their UUID using multiple sources.
+     * This method should be run async.
+     *
+     * @param playerUUID the uuid of the player to get the name of
+     * @return the players name (or the last one we're aware of)
+     */
+    public String getPlayerName(UUID playerUUID) {
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUUID);
+        String name = offlinePlayer instanceof Player ? ((Player) offlinePlayer).getDisplayName() : offlinePlayer.getName();
+
+        if (name == null) {
+            try (Jedis jedis = module.getPlugin().getJedisService().getJedisPool().getResource()) {
+                String storedJson = jedis.hget("uuid-cache", playerUUID.toString());
+
+                if (storedJson != null) { // todo refactor this
+                    CachedUUIDEntry cachedUUIDEntry = module.getPlugin().getGson().fromJson(storedJson, CachedUUIDEntry.class);
+                    name = cachedUUIDEntry.getName();
+                    // todo expensive lookup if expired
+                }
+            }
+        }
+
+        return name;
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

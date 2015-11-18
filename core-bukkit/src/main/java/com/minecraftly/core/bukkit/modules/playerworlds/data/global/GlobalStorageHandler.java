@@ -55,9 +55,19 @@ public class GlobalStorageHandler extends DataStorageHandler<GlobalUserData> imp
                 }
             } else if (!fromWorld && toWorld) {
                 User user = userManager.getUser(player);
-                GlobalUserData globalUserData = new GlobalUserData(user, getQueryRunnerSupplier());
-                user.attachUserData(globalUserData);
-                globalUserData.loadAndApply(player);
+                GlobalUserData globalUserData = user.getSingletonUserData(GlobalUserData.class);
+
+                if (globalUserData == null) {
+                    globalUserData = new GlobalUserData(user, getQueryRunnerSupplier());
+                    user.attachUserData(globalUserData);
+                    globalUserData.loadAndApply(player);
+                } else {
+                    try {
+                        globalUserData.save();
+                    } catch (SQLException e1) {
+                        e1.printStackTrace(); // TODO
+                    }
+                }
             }
         }
     }

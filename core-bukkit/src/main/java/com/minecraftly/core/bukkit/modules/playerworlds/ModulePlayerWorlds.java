@@ -150,6 +150,8 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
         for (World world : playerWorlds.values()) {
             Bukkit.unloadWorld(world, true);
+            rsync(world);
+            unload(world);
         }
 
         instance = null;
@@ -176,13 +178,14 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
     @EventHandler
     public void onWorldUnload(WorldUnloadEvent e) { // do some cleaning up
-        World world = e.getWorld();
+        unload(e.getWorld());
+    }
+
+    public void unload(World world) {
         UUID ownerUUID = getWorldOwner(world);
 
         if (ownerUUID != null) {
-            // late remove, so we can see if this was a player world
-            Bukkit.getScheduler().runTaskLater(getPlugin(), () -> playerWorlds.remove(ownerUUID), 1L);
-
+            playerWorlds.remove(ownerUUID);
             gateway.sendPacket(new PacketNoLongerHostingWorld(ownerUUID), false); // notify proxy if possible
             getLogger().info("Unloaded world for player: " + ownerUUID + ".");
         }
@@ -190,8 +193,12 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
     @EventHandler
     public void onWorldSave(WorldSaveEvent e) {
+        rsync(e.getWorld());
+    }
+
+    public void rsync(World world) {
         if (!getPlugin().CFG_DEBUG_SKIP_RSYNC.getValue()) {
-            World world = e.getWorld();
+            String worldName = world.getName();
             UUID ownerUUID = getWorldOwner(world);
 
             if (ownerUUID == null) {
@@ -202,7 +209,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
                 }
             }
 
-            runAsyncUnlessDisabling(new RSyncUploadWorldTask(world, ownerUUID, !playerWorlds.containsKey(ownerUUID), getLogger()));
+            runAsyncUnlessDisabling(new RSyncUploadWorldTask(world, ownerUUID, () -> disabling.get() || Bukkit.getWorld(worldName) == null, getLogger()));
         }
     }
 

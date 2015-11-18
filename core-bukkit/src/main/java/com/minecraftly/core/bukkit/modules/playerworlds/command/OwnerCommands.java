@@ -22,7 +22,7 @@ public class OwnerCommands {
 
     private final LanguageValue langNotOwner = new LanguageValue("&cYou cannot do that here, this is not your world.");
     private final LanguageValue langNotInWorld = new LanguageValue("&cThat player is not in your world.");
-    private final LanguageValue langAttemptSelf = new LanguageValue("&cYou may not set your own game mode.");
+    private final LanguageValue langAttemptSelf = new LanguageValue("&cYou cannot trust/un-trust yourself in your own world.");
     private final LanguageValue langAlreadyInGameMode = new LanguageValue("&cThat player is already in &6%s &cmode.");
     private final LanguageValue langSuccessSender = new LanguageValue("&aSuccessfully set trust mode of &6%s &ato &6%s&a.");
     private final LanguageValue langSuccessTarget = new LanguageValue("&aYou are now &6%s &ain &6%s&a's world.");

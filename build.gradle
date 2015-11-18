@@ -33,7 +33,7 @@ ext.vaultVersion = '1.5'
 ext.protocolLibVersion = '3.6.4'
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.8'
+    gradleVersion = '2.9'
 }
 
 defaultTasks 'clean', 'build', 'test'

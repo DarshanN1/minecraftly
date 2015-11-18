@@ -53,20 +53,15 @@ public class WorldStorageHandler extends DataStorageHandler<WorldUserDataContain
             UUID fromWorldOwner = module.getWorldOwner(from);
             UUID toWorldOwner = module.getWorldOwner(to);
 
-            User user = module.getPlugin().getUserManager().getUser(player);
-            WorldUserDataContainer worldUserDataContainer = null;
-
             if (fromWorldOwner != null) {
-                worldUserDataContainer = user.getSingletonUserData(WorldUserDataContainer.class);
-                worldUserDataContainer.unload(fromWorldOwner);
+                User user = module.getPlugin().getUserManager().getUser(player);
+                user.getSingletonUserData(WorldUserDataContainer.class).unload(fromWorldOwner);
             }
 
             if (toWorldOwner != null) {
-                if (worldUserDataContainer == null) {
-                    worldUserDataContainer = user.getSingletonUserData(WorldUserDataContainer.class);
-                }
-
-                worldUserDataContainer.load(toWorldOwner, true).apply(player);
+                User ownerUser = module.getPlugin().getUserManager().getUser(toWorldOwner);
+                WorldUserDataContainer worldUserDataContainer = ownerUser.getSingletonUserData(WorldUserDataContainer.class);
+                worldUserDataContainer.getOrLoad(player.getUniqueId(), true).apply(player);
             }
         }
     }

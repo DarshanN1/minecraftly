@@ -57,15 +57,6 @@ public class WorldUserData extends UserData implements ResettableData {
 
     public void setTrusted(boolean trusted) {
         yamlConfiguration.set("trusted", !isOwner() ? trusted : null); // this value shouldn't exist if owner
-        updateGameMode();
-    }
-
-    private void updateGameMode() {
-        Player player = getUser().getPlayer();
-
-        if (player != null) {
-            player.setGameMode(isOwner() || isTrusted() ? GameMode.SURVIVAL : GameMode.ADVENTURE);
-        }
     }
 
     public boolean isMuted() {
@@ -130,8 +121,14 @@ public class WorldUserData extends UserData implements ResettableData {
         return yamlConfiguration.getStringList("achievements");
     }
 
+    public void updateGameMode(Player player) {
+        player.setGameMode(canBuild() ? GameMode.SURVIVAL : GameMode.ADVENTURE);
+    }
+
     @Override
     public void extractFrom(Player player) {
+        checkNotNull(player, "Player cannot be null.");
+
         Location lastLocation = checkLocation(player.getLocation());
         yamlConfiguration.set("lastLocation", lastLocation != null ? BukkitUtilities.getLocationContainer(player.getLocation()).serialize() : null);
 
@@ -183,7 +180,8 @@ public class WorldUserData extends UserData implements ResettableData {
 
     @Override
     public void apply(Player player) {
-        updateGameMode();
+        checkNotNull(player, "Player cannot be null.");
+        updateGameMode(player);
 
         player.setBedSpawnLocation(yamlConfiguration.isConfigurationSection("bedLocation")
                 ? BukkitUtilities.getLocation(yamlConfiguration.getConfigurationSection("bedLocation")) : null);
@@ -233,7 +231,7 @@ public class WorldUserData extends UserData implements ResettableData {
         super.save();
 
         getQueryRunnerSupplier().get().update(String.format("REPLACE INTO `%sworld_user_data` (`world_uuid`, `user_uuid`, `muted`, `extra_data`) VALUES (UNHEX(?), UNHEX(?), ?, ?)",
-                        DatabaseManager.TABLE_PREFIX),
+                DatabaseManager.TABLE_PREFIX),
                 Utilities.convertToNoDashes(worldUUID),
                 Utilities.convertToNoDashes(getUser().getUniqueId()),
                 isMuted(),

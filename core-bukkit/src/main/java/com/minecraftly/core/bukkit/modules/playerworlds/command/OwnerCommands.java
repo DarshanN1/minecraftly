@@ -68,7 +68,8 @@ public class OwnerCommands {
                                 .getSingletonUserData(WorldUserDataContainer.class)
                                 .getOrLoad(targetUUID);
 
-                        worldUserData.setTrusted(trusted); // this method also updates gamemode
+                        worldUserData.setTrusted(trusted);
+                        worldUserData.updateGameMode(target);
 
                         String trustString = trusted ? "trusted" : "un-trusted";
                         langSuccessSender.send(sender, target.getDisplayName(), trustString);

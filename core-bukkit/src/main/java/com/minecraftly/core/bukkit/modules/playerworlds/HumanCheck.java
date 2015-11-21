@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -69,7 +70,7 @@ public class HumanCheck implements Listener, Runnable {
         module.getPlugin().getUserManager().getUser(player).getSingletonUserData(HumanCheckStatusData.class).setStatus(false);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(InventoryClickEvent e) {
         HumanEntity whoClicked = e.getWhoClicked();
 
@@ -80,11 +81,10 @@ public class HumanCheck implements Listener, Runnable {
 
             if (inventory.getName().equals(INVENTORY_NAME)) {
                 if (currentItem != null && currentItem.getType() == ACCEPT_ITEM_STACK.getType()) { // todo make this check better
-                    player.closeInventory();
-                    deleteInventoryCache(player);
-
                     module.getPlugin().getUserManager().getUser(player).getSingletonUserData(HumanCheckStatusData.class).setStatus(true);
                     module.getPlugin().getGateway().sendPacket(player, new PacketBotCheck(true));
+                    deleteInventoryCache(player);
+                    player.closeInventory();
                 }
 
                 e.setCancelled(true);

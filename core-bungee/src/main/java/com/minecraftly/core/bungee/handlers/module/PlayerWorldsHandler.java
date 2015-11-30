@@ -1,16 +1,19 @@
 package com.minecraftly.core.bungee.handlers.module;
 
 import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
+import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.minecraftly.core.bungee.HumanCheckManager;
 import com.minecraftly.core.bungee.MclyCoreBungeePlugin;
 import com.minecraftly.core.bungee.handlers.job.JobManager;
 import com.minecraftly.core.bungee.handlers.job.queue.ConnectJobQueue;
 import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
+import com.minecraftly.core.packets.playerworlds.PacketNoLongerHostingWorld;
 import com.minecraftly.core.packets.playerworlds.PacketPlayerGotoWorld;
 import com.sk89q.intake.Command;
 import lc.vq.exhaust.command.annotation.Sender;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -22,8 +25,6 @@ import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,18 +40,18 @@ public class PlayerWorldsHandler implements Listener {
     private final ProxyGateway<ProxiedPlayer, Server, ServerInfo> gateway;
     private final JobManager jobManager;
     private final HumanCheckManager humanCheckManager;
+    private final PlayerWorldsRepository playerWorldsRepository;
     private final RedisBungeeAPI redisBungeeAPI;
-
-    // todo use redis
-    private final Map<UUID, ServerInfo> worldServerMap = new HashMap<>();
 
     public PlayerWorldsHandler(ProxyGateway<ProxiedPlayer, Server, ServerInfo> gateway,
                                JobManager jobManager,
                                HumanCheckManager humanCheckManager,
+                               PlayerWorldsRepository playerWorldsRepository,
                                RedisBungeeAPI redisBungeeAPI) {
         this.gateway = gateway;
         this.jobManager = jobManager;
         this.humanCheckManager = humanCheckManager;
+        this.playerWorldsRepository = playerWorldsRepository;
         this.redisBungeeAPI = redisBungeeAPI;
     }
 
@@ -64,10 +65,10 @@ public class PlayerWorldsHandler implements Listener {
         if (serverInfo != null && !proxiedPlayer.getServer().getInfo().equals(serverInfo)) { // connect to server this should be hosted on
             proxiedPlayer.connect(serverInfo);
             jobManager.getJobQueue(HumanCheckJobQueue.class).addJob(proxiedPlayer, ((proxiedPlayer1, o) -> {
-                playerGotoWorld(proxiedPlayer, ownerUUID); // todo duplicate code
+                playerGotoWorld(proxiedPlayer, ownerUUID);
             }));
         } else {
-            playerGotoWorld(proxiedPlayer, ownerUUID); // todo duplicate code
+            playerGotoWorld(proxiedPlayer, ownerUUID);
         }
     }
 
@@ -83,8 +84,9 @@ public class PlayerWorldsHandler implements Listener {
         // this executes immediately if player is already human verified
         jobManager.getJobQueue(HumanCheckJobQueue.class).addJob(proxiedPlayer, (proxiedPlayer1, human) -> {
             if (human) {
-                ServerInfo hostingServer = worldServerMap.get(ownerUUID);
-                if (hostingServer != null && !proxiedPlayer1.getServer().getInfo().equals(hostingServer)) {
+                String hostingServer = playerWorldsRepository.getServer(ownerUUID);
+
+                if (hostingServer != null && !proxiedPlayer1.getServer().getInfo().getName().equals(hostingServer)) {
                     throw new UnsupportedOperationException("Attempted to host a world on 2 different instances.");
                 }
 
@@ -94,8 +96,8 @@ public class PlayerWorldsHandler implements Listener {
     }
 
     public ServerInfo getServerHostingWorld(UUID worldUUID) {
-        // todo check which server is hosting world remember to check for redis servers too
-        return null;
+        String serverName = playerWorldsRepository.getServer(worldUUID);
+        return serverName != null ? ProxyServer.getInstance().getServerInfo(serverName) : null;
     }
 
     // for cases whereby the server disconnecting from has no players online
@@ -105,14 +107,14 @@ public class PlayerWorldsHandler implements Listener {
     public void onServerDisconnect(ServerDisconnectEvent e) {
         ServerInfo serverLeaving = e.getTarget();
         if (serverLeaving.getPlayers().size() == 0) {
-            worldServerMap.values().removeIf(s -> s.equals(serverLeaving));
+            playerWorldsRepository.removeAll(serverLeaving.getName());
         }
     }
 
-    /*@PacketHandler todo
-    public void onNoLongerHosting(ProxiedPlayer proxiedPlayer, PacketNoLongerHosting packet) {
-        playerServerMap.get(proxiedPlayer.getServer().getInfo()).remove(packet.getWorldUUID());
-    }*/
+    @PacketHandler
+    public void onNoLongerHosting(ProxiedPlayer proxiedPlayer, PacketNoLongerHostingWorld packet) {
+        playerWorldsRepository.setServer(packet.getWorldUUID(), null);
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerPostLogin(PostLoginEvent e) { // go to players world once they are confirmed to not be a bot

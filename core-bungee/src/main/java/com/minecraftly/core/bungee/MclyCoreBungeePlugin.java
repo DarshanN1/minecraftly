@@ -7,6 +7,7 @@ import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.ikeirnez.pluginmessageframework.gateway.ProxySide;
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
+import com.imaginarycode.minecraft.redisbungee.internal.jedis.JedisPool;
 import com.minecraftly.core.MinecraftlyCommon;
 import com.minecraftly.core.bungee.handlers.HeartbeatTask;
 import com.minecraftly.core.bungee.handlers.MOTDHandler;
@@ -19,6 +20,7 @@ import com.minecraftly.core.bungee.handlers.job.handlers.HumanCheckHandler;
 import com.minecraftly.core.bungee.handlers.job.queue.ConnectJobQueue;
 import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
 import com.minecraftly.core.bungee.handlers.module.PlayerWorldsHandler;
+import com.minecraftly.core.bungee.handlers.module.PlayerWorldsRepository;
 import com.minecraftly.core.bungee.handlers.module.tpa.TpaData;
 import com.minecraftly.core.bungee.handlers.module.tpa.TpaDataAdapter;
 import com.minecraftly.core.bungee.handlers.module.tpa.TpaHandler;
@@ -141,9 +143,10 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
             return;
         }
 
+        JedisPool jedisPool = ((RedisBungee) pluginManager.getPlugin("RedisBungee")).getPool();
         gateway = BungeeGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
 
-        slaveHandler = new SlaveHandler(gson, ((RedisBungee) pluginManager.getPlugin("RedisBungee")).getPool(), getLogger(), String.valueOf(computeUniqueId));
+        slaveHandler = new SlaveHandler(gson, jedisPool, getLogger(), String.valueOf(computeUniqueId));
         pluginManager.registerListener(this, slaveHandler);
         taskScheduler.schedule(this, slaveHandler, RedisHelper.HEARTBEAT_INTERVAL, RedisHelper.HEARTBEAT_INTERVAL, TimeUnit.SECONDS);
         slaveHandler.initialize();
@@ -160,7 +163,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         pluginManager.registerListener(this, humanCheckHandler);
         pluginManager.registerListener(this, new ConnectHandler(connectJobQueue, getLogger()));
 
-        PlayerWorldsHandler playerWorldsHandler = new PlayerWorldsHandler(gateway, jobManager, humanCheckManager, redisBungeeAPI);
+        PlayerWorldsHandler playerWorldsHandler = new PlayerWorldsHandler(gateway, jobManager, humanCheckManager, new PlayerWorldsRepository(jedisPool), redisBungeeAPI);
         TpaHandler tpaHandler = new TpaHandler(this);
         PreSwitchHandler preSwitchHandler = new PreSwitchHandler(gateway, getLogger());
 

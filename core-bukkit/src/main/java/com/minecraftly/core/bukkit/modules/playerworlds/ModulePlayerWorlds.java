@@ -14,11 +14,9 @@ import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserData
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.DimensionListener;
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.PlayerListener;
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.WorldMessagesListener;
-import com.minecraftly.core.bukkit.modules.playerworlds.task.JoinCountdownTask;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.packets.playerworlds.PacketNoLongerHostingWorld;
-import com.minecraftly.core.utilities.ComputeEngineHelper;
 import com.sk89q.intake.fluent.DispatcherNode;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -30,18 +28,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.WorldLoadEvent;
-import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
-import org.bukkit.scheduler.BukkitScheduler;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
-import java.util.logging.Level;
 
 public class ModulePlayerWorlds extends Module implements Listener {
 
@@ -51,7 +44,6 @@ public class ModulePlayerWorlds extends Module implements Listener {
         return instance;
     }
 
-    private HumanCheck humanCheck;
     private ServerGateway<Player> gateway;
 
     public final Map<UUID, World> playerWorlds = new HashMap<>();
@@ -78,10 +70,6 @@ public class ModulePlayerWorlds extends Module implements Listener {
     @Override
     public void onEnable() {
         this.gateway = getPlugin().getGateway();
-        this.humanCheck = new HumanCheck(this);
-        registerListener(this.humanCheck);
-        gateway.registerListener(this.humanCheck);
-        Bukkit.getScheduler().runTaskTimer(getPlugin(), this.humanCheck, 20L, 20L);
 
         LanguageManager languageManager = getPlugin().getLanguageManager();
         PlayerListener playerListener = new PlayerListener(this);
@@ -100,8 +88,6 @@ public class ModulePlayerWorlds extends Module implements Listener {
         userManager.addDataStorageHandler(worldStorageHandler);
         registerListener(globalStorageHandler);
         registerListener(worldStorageHandler);
-
-        userManager.addDataStorageHandler(new HumanCheckStatusDataStorageHandler());
 
         languageManager.registerAll(new HashMap<String, LanguageValue>(){{
             put(getLanguageSection() + ".loading.owner", langLoadingOwner);
@@ -213,11 +199,11 @@ public class ModulePlayerWorlds extends Module implements Listener {
         return world;
     }
 
-    public void delayedJoinWorld(Player player) {
-        delayedJoinWorld(player, player.getUniqueId());
+    public void joinWorld(Player player) {
+        joinWorld(player, player.getUniqueId());
     }
 
-    public void delayedJoinWorld(Player player, UUID worldUUID) {
+    public void joinWorld(Player player, UUID worldUUID) {
         Preconditions.checkNotNull(player);
         Preconditions.checkNotNull(worldUUID);
 
@@ -232,10 +218,8 @@ public class ModulePlayerWorlds extends Module implements Listener {
         }
 
         langLoaded.send(player);
-        JoinCountdownTask joinCountdownTask = new JoinCountdownTask(this, langTeleportCountdown, getPlugin().getUserManager().getUser(player));
         World world = loadWorld(worldUUID.toString(), World.Environment.NORMAL);
-        joinCountdownTask.accept(world); // legacy, from when we used to load with rsync
-        joinCountdownTask.runTaskTimer(getPlugin(), 20L, 20L);
+        spawnInWorld(player, world);
     }
 
     public void spawnInWorld(Player player, World world) {

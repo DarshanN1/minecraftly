@@ -63,30 +63,26 @@ public class TpaHandler implements Runnable, Listener {
     }
 
     public void newTpaRequest(ProxiedPlayer sender, String inputName, TpaData.Direction direction) {
-        if (!plugin.getHumanCheckManager().isHumanVerified(sender)) {
-            sender.sendMessage(MclyCoreBungeePlugin.MESSAGE_NOT_HUMAN);
+        String targetName = BungeeUtilities.matchRedisPlayer(inputName);
+
+        if (targetName == null) {
+            sender.sendMessage(new ComponentBuilder("Couldn't find a player by the name of ").color(ChatColor.RED)
+                    .append(inputName).color(ChatColor.GOLD)
+                    .append(".").color(ChatColor.RED)
+                    .create()
+            );
+        } else if (sender.getName().equals(targetName)) {
+            sender.sendMessage(new ComponentBuilder("You may not use yourself in this command.").color(ChatColor.RED).create());
         } else {
-            String targetName = BungeeUtilities.matchRedisPlayer(inputName);
+            UUID targetUUID = redisBungeeAPI.getUuidFromName(targetName);
+            TpaData tpaData = new TpaData(sender.getUniqueId(), targetUUID, direction);
+            redisBungeeAPI.sendChannelMessage(CHANNEL_NEW_TPA_REQUEST, plugin.getGson().toJson(tpaData));
 
-            if (targetName == null) {
-                sender.sendMessage(new ComponentBuilder("Couldn't find a player by the name of ").color(ChatColor.RED)
-                                .append(inputName).color(ChatColor.GOLD)
-                                .append(".").color(ChatColor.RED)
-                                .create()
-                );
-            } else if (sender.getName().equals(targetName)) {
-                sender.sendMessage(new ComponentBuilder("You may not use yourself in this command.").color(ChatColor.RED).create());
-            } else {
-                UUID targetUUID = redisBungeeAPI.getUuidFromName(targetName);
-                TpaData tpaData = new TpaData(sender.getUniqueId(), targetUUID, direction);
-                redisBungeeAPI.sendChannelMessage(CHANNEL_NEW_TPA_REQUEST, plugin.getGson().toJson(tpaData));
-
-                sender.sendMessage(new ComponentBuilder("Request successfully sent to ").color(ChatColor.GREEN)
-                                .append(targetName).color(ChatColor.GOLD)
-                                .append(".").color(ChatColor.GREEN)
-                                .create()
-                );
-            }
+            sender.sendMessage(new ComponentBuilder("Request successfully sent to ").color(ChatColor.GREEN)
+                    .append(targetName).color(ChatColor.GOLD)
+                    .append(".").color(ChatColor.GREEN)
+                    .create()
+            );
         }
     }
 
@@ -169,13 +165,13 @@ public class TpaHandler implements Runnable, Listener {
                 tpaRequests.put(new AbstractMap.SimpleImmutableEntry<>(initiatorUUID, targetUUID), tpaData);
 
                 target.sendMessage(new ComponentBuilder(initiatorName).color(ChatColor.GOLD)
-                                .append(" " + direction.getInviteMessage()).color(ChatColor.AQUA)
-                                .append("\nUse ").color(ChatColor.AQUA)
-                                .append("/tpaccept " + initiatorName).color(ChatColor.GOLD)
-                                .append(" to accept.").color(ChatColor.AQUA)
-                                .append("\n/tpdeny " + initiatorName).color(ChatColor.GOLD)
-                                .append(" to deny.").color(ChatColor.AQUA)
-                                .create()
+                        .append(" " + direction.getInviteMessage()).color(ChatColor.AQUA)
+                        .append("\nUse ").color(ChatColor.AQUA)
+                        .append("/tpaccept " + initiatorName).color(ChatColor.GOLD)
+                        .append(" to accept.").color(ChatColor.AQUA)
+                        .append("\n/tpdeny " + initiatorName).color(ChatColor.GOLD)
+                        .append(" to deny.").color(ChatColor.AQUA)
+                        .create()
                 );
             }
         } else if (channel.equals(CHANNEL_TPA_ACCEPT)) {
@@ -194,9 +190,9 @@ public class TpaHandler implements Runnable, Listener {
 
         if (initiatorName == null) {
             sender.sendMessage(new ComponentBuilder("Couldn't find a player by the name of ").color(ChatColor.RED)
-                            .append(input).color(ChatColor.GOLD)
-                            .append(".").color(ChatColor.RED)
-                            .create()
+                    .append(input).color(ChatColor.GOLD)
+                    .append(".").color(ChatColor.RED)
+                    .create()
             );
         }
 
@@ -216,9 +212,9 @@ public class TpaHandler implements Runnable, Listener {
         ServerInfo teleportTargetServer = redisBungeeAPI.getServerFor(targetUUID);
 
         player.sendMessage(new ComponentBuilder("Teleporting you to ").color(ChatColor.GREEN)
-                        .append(targetName).color(ChatColor.GOLD)
-                        .append(".").color(ChatColor.GREEN)
-                        .create()
+                .append(targetName).color(ChatColor.GOLD)
+                .append(".").color(ChatColor.GREEN)
+                .create()
         );
 
         if (player.getServer().getInfo().equals(teleportTargetServer)) {

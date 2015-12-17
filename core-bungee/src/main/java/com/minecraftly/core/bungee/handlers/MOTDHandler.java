@@ -1,11 +1,11 @@
 package com.minecraftly.core.bungee.handlers;
 
 import com.minecraftly.core.bungee.handlers.job.JobManager;
-import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -83,14 +83,11 @@ public class MOTDHandler implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerPostLogin(PostLoginEvent e) {
-        jobManager.getJobQueue(HumanCheckJobQueue.class).addJob(e.getPlayer(), ((proxiedPlayer, human) -> {
-            if (human) {
-                List<BaseComponent[]> motdComponents = getMotdFromFile();
-                if (motdComponents != null) {
-                    motdComponents.forEach(proxiedPlayer::sendMessage);
-                }
-            }
-        }));
+        List<BaseComponent[]> motdComponents = getMotdFromFile();
+        if (motdComponents != null) {
+            ProxiedPlayer player = e.getPlayer();
+            motdComponents.forEach(player::sendMessage);
+        }
     }
 
     public List<BaseComponent[]> getMotdFromFile() {

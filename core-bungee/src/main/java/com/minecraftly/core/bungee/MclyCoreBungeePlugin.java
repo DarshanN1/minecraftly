@@ -16,9 +16,7 @@ import com.minecraftly.core.bungee.handlers.RedisMessagingHandler;
 import com.minecraftly.core.bungee.handlers.SlaveHandler;
 import com.minecraftly.core.bungee.handlers.job.JobManager;
 import com.minecraftly.core.bungee.handlers.job.handlers.ConnectHandler;
-import com.minecraftly.core.bungee.handlers.job.handlers.HumanCheckHandler;
 import com.minecraftly.core.bungee.handlers.job.queue.ConnectJobQueue;
-import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
 import com.minecraftly.core.bungee.handlers.module.PlayerWorldsHandler;
 import com.minecraftly.core.bungee.handlers.module.PlayerWorldsRepository;
 import com.minecraftly.core.bungee.handlers.module.tpa.TpaData;
@@ -31,9 +29,6 @@ import com.minecraftly.core.redis.message.gson.ServerDataAdapter;
 import com.minecraftly.core.utilities.ComputeEngineHelper;
 import com.minecraftly.core.utilities.Utilities;
 import lc.vq.exhaust.bungee.command.CommandManager;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
@@ -63,8 +58,6 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         return instance;
     }
 
-    public static final BaseComponent[] MESSAGE_NOT_HUMAN = new ComponentBuilder("You must first confirm you are human.").color(ChatColor.RED).create();
-
     // Google Compute
     private String computeUniqueId;
 
@@ -79,7 +72,6 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
     private SlaveHandler slaveHandler;
     private final JobManager jobManager = new JobManager();
-    private final HumanCheckManager humanCheckManager = new HumanCheckManager();
 
     @Override
     public void onLoad() {
@@ -154,16 +146,11 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
         redisBungeeAPI.registerPubSubChannels(RedisMessagingHandler.MESSAGE_PLAYER_CHANNEL, ServerInstanceData.CHANNEL, RedisHelper.CHANNEL_SERVER_GOING_DOWN);
         pluginManager.registerListener(this, new RedisMessagingHandler());
 
-        HumanCheckJobQueue humanCheckJobQueue = new HumanCheckJobQueue(humanCheckManager);
         ConnectJobQueue connectJobQueue = new ConnectJobQueue();
-        HumanCheckHandler humanCheckHandler = new HumanCheckHandler(humanCheckManager, jobManager, gateway);
-        jobManager.addJobQueue(humanCheckJobQueue);
         jobManager.addJobQueue(connectJobQueue);
-        gateway.registerListener(humanCheckHandler);
-        pluginManager.registerListener(this, humanCheckHandler);
         pluginManager.registerListener(this, new ConnectHandler(connectJobQueue, getLogger()));
 
-        PlayerWorldsHandler playerWorldsHandler = new PlayerWorldsHandler(gateway, jobManager, humanCheckManager, new PlayerWorldsRepository(jedisPool), redisBungeeAPI);
+        PlayerWorldsHandler playerWorldsHandler = new PlayerWorldsHandler(gateway, jobManager, new PlayerWorldsRepository(jedisPool), redisBungeeAPI);
         TpaHandler tpaHandler = new TpaHandler(this);
         PreSwitchHandler preSwitchHandler = new PreSwitchHandler(gateway, getLogger());
 
@@ -225,10 +212,5 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
     @Override
     public JobManager getJobManager() {
         return jobManager;
-    }
-
-    @Override
-    public HumanCheckManager getHumanCheckManager() {
-        return humanCheckManager;
     }
 }

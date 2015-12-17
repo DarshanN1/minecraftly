@@ -1,11 +1,9 @@
 package com.minecraftly.core.bukkit.modules.playerworlds.handlers;
 
-import com.google.common.cache.Cache;
 import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
 import com.minecraftly.core.bukkit.language.LanguageValue;
 import com.minecraftly.core.bukkit.modules.playerworlds.ModulePlayerWorlds;
 import com.minecraftly.core.bukkit.modules.playerworlds.WorldDimension;
-import com.minecraftly.core.bukkit.modules.playerworlds.data.JoinCountdownData;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserData;
 import com.minecraftly.core.bukkit.modules.playerworlds.data.world.WorldUserDataContainer;
 import com.minecraftly.core.bukkit.redis.CachedUUIDEntry;
@@ -14,7 +12,6 @@ import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.packets.playerworlds.PacketPlayerGotoWorld;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -73,26 +70,15 @@ public class PlayerListener implements Listener, Consumer<Player> {
         Player player = Bukkit.getPlayer(playerUUID);
 
         if (player != null) {
-            module.delayedJoinWorld(player, worldUUID);
+            module.joinWorld(player, worldUUID);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerQuit(PlayerQuitEvent e) {
         Player player = e.getPlayer();
-        JoinCountdownData joinCountdownData = userManager.getUser(e.getPlayer()).getSingletonUserData(JoinCountdownData.class);
-        World world;
-
-        if (joinCountdownData == null) {
-            world = WorldDimension.getBaseWorld(player.getWorld());
-        } else {
-            world = module.getPlayerWorld(player);
-            joinCountdownData.getCountdownTask().cancel(); // cancel pending countdown tasks
-        }
-
-        if (world != null) {
-            leftWorld(player, world);
-        }
+        World world = WorldDimension.getBaseWorld(player.getWorld());
+        leftWorld(player, world);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)

@@ -29,6 +29,4 @@ public interface MinecraftlyBungeeCore {
 
     JobManager getJobManager();
 
-    HumanCheckManager getHumanCheckManager();
-
 }

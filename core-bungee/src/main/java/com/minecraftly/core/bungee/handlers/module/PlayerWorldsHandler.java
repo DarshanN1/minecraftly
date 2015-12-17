@@ -3,11 +3,8 @@ package com.minecraftly.core.bungee.handlers.module;
 import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
-import com.minecraftly.core.bungee.HumanCheckManager;
-import com.minecraftly.core.bungee.MclyCoreBungeePlugin;
 import com.minecraftly.core.bungee.handlers.job.JobManager;
 import com.minecraftly.core.bungee.handlers.job.queue.ConnectJobQueue;
-import com.minecraftly.core.bungee.handlers.job.queue.HumanCheckJobQueue;
 import com.minecraftly.core.packets.playerworlds.PacketNoLongerHostingWorld;
 import com.minecraftly.core.packets.playerworlds.PacketPlayerGotoWorld;
 import com.sk89q.intake.Command;
@@ -34,23 +31,20 @@ import java.util.regex.Pattern;
  */
 public class PlayerWorldsHandler implements Listener {
 
-                                            // ^<username (min 1, max 16)>.<domain (min 1, max inf)>.<extension (min 2, max 4)>
+    // ^<username (min 1, max 16)>.<domain (min 1, max inf)>.<extension (min 2, max 4)>
     private static final Pattern DOMAIN_PATTERN = Pattern.compile("^(\\w{1,16})\\.(\\w+)\\.(\\w{2,4})$", Pattern.CASE_INSENSITIVE);
 
     private final ProxyGateway<ProxiedPlayer, Server, ServerInfo> gateway;
     private final JobManager jobManager;
-    private final HumanCheckManager humanCheckManager;
     private final PlayerWorldsRepository playerWorldsRepository;
     private final RedisBungeeAPI redisBungeeAPI;
 
     public PlayerWorldsHandler(ProxyGateway<ProxiedPlayer, Server, ServerInfo> gateway,
                                JobManager jobManager,
-                               HumanCheckManager humanCheckManager,
                                PlayerWorldsRepository playerWorldsRepository,
                                RedisBungeeAPI redisBungeeAPI) {
         this.gateway = gateway;
         this.jobManager = jobManager;
-        this.humanCheckManager = humanCheckManager;
         this.playerWorldsRepository = playerWorldsRepository;
         this.redisBungeeAPI = redisBungeeAPI;
     }
@@ -64,35 +58,20 @@ public class PlayerWorldsHandler implements Listener {
         ServerInfo serverInfo = getServerHostingWorld(ownerUUID);
         if (serverInfo != null && !proxiedPlayer.getServer().getInfo().equals(serverInfo)) { // connect to server this should be hosted on
             proxiedPlayer.connect(serverInfo);
-            jobManager.getJobQueue(HumanCheckJobQueue.class).addJob(proxiedPlayer, ((proxiedPlayer1, o) -> {
-                playerGotoWorld(proxiedPlayer, ownerUUID);
-            }));
+            playerGotoWorld(proxiedPlayer, ownerUUID);
         } else {
             playerGotoWorld(proxiedPlayer, ownerUUID);
         }
     }
 
     public void playerGotoWorld(ProxiedPlayer proxiedPlayer, UUID ownerUUID) {
-        playerGotoWorld(proxiedPlayer, ownerUUID, true);
-    }
+        String hostingServer = playerWorldsRepository.getServer(ownerUUID);
 
-    public void playerGotoWorld(ProxiedPlayer proxiedPlayer, UUID ownerUUID, boolean showNotHumanError) {
-        if (showNotHumanError && !humanCheckManager.isHumanVerified(proxiedPlayer)) {
-            proxiedPlayer.sendMessage(MclyCoreBungeePlugin.MESSAGE_NOT_HUMAN);
+        if (hostingServer != null && !proxiedPlayer.getServer().getInfo().getName().equals(hostingServer)) {
+            throw new UnsupportedOperationException("Attempted to host a world on 2 different instances.");
         }
 
-        // this executes immediately if player is already human verified
-        jobManager.getJobQueue(HumanCheckJobQueue.class).addJob(proxiedPlayer, (proxiedPlayer1, human) -> {
-            if (human) {
-                String hostingServer = playerWorldsRepository.getServer(ownerUUID);
-
-                if (hostingServer != null && !proxiedPlayer1.getServer().getInfo().getName().equals(hostingServer)) {
-                    throw new UnsupportedOperationException("Attempted to host a world on 2 different instances.");
-                }
-
-                gateway.sendPacket(proxiedPlayer1, new PacketPlayerGotoWorld(proxiedPlayer1.getUniqueId(), ownerUUID));
-            }
-        });
+        gateway.sendPacket(proxiedPlayer, new PacketPlayerGotoWorld(proxiedPlayer.getUniqueId(), ownerUUID));
     }
 
     public ServerInfo getServerHostingWorld(UUID worldUUID) {
@@ -141,7 +120,7 @@ public class PlayerWorldsHandler implements Listener {
             }
         }
 
-        playerGotoWorld(proxiedPlayer, destination, false);
+        playerGotoWorld(proxiedPlayer, destination);
     }
 
 }

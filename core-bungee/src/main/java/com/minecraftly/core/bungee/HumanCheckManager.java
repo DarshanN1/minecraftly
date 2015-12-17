@@ -12,14 +12,15 @@ import java.util.UUID;
  */
 public class HumanCheckManager {
 
-    private final List<UUID> humanVerified = new ArrayList<>();
+    //private final List<UUID> humanVerified = new ArrayList<>();
 
     public boolean isHumanVerified(ProxiedPlayer proxiedPlayer) {
         return isHumanVerified(proxiedPlayer.getUniqueId());
     }
 
     public boolean isHumanVerified(UUID playerUUID) {
-        return humanVerified.contains(playerUUID);
+        return true;
+        //return humanVerified.contains(playerUUID);
     }
 
     public void addHumanVerified(ProxiedPlayer proxiedPlayer) {
@@ -27,7 +28,7 @@ public class HumanCheckManager {
     }
 
     public void addHumanVerified(UUID playerUUID) {
-        humanVerified.add(playerUUID);
+        //humanVerified.add(playerUUID);
     }
 
     public void removeHumanVerified(ProxiedPlayer proxiedPlayer) {
@@ -35,7 +36,7 @@ public class HumanCheckManager {
     }
 
     public void removeHumanVerified(UUID playerUUID) {
-        humanVerified.remove(playerUUID);
+        //humanVerified.remove(playerUUID);
     }
 
 }

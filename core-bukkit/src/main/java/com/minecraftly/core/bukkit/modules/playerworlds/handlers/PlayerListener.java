@@ -233,7 +233,8 @@ public class PlayerListener implements Listener, Consumer<Player> {
     public void ownerLeftWorld(Player owner, World world) {
         for (Player p : world.getPlayers()) {
             if (p != owner) {
-                module.loadWorld(p.getUniqueId().toString(), World.Environment.NORMAL, (playerWorld) -> module.spawnInWorld(p, playerWorld));
+                World playerWorld = module.loadWorld(p.getUniqueId().toString(), World.Environment.NORMAL);
+                module.spawnInWorld(p, playerWorld);
             }
         }
     }

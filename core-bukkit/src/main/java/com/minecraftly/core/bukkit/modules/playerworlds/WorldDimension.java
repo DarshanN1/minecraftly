@@ -76,7 +76,8 @@ public enum WorldDimension {
             consumer.accept(loadedWorld);
         } else {
             String newWorldName = convertTo(world.getName());
-            ModulePlayerWorlds.getInstance().loadWorld(newWorldName, getEnvironment(), consumer);
+            World newWorld = ModulePlayerWorlds.getInstance().loadWorld(newWorldName, getEnvironment());
+            consumer.accept(newWorld); // legacy, from when we used to load from rsync
         }
     }
 

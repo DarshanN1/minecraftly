@@ -15,7 +15,6 @@ import com.minecraftly.core.bukkit.modules.playerworlds.handlers.DimensionListen
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.PlayerListener;
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.WorldMessagesListener;
 import com.minecraftly.core.bukkit.modules.playerworlds.task.JoinCountdownTask;
-import com.minecraftly.core.bukkit.modules.playerworlds.task.RSyncUploadWorldTask;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.core.packets.playerworlds.PacketNoLongerHostingWorld;
@@ -150,7 +149,6 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
         for (World world : playerWorlds.values()) {
             Bukkit.unloadWorld(world, true);
-            rsync(world);
             unload(world);
         }
 
@@ -188,28 +186,6 @@ public class ModulePlayerWorlds extends Module implements Listener {
             playerWorlds.remove(ownerUUID);
             gateway.sendPacket(new PacketNoLongerHostingWorld(ownerUUID), false); // notify proxy if possible
             getLogger().info("Unloaded world for player: " + ownerUUID + ".");
-        }
-    }
-
-    @EventHandler
-    public void onWorldSave(WorldSaveEvent e) {
-        rsync(e.getWorld());
-    }
-
-    public void rsync(World world) {
-        if (!getPlugin().CFG_DEBUG_SKIP_RSYNC.getValue()) {
-            String worldName = world.getName();
-            UUID ownerUUID = getWorldOwner(world);
-
-            if (ownerUUID == null) {
-                try {
-                    ownerUUID = UUID.fromString(world.getName()); // manually parse since cached value may have been removed
-                } catch (IllegalArgumentException ignored) {
-                    return;
-                }
-            }
-
-            runAsyncUnlessDisabling(new RSyncUploadWorldTask(world, ownerUUID, () -> disabling.get() || Bukkit.getWorld(worldName) == null, getLogger()));
         }
     }
 
@@ -257,7 +233,8 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
         langLoaded.send(player);
         JoinCountdownTask joinCountdownTask = new JoinCountdownTask(this, langTeleportCountdown, getPlugin().getUserManager().getUser(player));
-        loadWorld(worldUUID.toString(), World.Environment.NORMAL, joinCountdownTask);
+        World world = loadWorld(worldUUID.toString(), World.Environment.NORMAL);
+        joinCountdownTask.accept(world); // legacy, from when we used to load with rsync
         joinCountdownTask.runTaskTimer(getPlugin(), 20L, 20L);
     }
 
@@ -285,52 +262,22 @@ public class ModulePlayerWorlds extends Module implements Listener {
         return Bukkit.getWorld(worldName);
     }
 
-    public void loadWorld(String worldName, World.Environment environment, Consumer<World> consumer) {
-        BukkitScheduler scheduler = Bukkit.getScheduler();
+    public World loadWorld(String worldName, World.Environment environment) {
         World existingWorld = getWorld(worldName);
 
         if (existingWorld == null) {
-            scheduler.runTaskAsynchronously(getPlugin(), () -> {
-                File worldDirectory = new File(Bukkit.getWorldContainer(), worldName);
+            File worldDirectory = new File(Bukkit.getWorldContainer(), worldName);
 
-                try {
-                    if (!getPlugin().CFG_DEBUG_SKIP_RSYNC.getValue() && ComputeEngineHelper.worldExists(worldName)) {
-                        if (!worldDirectory.exists() && !worldDirectory.mkdir()) {
-                            getLogger().severe("Error creating directory: " + worldDirectory.getPath() + ".");
-                        }
+            if (worldDirectory.exists() && !worldDirectory.isDirectory()) {
+                throw new IllegalArgumentException(worldDirectory.getPath() + " exists, but is not a directory.");
+            }
 
-                        ComputeEngineHelper.rsync("gs://worlds/" + worldName, worldDirectory.getCanonicalPath());
+            World world = new WorldCreator(worldName).environment(environment).createWorld();
+            initializeWorld(world);
 
-                        File sessionLockFile = new File(worldDirectory, "session.lock");
-                        if (sessionLockFile.exists() && !sessionLockFile.delete()) {
-                            getLogger().warning("Unable to delete session.lock file, world will fail to load.");
-                        }
-                    }
-                } catch (IOException | InterruptedException e) {
-                    getLogger().log(Level.SEVERE, "Error retrieving existing world from cloud storage.", e);
-
-                    if (consumer != null) {
-                        scheduler.runTask(getPlugin(), () -> consumer.accept(null));
-                    }
-
-                    return;
-                }
-
-                if (worldDirectory.exists() && !worldDirectory.isDirectory()) {
-                    throw new IllegalArgumentException(worldDirectory.getPath() + " exists, but is not a directory.");
-                }
-
-                scheduler.runTask(getPlugin(), () -> {
-                    World world = new WorldCreator(worldName).environment(environment).createWorld();
-                    initializeWorld(world);
-
-                    if (consumer != null) {
-                        consumer.accept(world);
-                    }
-                });
-            });
-        } else if (consumer != null) {
-            scheduler.runTask(getPlugin(), () -> consumer.accept(existingWorld));
+            return world;
+        } else {
+            return existingWorld;
         }
     }
 

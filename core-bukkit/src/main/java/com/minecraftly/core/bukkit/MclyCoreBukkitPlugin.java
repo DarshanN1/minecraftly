@@ -97,7 +97,6 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
 
     public final DataValue<String> CFG_DEBUG_UNIQUE_ID = new DataValue<>("-1", String.class);
     public final DataValue<String> CFG_DEBUG_IP_ADDRESS = new DataValue<>("", String.class);
-    public final DataValue<Boolean> CFG_DEBUG_SKIP_RSYNC = new DataValue<>(false, Boolean.class);
     public final DataValue<Integer> CFG_DEBUG_WEB_PORT = new DataValue<>(8080, Integer.class);
     public final DataValue<Integer> CFG_DEBUG_HEARTBEAT_PORT = new DataValue<>(25566, Integer.class);
 
@@ -118,7 +117,6 @@ public class MclyCoreBukkitPlugin extends JavaPlugin implements MinecraftlyCore 
 
         put(debugPrefix + "uniqueId", CFG_DEBUG_UNIQUE_ID);
         put(debugPrefix + "ipAddress", CFG_DEBUG_IP_ADDRESS);
-        put(debugPrefix + "skipRSync", CFG_DEBUG_SKIP_RSYNC);
         put(debugPrefix + "webPort", CFG_DEBUG_WEB_PORT);
         put(debugPrefix + "heartbeatPort", CFG_DEBUG_HEARTBEAT_PORT);
     }};

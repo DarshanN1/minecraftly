@@ -42,7 +42,6 @@ public class PlayerListener implements Listener, Consumer<Player> {
     private final LanguageValue langPlayerLeftWorld = new LanguageValue("&6%s &bhas left.");
 
     private final LanguageValue langOwnerLeft = new LanguageValue("&cThe owner of that world left.");
-    private final LanguageValue langBotCheckNotCompleted = new LanguageValue("&cYou must first confirm you are human.");
 
     private ModulePlayerWorlds module;
     private UserManager userManager;
@@ -59,7 +58,6 @@ public class PlayerListener implements Listener, Consumer<Player> {
             put(prefix + ".joinedWorld", langPlayerJoinedWorld);
             put(prefix + ".leftWorld", langPlayerLeftWorld);
             put(prefix + ".ownerLeft", langOwnerLeft);
-            put(prefix + ".botCheckNotCompleted", langBotCheckNotCompleted);
         }});
     }
 

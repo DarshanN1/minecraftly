@@ -96,7 +96,7 @@ public class PlayerWorldsHandler implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerPostLogin(PostLoginEvent e) { // go to players world once they are confirmed to not be a bot
+    public void onPlayerPostLogin(PostLoginEvent e) { // go to players world
         ProxiedPlayer proxiedPlayer = e.getPlayer();
         UUID destination = proxiedPlayer.getUniqueId();
         InetSocketAddress virtualHost = proxiedPlayer.getPendingConnection().getVirtualHost();
@@ -120,7 +120,11 @@ public class PlayerWorldsHandler implements Listener {
             }
         }
 
-        playerGotoWorld(proxiedPlayer, destination);
+        UUID destinationFinal = destination;
+
+        jobManager.getJobQueue(ConnectJobQueue.class).addJob(proxiedPlayer, (p, s) -> {
+            playerGotoWorld(p, destinationFinal);
+        });
     }
 
 }

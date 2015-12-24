@@ -148,7 +148,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
         ConnectJobQueue connectJobQueue = new ConnectJobQueue();
         jobManager.addJobQueue(connectJobQueue);
-        pluginManager.registerListener(this, new ConnectHandler(connectJobQueue, getLogger()));
+        pluginManager.registerListener(this, new ConnectHandler(this, connectJobQueue));
 
         PlayerWorldsHandler playerWorldsHandler = new PlayerWorldsHandler(gateway, jobManager, new PlayerWorldsRepository(jedisPool), redisBungeeAPI);
         TpaHandler tpaHandler = new TpaHandler(this);

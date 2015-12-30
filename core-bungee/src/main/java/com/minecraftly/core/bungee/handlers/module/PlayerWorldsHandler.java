@@ -57,8 +57,9 @@ public class PlayerWorldsHandler implements Listener {
     public void connectBestServer(ProxiedPlayer proxiedPlayer, final UUID ownerUUID) {
         ServerInfo serverInfo = getServerHostingWorld(ownerUUID);
         if (serverInfo != null && !proxiedPlayer.getServer().getInfo().equals(serverInfo)) { // connect to server this should be hosted on
+            jobManager.getJobQueue(ConnectJobQueue.class).addJob(proxiedPlayer, (p, s) -> playerGotoWorld(p, ownerUUID));
             proxiedPlayer.connect(serverInfo);
-            playerGotoWorld(proxiedPlayer, ownerUUID);
+
         } else {
             playerGotoWorld(proxiedPlayer, ownerUUID);
         }

@@ -41,8 +41,6 @@ public class PlayerListener implements Listener, Consumer<Player> {
     private final LanguageValue langPlayerJoinedWorld = new LanguageValue("&6%s &bhas joined.");
     private final LanguageValue langPlayerLeftWorld = new LanguageValue("&6%s &bhas left.");
 
-    private final LanguageValue langOwnerLeft = new LanguageValue("&cThe owner of that world left.");
-
     private ModulePlayerWorlds module;
     private UserManager userManager;
 
@@ -57,7 +55,6 @@ public class PlayerListener implements Listener, Consumer<Player> {
             put(prefix + ".welcome.guest", langWelcomeGuest);
             put(prefix + ".joinedWorld", langPlayerJoinedWorld);
             put(prefix + ".leftWorld", langPlayerLeftWorld);
-            put(prefix + ".ownerLeft", langOwnerLeft);
         }});
     }
 
@@ -205,22 +202,9 @@ public class PlayerListener implements Listener, Consumer<Player> {
     public void leftWorld(Player player, World baseWorld) {
         if (module.isPlayerWorld(baseWorld)) {
             BukkitUtilities.broadcast(WorldDimension.getPlayersAllDimensions(baseWorld), player, langPlayerLeftWorld.getValue(player.getName()));
-
-            if (baseWorld == player.getWorld() && module.getWorldOwner(baseWorld).equals(player.getUniqueId())) { // player may not be in world if they leave during countdown
-                ownerLeftWorld(player, baseWorld);
-            }
         }
 
         checkWorldForUnloadDelayed(baseWorld);
-    }
-
-    public void ownerLeftWorld(Player owner, World world) {
-        for (Player p : world.getPlayers()) {
-            if (p != owner) {
-                World playerWorld = module.loadWorld(p.getUniqueId().toString(), World.Environment.NORMAL);
-                module.spawnInWorld(p, playerWorld);
-            }
-        }
     }
 
     // fired when player is about to switch server

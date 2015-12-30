@@ -208,6 +208,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
         Preconditions.checkNotNull(worldUUID);
 
         UUID playerUUID = player.getUniqueId();
+        String worldName = worldUUID.toString();
 
         if (!isWorldLoaded(worldUUID)) {
             if (playerUUID.equals(worldUUID)) {
@@ -217,7 +218,10 @@ public class ModulePlayerWorlds extends Module implements Listener {
             }
         }
 
-        langLoaded.send(player);
+        if (getWorld(worldName) == null) {
+            langLoaded.send(player);
+        }
+
         World world = loadWorld(worldUUID.toString(), World.Environment.NORMAL);
         spawnInWorld(player, world);
     }

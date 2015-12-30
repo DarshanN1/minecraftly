@@ -143,11 +143,11 @@ public class PlayerListener implements Listener, Consumer<Player> {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerRespawn(PlayerRespawnEvent e) {
         Player player = e.getPlayer();
-        World world = WorldDimension.getBaseWorld(player.getWorld());
+        World baseWorld = WorldDimension.getBaseWorld(player.getWorld());
 
-        if (module.isPlayerWorld(world)) {
+        if (module.isPlayerWorld(baseWorld)) {
             WorldUserDataContainer worldUserDataContainer = userManager.getUser(player).getSingletonUserData(WorldUserDataContainer.class);
-            WorldUserData worldUserData = worldUserDataContainer.get(module.getWorldOwner(world));
+            WorldUserData worldUserData = worldUserDataContainer.get(module.getWorldOwner(baseWorld));
 
             if (worldUserData != null) {
                 // first, try home location
@@ -156,14 +156,14 @@ public class PlayerListener implements Listener, Consumer<Player> {
                     // if that fails, try using the players LOCAL bed location
                     respawnLocation = player.getBedSpawnLocation();
 
-                    // check the bed location is good and that it isn't in another world
-                    if ((respawnLocation != null && !world.equals(WorldDimension.getBaseWorld(respawnLocation.getWorld()))) || respawnLocation == null) {
+                    // check the bed location is good and that it isn't in another players world
+                    if ((respawnLocation != null && !baseWorld.equals(WorldDimension.getBaseWorld(respawnLocation.getWorld()))) || respawnLocation == null) {
                         // if that fails, try the players stored bed location
                         respawnLocation = worldUserData.getBedLocation();
 
                         if (respawnLocation == null) {
                             // if all else fails, fallback to spawn location
-                            respawnLocation = BukkitUtilities.getSafeSpawnLocation(world.getSpawnLocation());
+                            respawnLocation = BukkitUtilities.getSafeSpawnLocation(baseWorld.getSpawnLocation());
                         }
                     }
                 }

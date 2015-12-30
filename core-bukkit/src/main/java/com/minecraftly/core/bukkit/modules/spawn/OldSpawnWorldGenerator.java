@@ -11,7 +11,7 @@ import java.util.Random;
  * Old custom world generator. Kept for possible future use.
  * Will generate a void world with a 16x16x5 room at chunk 0,0 at sea level.
  */
-public class OldChatWorldGenerator extends ChunkGenerator {
+public class OldSpawnWorldGenerator extends ChunkGenerator {
 
     private final int BASE_LEVEL = 63;
 
@@ -22,7 +22,7 @@ public class OldChatWorldGenerator extends ChunkGenerator {
      *
      * @param material the material to create the room from.
      */
-    public OldChatWorldGenerator(Material material) {
+    public OldSpawnWorldGenerator(Material material) {
         this.material = material;
     }
 

@@ -56,6 +56,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
     private final LanguageValue langLoaded = new LanguageValue("&bWorld has been loaded, please wait...");
     private final LanguageValue langTeleportCountdown = new LanguageValue("&bTeleporting in &6%s &bseconds.");
     public final LanguageValue langNotOwner = new LanguageValue("&cYou are not the owner of this world.");
+    private final LanguageValue langCannotCreateOthersWorld = new LanguageValue("&cYou cannot create a world on behalf of another player.");
     public final LanguageValue langCannotUseCommandHere = new LanguageValue("&cYou cannot use that command here.");
 
     public ModulePlayerWorlds(MclyCoreBukkitPlugin plugin) {
@@ -98,6 +99,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
             put(getLanguageSection() + ".loaded.teleportCountdown", langTeleportCountdown);
             put(getLanguageSection() + ".error.notOwner", langNotOwner);
             put(getLanguageSection() + ".error.cannotUseCommandHere", langCannotUseCommandHere);
+            put(getLanguageSection() + ".error.cannotCreateOthersWorld", langCannotCreateOthersWorld);
         }});
     }
 
@@ -222,8 +224,13 @@ public class ModulePlayerWorlds extends Module implements Listener {
             langLoaded.send(player);
         }
 
-        World world = loadWorld(worldUUID.toString(), World.Environment.NORMAL);
-        spawnInWorld(player, world);
+        if (canLoadWorld(player, worldUUID)) {
+            World world = loadWorld(worldUUID.toString(), World.Environment.NORMAL);
+            spawnInWorld(player, world);
+        } else {
+            langCannotCreateOthersWorld.send(player);
+            joinWorld(player); // take them to their own world
+        }
     }
 
     public void spawnInWorld(Player player, World world) {
@@ -250,6 +257,25 @@ public class ModulePlayerWorlds extends Module implements Listener {
         return Bukkit.getWorld(worldName);
     }
 
+    /**
+     * If a player tries to create a world that they don't own, don't allow it.
+     *
+     * @param player the player attempting to load a world
+     * @param worldUUID the owner of the world
+     * @return whether the world can be loaded (or created)
+     */
+    public boolean canLoadWorld(Player player, UUID worldUUID) {
+        if (!player.getUniqueId().equals(worldUUID)) {
+            File existingWorldFile = new File(Bukkit.getWorldContainer(), worldUUID.toString());
+
+            if (!existingWorldFile.exists()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public World loadWorld(String worldName, World.Environment environment) {
         World existingWorld = getWorld(worldName);
 
@@ -262,7 +288,6 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
             World world = new WorldCreator(worldName).environment(environment).createWorld();
             initializeWorld(world);
-
             return world;
         } else {
             return existingWorld;

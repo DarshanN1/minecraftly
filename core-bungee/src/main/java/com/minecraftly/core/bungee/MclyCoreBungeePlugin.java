@@ -1,5 +1,6 @@
 package com.minecraftly.core.bungee;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.ikeirnez.pluginmessageframework.bungeecord.BungeeGatewayProvider;
@@ -7,7 +8,6 @@ import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
 import com.ikeirnez.pluginmessageframework.gateway.ProxySide;
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
-import com.imaginarycode.minecraft.redisbungee.internal.jedis.JedisPool;
 import com.minecraftly.core.MinecraftlyCommon;
 import com.minecraftly.core.bungee.handlers.HeartbeatTask;
 import com.minecraftly.core.bungee.handlers.MOTDHandler;
@@ -38,12 +38,18 @@ import net.md_5.bungee.api.scheduler.TaskScheduler;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -68,6 +74,7 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
     private CommandManager commandManager;
     private ProxyGateway<ProxiedPlayer, Server, ServerInfo> gateway;
     private RedisBungeeAPI redisBungeeAPI;
+    private JedisPool jedisPool;
     private Gson gson;
 
     private SlaveHandler slaveHandler;
@@ -135,9 +142,21 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
             return;
         }
 
-        JedisPool jedisPool = ((RedisBungee) pluginManager.getPlugin("RedisBungee")).getPool();
-        gateway = BungeeGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
+        FutureTask<JedisPool> jedisTask = new FutureTask<>(() ->
+                connectRedis(configuration.getString("redis.host"), configuration.getInt("redis.port"), configuration.getString("redis.password")));
 
+        taskScheduler.runAsync(this, jedisTask);
+
+        try {
+            jedisPool = jedisTask.get();
+            testRedisConnection(jedisPool);
+            getLogger().info("Connected to Redis server.");
+        } catch (InterruptedException | ExecutionException e) {
+            getLogger().log(Level.SEVERE, "Error whilst connecting to Redis.", e);
+            return;
+        }
+
+        gateway = BungeeGatewayProvider.getGateway(MinecraftlyCommon.GATEWAY_CHANNEL, ProxySide.SERVER, this);
         slaveHandler = new SlaveHandler(gson, jedisPool, getLogger(), String.valueOf(computeUniqueId));
         pluginManager.registerListener(this, slaveHandler);
         taskScheduler.schedule(this, slaveHandler, RedisHelper.HEARTBEAT_INTERVAL, RedisHelper.HEARTBEAT_INTERVAL, TimeUnit.SECONDS);
@@ -173,7 +192,30 @@ public class MclyCoreBungeePlugin extends Plugin implements MinecraftlyBungeeCor
 
     @Override
     public void onDisable() {
+        jedisPool.destroy();
         instance = null;
+    }
+
+    private JedisPool connectRedis(String host, int port, String password) {
+        Preconditions.checkNotNull(host, "Host cannot be null.");
+        Preconditions.checkArgument(!host.isEmpty(), "Host cannot be empty.");
+        Preconditions.checkArgument(port >= 1 && port <= 65535, "Port must be in range 1-65535");
+
+        if (password != null && (password .isEmpty() || password.equals("none"))) {
+            password = null;
+        }
+
+        JedisPoolConfig config = new JedisPoolConfig();
+        return new JedisPool(config, host, port, 0, password);
+    }
+
+    private void testRedisConnection(JedisPool jedisPool) {
+        try (Jedis jedis = jedisPool.getResource()) {
+            jedis.ping();
+        } catch (JedisConnectionException e) {
+            jedisPool.destroy();
+            throw e;
+        }
     }
 
     private void saveConfig() {

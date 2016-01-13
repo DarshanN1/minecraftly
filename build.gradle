@@ -181,6 +181,8 @@ project(':core') {
         compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
         compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.12'
 
+        compile group: 'redis.clients', name: 'jedis', version: '2.8.0'
+        compile group: 'org.apache.commons', name: 'commons-pool2', version: '2.4.2' // required by Jedis
         compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.3'
         compile group: 'commons-dbutils', name: 'commons-dbutils', version: '1.6'
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-core', version: parent.ext.pmfVersion
@@ -196,6 +198,8 @@ project(':core') {
             include(dependency('org.slf4j:slf4j-api'))
             include(dependency('org.slf4j:slf4j-simple'))
 
+            include(dependency('redis.clients:jedis'))
+            include(dependency('org.apache.commons:commons-pool2'))
             include(dependency('org.apache.httpcomponents:httpcore'))
             include(dependency('commons-dbutils:commons-dbutils'))
             include(dependency('com.ikeirnez.pluginmessageframework:pmf-core'))
@@ -232,8 +236,6 @@ project(':core-bukkit') {
         compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-packets-bungeecord', version: parent.ext.pmfVersion
         compile group: 'net.milkbowl.vault', name: 'VaultAPI', version: parent.ext.vaultVersion
         compile group: 'com.comphenix.protocol', name: 'ProtocolLib', version: parent.ext.protocolLibVersion
-        compile group: 'redis.clients', name: 'jedis', version: '2.7.2'
-        compile group: 'org.apache.commons', name: 'commons-pool2', version: '2.4.2' // required by Jedis
     }
 
     shadowJar {
@@ -242,8 +244,6 @@ project(':core-bukkit') {
             include(dependency('lc.vq:exhaust-bukkit'))
             include(dependency('com.ikeirnez.pluginmessageframework:pmf-bukkit'))
             include(dependency('com.ikeirnez.pluginmessageframework:pmf-packets-bungeecord'))
-            include(dependency('redis.clients:jedis'))
-            include(dependency('org.apache.commons:commons-pool2'))
         }
     }
 

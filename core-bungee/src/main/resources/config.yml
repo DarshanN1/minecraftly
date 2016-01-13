@@ -1,3 +1,7 @@
+redis:
+  host: "localhost"
+  port: 6379
+  password: "somepass"
 debug:
   uniqueId: '-1'
   heartbeatPort: 25566

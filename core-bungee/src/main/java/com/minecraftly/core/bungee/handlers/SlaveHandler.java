@@ -2,8 +2,6 @@ package com.minecraftly.core.bungee.handlers;
 
 import com.google.gson.Gson;
 import com.imaginarycode.minecraft.redisbungee.events.PubSubMessageEvent;
-import com.imaginarycode.minecraft.redisbungee.internal.jedis.Jedis;
-import com.imaginarycode.minecraft.redisbungee.internal.jedis.JedisPool;
 import com.minecraftly.core.redis.RedisHelper;
 import com.minecraftly.core.redis.message.ServerInstanceData;
 import net.md_5.bungee.api.ProxyServer;
@@ -11,6 +9,8 @@ import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import java.net.InetSocketAddress;
 import java.util.Iterator;
@@ -85,7 +85,7 @@ public class SlaveHandler implements Listener, Runnable {
     }
 
     @EventHandler
-    public void onNewServer(PubSubMessageEvent e) {
+    public void onNewServer(PubSubMessageEvent e) { // Handled by RedisBungee, not our independent Redis connection
         String message = e.getMessage();
 
         switch (e.getChannel()) {

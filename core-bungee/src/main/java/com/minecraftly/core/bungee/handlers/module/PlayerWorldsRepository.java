@@ -1,7 +1,7 @@
 package com.minecraftly.core.bungee.handlers.module;
 
-import com.imaginarycode.minecraft.redisbungee.internal.jedis.Jedis;
-import com.imaginarycode.minecraft.redisbungee.internal.jedis.JedisPool;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import java.util.Map;
 import java.util.UUID;

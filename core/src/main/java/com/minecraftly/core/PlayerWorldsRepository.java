@@ -1,4 +1,4 @@
-package com.minecraftly.core.bungee.handlers.module;
+package com.minecraftly.core;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;

@@ -2,6 +2,7 @@ package com.minecraftly.core.bukkit.modules.playerworlds;
 
 import com.google.common.base.Preconditions;
 import com.ikeirnez.pluginmessageframework.gateway.ServerGateway;
+import com.minecraftly.core.PlayerWorldsRepository;
 import com.minecraftly.core.bukkit.MclyCoreBukkitPlugin;
 import com.minecraftly.core.bukkit.language.LanguageManager;
 import com.minecraftly.core.bukkit.language.LanguageValue;
@@ -16,7 +17,6 @@ import com.minecraftly.core.bukkit.modules.playerworlds.handlers.PlayerListener;
 import com.minecraftly.core.bukkit.modules.playerworlds.handlers.WorldMessagesListener;
 import com.minecraftly.core.bukkit.user.UserManager;
 import com.minecraftly.core.bukkit.utilities.BukkitUtilities;
-import com.minecraftly.core.packets.playerworlds.PacketNoLongerHostingWorld;
 import com.sk89q.intake.fluent.DispatcherNode;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -45,6 +45,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
     }
 
     private ServerGateway<Player> gateway;
+    private final PlayerWorldsRepository playerWorldsRepository;
 
     public final Map<UUID, World> playerWorlds = new HashMap<>();
     private final AtomicBoolean disabling = new AtomicBoolean(false);
@@ -61,6 +62,7 @@ public class ModulePlayerWorlds extends Module implements Listener {
 
     public ModulePlayerWorlds(MclyCoreBukkitPlugin plugin) {
         super("PlayerWorlds", plugin);
+        this.playerWorldsRepository = new PlayerWorldsRepository(plugin.getJedisService().getJedisPool());
     }
 
     @Override
@@ -157,7 +159,9 @@ public class ModulePlayerWorlds extends Module implements Listener {
         String worldName = world.getName();
 
         try {
-            playerWorlds.put(UUID.fromString(worldName), world);
+            UUID worldUUID = UUID.fromString(worldName);
+            playerWorlds.put(worldUUID, world);
+            setWorldHosted(worldUUID, true);
         } catch (IllegalArgumentException ignored) { // todo slow?
         }
     }
@@ -168,12 +172,26 @@ public class ModulePlayerWorlds extends Module implements Listener {
     }
 
     public void unload(World world) {
-        UUID ownerUUID = getWorldOwner(world);
+        UUID worldUUID = getWorldOwner(world);
 
-        if (ownerUUID != null) {
-            playerWorlds.remove(ownerUUID);
-            gateway.sendPacket(new PacketNoLongerHostingWorld(ownerUUID), false); // notify proxy if possible
-            getLogger().info("Unloaded world for player: " + ownerUUID + ".");
+        if (worldUUID != null) {
+            playerWorlds.remove(worldUUID);
+            setWorldHosted(worldUUID, false);
+            getLogger().info("Unloaded world for player: " + worldUUID + ".");
+        }
+    }
+
+    public void setWorldHosted(UUID worldUUID, boolean hosted) {
+        String serverName = getPlugin().getComputeUniqueId();
+
+        if (hosted) {
+            playerWorldsRepository.setServer(worldUUID, serverName);
+        } else {
+            String existingServerName = playerWorldsRepository.getServer(worldUUID);
+
+            if (serverName.equals(existingServerName)) {
+                playerWorldsRepository.setServer(worldUUID, null);
+            }
         }
     }
 

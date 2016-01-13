@@ -18,7 +18,7 @@ import com.minecraftly.core.bungee.handlers.job.JobManager;
 import com.minecraftly.core.bungee.handlers.job.handlers.ConnectHandler;
 import com.minecraftly.core.bungee.handlers.job.queue.ConnectJobQueue;
 import com.minecraftly.core.bungee.handlers.module.PlayerWorldsHandler;
-import com.minecraftly.core.bungee.handlers.module.PlayerWorldsRepository;
+import com.minecraftly.core.PlayerWorldsRepository;
 import com.minecraftly.core.bungee.handlers.module.tpa.TpaData;
 import com.minecraftly.core.bungee.handlers.module.tpa.TpaDataAdapter;
 import com.minecraftly.core.bungee.handlers.module.tpa.TpaHandler;

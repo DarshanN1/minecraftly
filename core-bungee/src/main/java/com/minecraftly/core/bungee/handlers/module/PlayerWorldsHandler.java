@@ -1,11 +1,10 @@
 package com.minecraftly.core.bungee.handlers.module;
 
 import com.ikeirnez.pluginmessageframework.gateway.ProxyGateway;
-import com.ikeirnez.pluginmessageframework.packet.PacketHandler;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
+import com.minecraftly.core.PlayerWorldsRepository;
 import com.minecraftly.core.bungee.handlers.job.JobManager;
 import com.minecraftly.core.bungee.handlers.job.queue.ConnectJobQueue;
-import com.minecraftly.core.packets.playerworlds.PacketNoLongerHostingWorld;
 import com.minecraftly.core.packets.playerworlds.PacketPlayerGotoWorld;
 import com.sk89q.intake.Command;
 import lc.vq.exhaust.command.annotation.Sender;
@@ -89,11 +88,6 @@ public class PlayerWorldsHandler implements Listener {
         if (serverLeaving.getPlayers().size() == 0) {
             playerWorldsRepository.removeAll(serverLeaving.getName());
         }
-    }
-
-    @PacketHandler
-    public void onNoLongerHosting(ProxiedPlayer proxiedPlayer, PacketNoLongerHostingWorld packet) {
-        playerWorldsRepository.setServer(packet.getWorldUUID(), null);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

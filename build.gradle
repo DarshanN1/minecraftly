@@ -12,6 +12,9 @@ buildscript {
 
 import org.apache.tools.ant.filters.ReplaceTokens
 
+ext.exhaustVersion = '1.0.1-SNAPSHOT'
+ext.pmfVersion = '1.0.0-SNAPSHOT'
+
 task wrapper(type: Wrapper) {
     gradleVersion = '2.10'
 }

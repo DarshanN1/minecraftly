@@ -1,60 +1,44 @@
 buildscript {
     repositories {
+        mavenLocal()
+        mavenCentral()
         jcenter()
-
-        maven {
-            name = 'zt-public-snapshots'
-            url = 'http://repos.zeroturnaround.com/nexus/content/groups/zt-public'
-        }
     }
 
     dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
-        classpath group: 'org.zeroturnaround', name: 'gradle-jrebel-plugin', version: '1.1.2'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.1'
     }
 }
 
-plugins {
-    id 'org.hidetake.ssh' version '1.1.3'
-}
-
 import org.apache.tools.ant.filters.ReplaceTokens
-
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
-
-apply plugin: 'idea'
-
-ext.bukkitVersion = '1.8.8-R0.1-SNAPSHOT'
-ext.bungeeVersion = '1.8-SNAPSHOT'
-ext.exhaustVersion = '1.0.1-SNAPSHOT'
-ext.pmfVersion = '1.0.0-SNAPSHOT'
-ext.vaultVersion = '1.5'
-ext.protocolLibVersion = '3.6.4'
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.10'
 }
 
-defaultTasks 'clean', 'build', 'test'
-
-subprojects {
+allprojects {
     apply plugin: 'java'
-    apply plugin: 'rebel'
+    apply plugin: 'idea'
     apply plugin: 'com.github.johnrengelman.shadow'
+
+    group = 'com.minecraftly'
+    version = '1.0-SNAPSHOT'
+    ext.cleanName = getName()
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
-    ext.cleanName = getName()
+    defaultTasks 'clean', 'build', 'test'
 
-    jar { // rename un-shadowed jar, adding the suffix 'original', much like how Maven handles this
+    jar {
         classifier = 'original'
     }
 
-    shadowJar { // rename the shadowed jar, removing the suffix 'all'
+    shadowJar {
         classifier = ''
     }
+
+    build.dependsOn(shadowJar)
 
     repositories {
         mavenLocal() // PluginMessageFramework
@@ -96,188 +80,6 @@ subprojects {
             exceptionFormat = 'full'
         }
     }
-
-    rebel {
-        rebelXmlDirectory = "/"
-    }
-
-    task('optimizeOutputs') {
-        doLast {
-            File outputDir = new File(project.buildDir, "libs")
-            File[] originalFiles = outputDir.listFiles(new FilenameFilter() {
-                @Override
-                boolean accept(File dir, String name) {
-                    return name.contains("-original.jar");
-                }
-            });
-
-            if (originalFiles.length > 1) {
-                throw new UnsupportedOperationException("More than 1 'original' file.");
-            }
-
-            if (originalFiles.length == 1) {
-                File originalFile = originalFiles[0];
-                File shadedFile = new File(originalFile.getParentFile(), originalFile.getName().replace("-original", ""));
-
-                if (shadedFile.exists()) {
-                    originalFile.delete();
-                } else {
-                    originalFile.renameTo(shadedFile);
-                }
-            }
-        }
-    }
-
-    task('copyOutputsForTesting') {
-        outputs.upToDateWhen { false }
-
-        doLast {
-            File outputDir = new File(project.buildDir, "libs");
-            File[] outputFiles = outputDir.listFiles(new FilenameFilter() {
-                @Override
-                boolean accept(File dir, String name) {
-                    return name.endsWith(".jar");
-                }
-            })
-
-            if (outputFiles.length != 1) {
-                throw new UnsupportedOperationException("Incorrect number of output JARs found (" + outputFiles.length + "), we only support there being 1.");
-            }
-
-            File sourceFile = outputFiles[0];
-            File targetFile = new File(parent.getProjectDir(), "testing/");
-
-            if (targetFile.exists() && !targetFile.isDirectory()) {
-                throw new RuntimeException("Path '" + targetFile.getPath() + "' is not a directory.");
-            }
-
-            if (project.getName().equals("core-bukkit")) {
-                targetFile = new File(targetFile, "/bukkit/plugins/");
-            } else if (project.getName().equals("core-bungee")) {
-                targetFile = new File(targetFile, "/bungee/plugins");
-            } else {
-                return; // don't copy any other jars
-            }
-
-            targetFile.mkdirs();
-            targetFile = new File(targetFile, sourceFile.getName());
-            Files.copy(sourceFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        }
-    }.dependsOn(['optimizeOutputs'])
-}
-
-group = 'com.minecraftly'
-
-project(':core') {
-    group = parent.getGroup() + '.core'
-    version = '1.0-SNAPSHOT'
-
-    dependencies {
-        compile group: 'lc.vq', name: 'exhaust-core', version: exhaustVersion
-
-        // HikariCP dependencies
-        compile group: 'com.zaxxer', name: 'HikariCP', version: '2.4.0'
-        compile group: 'org.javassist', name: 'javassist', version: '3.20.0-GA'
-        compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
-        compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.12'
-
-        compile group: 'redis.clients', name: 'jedis', version: '2.8.0'
-        compile group: 'org.apache.commons', name: 'commons-pool2', version: '2.4.2' // required by Jedis
-        compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.3'
-        compile group: 'commons-dbutils', name: 'commons-dbutils', version: '1.6'
-        compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-core', version: parent.ext.pmfVersion
-    }
-
-    shadowJar {
-        dependencies {
-            include(dependency('lc.vq:exhaust-core'))
-
-            // include HikariCP dependencies
-            include(dependency('com.zaxxer:HikariCP'))
-            include(dependency('org.javassist:javassist'))
-            include(dependency('org.slf4j:slf4j-api'))
-            include(dependency('org.slf4j:slf4j-simple'))
-
-            include(dependency('redis.clients:jedis'))
-            include(dependency('org.apache.commons:commons-pool2'))
-            include(dependency('org.apache.httpcomponents:httpcore'))
-            include(dependency('commons-dbutils:commons-dbutils'))
-            include(dependency('com.ikeirnez.pluginmessageframework:pmf-core'))
-        }
-    }
-
-    build.dependsOn(shadowJar)
-}
-
-project(':core-bukkit') {
-    ext.cleanName = 'Minecraftly'
-    group = project(':core').getGroup() + '.bukkit'
-    version = '1.0-SNAPSHOT'
-
-    repositories {
-        maven { // VaultAPI
-            url 'http://nexus.theyeticave.net/content/repositories/pub_releases'
-        }
-
-        maven { // ProtocolLib
-            url 'http://repo.dmulloy2.net/content/groups/public/'
-        }
-
-        flatDir {
-            dirs 'lib'
-        }
-    }
-
-    dependencies {
-        compile project(path: ':core', configuration: 'shadow')
-        compile name: 'paperspigot-1.8.8'
-        compile group: 'lc.vq', name: 'exhaust-bukkit', version: parent.ext.exhaustVersion
-        compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-bukkit', version: parent.ext.pmfVersion
-        compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-packets-bungeecord', version: parent.ext.pmfVersion
-        compile group: 'net.milkbowl.vault', name: 'VaultAPI', version: parent.ext.vaultVersion
-        compile group: 'com.comphenix.protocol', name: 'ProtocolLib', version: parent.ext.protocolLibVersion
-    }
-
-    shadowJar {
-        dependencies {
-            include(dependency(':core'))
-            include(dependency('lc.vq:exhaust-bukkit'))
-            include(dependency('com.ikeirnez.pluginmessageframework:pmf-bukkit'))
-            include(dependency('com.ikeirnez.pluginmessageframework:pmf-packets-bungeecord'))
-        }
-    }
-
-    build.dependsOn(shadowJar)
-}
-
-project(':core-bungee') {
-    ext.cleanName = 'MinecraftlyBungee'
-    group = project(':core').getGroup() + '.bungee'
-    version = '1.0-SNAPSHOT'
-
-    repositories {
-        maven {
-            url 'http://repo.md-5.net/content/repositories/public/'
-        }
-    }
-
-    dependencies {
-        compile project(path: ':core', configuration: 'shadow')
-        compile group: 'net.md-5', name: 'bungeecord-api', version: parent.ext.bungeeVersion
-        compile group: 'lc.vq', name: 'exhaust-bungee', version: parent.ext.exhaustVersion
-        compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-bungeecord', version: parent.ext.pmfVersion
-        compile group: 'com.imaginarycode.minecraft', name: 'RedisBungee', version: '0.3.5'
-    }
-
-    shadowJar {
-        dependencies {
-            include(dependency(':core'))
-            include(dependency('lc.vq:exhaust-bungee'))
-            include(dependency('com.ikeirnez.pluginmessageframework:pmf-bungeecord'))
-        }
-    }
-
-    build.dependsOn(shadowJar)
 }
 
 subprojects { // this needs done after projects have been initialized
@@ -293,93 +95,3 @@ subprojects { // this needs done after projects have been initialized
         ]
     }
 }
-
-idea {
-    project {
-        languageLevel = '1.8'
-    }
-}
-
-def host, user, pass
-
-task('parseSettings') {
-    doLast {
-        assert project.hasProperty('remoteCredentials'), 'Connections credentials must be set.'
-        assert project.hasProperty('baseFolder'), 'Base folder must be set.'
-        baseFolder = baseFolder + (!baseFolder.endsWith("/") ? "/" : "")
-        String[] credentials = Eval.me((String) remoteCredentials)
-        host = credentials[0]
-        user = credentials[1]
-        pass = credentials[2]
-    }
-}
-
-task('stopServers') {
-    doLast{
-        ssh.run {
-            session(host: host, user: user, password: pass) {
-                execute '''screen -S bungee_proxy_1 -p 0 -X stuff "end$(printf \\\\r)";
-                           screen -S bungee_proxy_2 -p 0 -X stuff "end$(printf \\\\r)";
-                           screen -S slave_1 -p 0 -X stuff "stop$(printf \\\\r)";
-                           screen -S slave_2 -p 0 -X stuff "stop$(printf \\\\r)"''', ignoreError: true
-            }
-        }
-    }
-}.dependsOn([ tasks.findByName('parseSettings') ])
-
-task('startServers') {
-    doLast{
-        ssh.run {
-            session(host: host, user: user, password: pass) {
-                execute 'cd ' + baseFolder + ' && ./start_all.sh'
-            }
-        }
-    }
-}.dependsOn([ tasks.findByName('parseSettings') ])
-
-task('deployForTesting') {
-    doLast {
-        stopServers.execute()
-
-        ssh.run {
-            session(host: host, user: user, password: pass) {
-                execute 'rm -r -f ' + baseFolder +  'slave_*/plugins/Minecraftly*.jar;' +
-                        'rm -r -f ' + baseFolder +  'bungee_proxy_*/plugins/MinecraftlyBungee*.jar;', ignoreError: true
-
-                for (Project project : subprojects) {
-                    def outputDir = new File(project.buildDir, "libs");
-                    def outputFiles = outputDir.listFiles(new FileFilter() {
-                        @Override
-                        boolean accept(File file) {
-                            return file.file && file.name.endsWith(".jar")
-                        }
-                    })
-
-                    assert outputFiles.length == 1, 'There must be exactly 1 output JAR for each module.'
-
-                    File sourceFile = outputFiles[0];
-                    String targetLocation;
-                    String secondaryCommand;
-
-                    if (project.getName().equals("core-bukkit")) {
-                        targetLocation = baseFolder + 'slave_1/plugins/'
-                        secondaryCommand = 'cp -f ' + baseFolder + 'slave_1/plugins/' + sourceFile.name + ' ' + baseFolder + 'slave_2/plugins/'
-                    } else if (project.getName().equals("core-bungee")) {
-                        targetLocation = baseFolder + 'bungee_proxy_1/plugins/'
-                        secondaryCommand = 'cp -f ' + baseFolder + 'bungee_proxy_1/plugins/' + sourceFile.name + ' ' + baseFolder + 'bungee_proxy_2/plugins/'
-                    } else {
-                        continue;
-                    }
-
-                    put from: sourceFile.path, into: targetLocation
-                    execute secondaryCommand
-                }
-            }
-        }
-
-        runStartupScripts = Boolean.parseBoolean(runStartupScripts)
-        if (System.getenv().hasProperty('runStartupScripts') ? runStartupScripts : true) { // allows disabling of this feature
-            startServers.execute()
-        }
-    }
-}.dependsOn([ tasks.findByName('parseSettings'), subprojects.collect { it.tasks.findByName('optimizeOutputs') } ]) // all sub-modules must optimize their outputs first

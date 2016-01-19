@@ -1,4 +1,4 @@
-rootProject.name = 'Minecraftly Network'
+rootProject.name = 'minecraftly'
 
 include 'core'
 include 'core-bukkit'

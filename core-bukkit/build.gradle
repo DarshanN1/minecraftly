@@ -1,0 +1,34 @@
+ext.cleanName = 'Minecraftly'
+
+repositories {
+    maven { // VaultAPI
+        url 'http://nexus.theyeticave.net/content/repositories/pub_releases'
+    }
+
+    maven { // ProtocolLib
+        url 'http://repo.dmulloy2.net/content/groups/public/'
+    }
+
+    flatDir {
+        dirs 'lib'
+    }
+}
+
+dependencies {
+    compile project(path: ':core', configuration: 'shadow')
+    compile name: 'paperspigot-1.8.8'
+    compile group: 'lc.vq', name: 'exhaust-bukkit', version: parent.ext.exhaustVersion
+    compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-bukkit', version: parent.ext.pmfVersion
+    compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-packets-bungeecord', version: parent.ext.pmfVersion
+    compile group: 'net.milkbowl.vault', name: 'VaultAPI', version: '1.5'
+    compile group: 'com.comphenix.protocol', name: 'ProtocolLib', version: '3.6.4'
+}
+
+shadowJar {
+    dependencies {
+        include(dependency(':core'))
+        include(dependency('lc.vq:exhaust-bukkit'))
+        include(dependency('com.ikeirnez.pluginmessageframework:pmf-bukkit'))
+        include(dependency('com.ikeirnez.pluginmessageframework:pmf-packets-bungeecord'))
+    }
+}

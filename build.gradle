@@ -45,7 +45,7 @@ allprojects {
     build.dependsOn(shadowJar)
 
     repositories {
-        mavenLocal() // PluginMessageFramework
+        mavenLocal() // PluginMessageFramework, Exhaust
         mavenCentral()
 
         maven {
@@ -58,10 +58,6 @@ allprojects {
 
         maven { // Intake
             url 'http://maven.sk89q.com/artifactory/libs-snapshot-local'
-        }
-
-        maven { // Exhaust
-            url 'http://repo.ellune.net/content/groups/public/'
         }
     }
 

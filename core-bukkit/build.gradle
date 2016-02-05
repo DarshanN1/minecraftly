@@ -23,6 +23,7 @@ dependencies {
     compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-packets-bungeecord', version: parent.ext.pmfVersion
     compile group: 'net.milkbowl.vault', name: 'VaultAPI', version: '1.5'
     compile group: 'com.comphenix.protocol', name: 'ProtocolLib', version: '3.6.4'
+    compile group: 'commons-dbutils', name: 'commons-dbutils', version: '1.6' // included in core, but using this as workaround
 }
 
 shadowJar {

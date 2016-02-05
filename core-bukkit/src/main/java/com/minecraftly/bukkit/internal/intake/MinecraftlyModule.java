@@ -7,7 +7,7 @@ import com.minecraftly.bukkit.MinecraftlyCore;
 import com.minecraftly.bukkit.database.DatabaseManager;
 import com.minecraftly.bukkit.user.UserManager;
 import com.sk89q.intake.parametric.AbstractModule;
-import lc.vq.exhaust.command.annotation.Sender;
+import net.ellune.exhaust.command.annotation.Sender;
 
 import java.util.logging.Logger;
 

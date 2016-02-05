@@ -8,7 +8,7 @@ import com.minecraftly.bukkit.config.ConfigWrapper;
 import com.minecraftly.bukkit.language.LanguageValue;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;
-import lc.vq.exhaust.command.annotation.Sender;
+import net.ellune.exhaust.command.annotation.Sender;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;

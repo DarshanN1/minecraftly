@@ -1,4 +1,7 @@
-ext.cleanName = 'MinecraftlyBungee'
+buildscript {
+    ext.cleanName = 'MinecraftlyBungee'
+    group = 'com.minecraftly.bungee'
+}
 
 repositories {
     maven {
@@ -9,7 +12,7 @@ repositories {
 dependencies {
     compile project(path: ':core', configuration: 'shadow')
     compile group: 'net.md-5', name: 'bungeecord-api', version: '1.8-SNAPSHOT'
-    compile group: 'lc.vq', name: 'exhaust-bungee', version: parent.ext.exhaustVersion
+    compile group: 'net.ellune', name: 'exhaust-bungee', version: parent.ext.exhaustVersion
     compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-bungeecord', version: parent.ext.pmfVersion
     compile group: 'com.imaginarycode.minecraft', name: 'RedisBungee', version: '0.3.5'
 }
@@ -17,7 +20,7 @@ dependencies {
 shadowJar {
     dependencies {
         include(dependency(':core'))
-        include(dependency('lc.vq:exhaust-bungee'))
+        include(dependency('net.ellune:exhaust-bungee'))
         include(dependency('com.ikeirnez.pluginmessageframework:pmf-bungeecord'))
     }
 }

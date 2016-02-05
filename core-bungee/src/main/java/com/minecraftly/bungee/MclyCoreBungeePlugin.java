@@ -28,7 +28,7 @@ import com.minecraftly.redis.message.ServerInstanceData;
 import com.minecraftly.redis.message.gson.ServerDataAdapter;
 import com.minecraftly.utilities.ComputeEngineHelper;
 import com.minecraftly.utilities.Utilities;
-import lc.vq.exhaust.bungee.command.CommandManager;
+import net.ellune.exhaust.bungee.command.CommandManager;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;

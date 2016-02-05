@@ -8,7 +8,7 @@ import com.sk89q.intake.argument.ArgumentException;
 import com.sk89q.intake.argument.CommandArgs;
 import com.sk89q.intake.parametric.Provider;
 import com.sk89q.intake.parametric.ProvisionException;
-import lc.vq.exhaust.bukkit.provider.core.CommandSenderProvider;
+import net.ellune.exhaust.bukkit.provider.core.CommandSenderProvider;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 

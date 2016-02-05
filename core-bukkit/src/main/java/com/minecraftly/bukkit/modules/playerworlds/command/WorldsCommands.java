@@ -10,7 +10,7 @@ import com.minecraftly.bukkit.modules.playerworlds.data.world.WorldUserDataConta
 import com.minecraftly.bukkit.user.UserManager;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;
-import lc.vq.exhaust.command.annotation.Sender;
+import net.ellune.exhaust.command.annotation.Sender;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;

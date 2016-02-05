@@ -1,4 +1,5 @@
 ext.cleanName = 'Minecraftly'
+group = 'com.minecraftly.bukkit'
 
 repositories {
     maven { // VaultAPI
@@ -17,7 +18,7 @@ repositories {
 dependencies {
     compile project(path: ':core', configuration: 'shadow')
     compile name: 'paperspigot-1.8.8'
-    compile group: 'lc.vq', name: 'exhaust-bukkit', version: parent.ext.exhaustVersion
+    compile group: 'net.ellune', name: 'exhaust-bukkit', version: parent.ext.exhaustVersion
     compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-bukkit', version: parent.ext.pmfVersion
     compile group: 'com.ikeirnez.pluginmessageframework', name: 'pmf-packets-bungeecord', version: parent.ext.pmfVersion
     compile group: 'net.milkbowl.vault', name: 'VaultAPI', version: '1.5'
@@ -27,7 +28,7 @@ dependencies {
 shadowJar {
     dependencies {
         include(dependency(':core'))
-        include(dependency('lc.vq:exhaust-bukkit'))
+        include(dependency('net.ellune:exhaust-bukkit'))
         include(dependency('com.ikeirnez.pluginmessageframework:pmf-bukkit'))
         include(dependency('com.ikeirnez.pluginmessageframework:pmf-packets-bungeecord'))
     }

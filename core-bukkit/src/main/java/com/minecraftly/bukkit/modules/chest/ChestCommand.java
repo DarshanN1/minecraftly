@@ -6,7 +6,7 @@ import com.minecraftly.bukkit.modules.chest.data.UserChestData;
 import com.minecraftly.bukkit.user.UserManager;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.parametric.annotation.Range;
-import lc.vq.exhaust.command.annotation.Sender;
+import net.ellune.exhaust.command.annotation.Sender;
 import org.bukkit.entity.Player;
 
 /**

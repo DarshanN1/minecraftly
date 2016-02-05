@@ -1,5 +1,5 @@
 dependencies {
-    compile group: 'lc.vq', name: 'exhaust-core', version: exhaustVersion
+    compile group: 'net.ellune', name: 'exhaust-core', version: exhaustVersion
 
     // HikariCP dependencies
     compile group: 'com.zaxxer', name: 'HikariCP', version: '2.4.0'
@@ -16,7 +16,7 @@ dependencies {
 
 shadowJar {
     dependencies {
-        include(dependency('lc.vq:exhaust-core'))
+        include(dependency('net.ellune:exhaust-core'))
 
         // include HikariCP dependencies
         include(dependency('com.zaxxer:HikariCP'))

@@ -5,7 +5,7 @@ import com.minecraftly.bukkit.modules.playerworlds.WorldDimension;
 import com.minecraftly.bukkit.language.LanguageValue;
 import com.sk89q.intake.Command;
 import com.sk89q.intake.Require;
-import lc.vq.exhaust.command.annotation.Sender;
+import net.ellune.exhaust.command.annotation.Sender;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;

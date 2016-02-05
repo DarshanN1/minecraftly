@@ -12,7 +12,9 @@ buildscript {
 
 import org.apache.tools.ant.filters.ReplaceTokens
 
-ext.exhaustVersion = '1.0.1-SNAPSHOT'
+group = 'com.minecraftly'
+
+ext.exhaustVersion = '2.0.0-SNAPSHOT'
 ext.pmfVersion = '1.0.0-SNAPSHOT'
 
 task wrapper(type: Wrapper) {
@@ -24,7 +26,6 @@ allprojects {
     apply plugin: 'idea'
     apply plugin: 'com.github.johnrengelman.shadow'
 
-    group = 'com.minecraftly'
     version = '1.0-SNAPSHOT'
     ext.cleanName = getName()
 
@@ -85,16 +86,18 @@ allprojects {
     }
 }
 
-subprojects { // this needs done after projects have been initialized
-    def cleanName = project.ext.cleanName
-    archivesBaseName = cleanName
+subprojects {
+    afterEvaluate { project-> // this needs done after projects have been initialized
+        def cleanName = project.ext.cleanName
+        archivesBaseName = cleanName
 
-    processResources {
-        filter ReplaceTokens, tokens: [
-                'project.group'  : project.getGroup(),
-                'project.name'   : project.getName(),
-                'project.version': project.getVersion(),
-                'project.cleanName': cleanName
-        ]
+        processResources {
+            filter ReplaceTokens, tokens: [
+                    'project.group'  : project.getGroup(),
+                    'project.name'   : project.getName(),
+                    'project.version': project.getVersion(),
+                    'project.cleanName': cleanName
+            ]
+        }
     }
 }

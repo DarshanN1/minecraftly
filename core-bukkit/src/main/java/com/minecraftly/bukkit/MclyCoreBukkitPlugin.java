@@ -31,7 +31,7 @@ import com.minecraftly.redis.message.gson.ServerDataAdapter;
 import com.minecraftly.utilities.ComputeEngineHelper;
 import com.minecraftly.utilities.Utilities;
 import com.sk89q.intake.fluent.DispatcherNode;
-import lc.vq.exhaust.bukkit.command.CommandManager;
+import net.ellune.exhaust.bukkit.command.CommandManager;
 import net.milkbowl.vault.permission.Permission;
 import org.apache.commons.dbutils.QueryRunner;
 import org.bukkit.Bukkit;

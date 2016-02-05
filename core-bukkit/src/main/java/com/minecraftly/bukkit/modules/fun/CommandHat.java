@@ -4,7 +4,7 @@ import com.minecraftly.bukkit.language.LanguageManager;
 import com.minecraftly.bukkit.utilities.BukkitUtilities;
 import com.minecraftly.bukkit.language.LanguageValue;
 import com.sk89q.intake.Command;
-import lc.vq.exhaust.command.annotation.Sender;
+import net.ellune.exhaust.command.annotation.Sender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;

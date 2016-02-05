@@ -7,7 +7,7 @@ import com.minecraftly.bukkit.modules.playerworlds.data.world.WorldUserData;
 import com.minecraftly.bukkit.modules.playerworlds.data.world.WorldUserDataContainer;
 import com.minecraftly.bukkit.user.User;
 import com.sk89q.intake.Command;
-import lc.vq.exhaust.command.annotation.Sender;
+import net.ellune.exhaust.command.annotation.Sender;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;

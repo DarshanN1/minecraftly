@@ -9,9 +9,6 @@ software, and what to do if something goes wrong.
   It has all the features you would expect in a Minecraft server, with additional performance gain
   including async, cloud computing compatibility, on demand
   loading.
-
-  It is distributed under the GNU General Public License - see the
-  accompanying COPYING file for more details.
   
 #Contributing
 

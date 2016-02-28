@@ -12,4 +12,4 @@ WHAT IS MINECRAFTLY?
   loading.
 
   It is distributed under the GNU General Public License - see the
-  accompanying COPYING file for more details. 
+  accompanying COPYING file for more details.

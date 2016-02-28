@@ -1,4 +1,4 @@
-# Minecraftly
+#Welcome
 These are the important information for Minecraftly Cloud Platform.  Read them carefully,
 as they tell you what this is all about, explain how to install the
 software, and what to do if something goes wrong. 
@@ -12,3 +12,9 @@ software, and what to do if something goes wrong.
 
   It is distributed under the GNU General Public License - see the
   accompanying COPYING file for more details.
+  
+#Contributing
+
+Minecraftly is licensed under the Apache License V2, and we welcome anybody to fork and submit a Pull Request back with their changes, and if you want to join as a permanent member we can add you to the team.
+
+Check out the CONTRIBUTING.md file for more details.

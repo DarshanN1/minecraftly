@@ -5,7 +5,7 @@ software, and what to do if something goes wrong.
 
 WHAT IS MINECRAFTLY?
 
-  Minecraftly (or Minecraftly Cloud Platform) is a clone and alternative of the official Mojang's Minecraft Realms, designed written from scratch by Viet Nguyen and Keir Nellyer, with assistance from some friendly developers and helpers from the internet. It aims towards POSIX and Single UNIX Specification compliance.
+  Minecraftly (or Minecraftly Cloud Platform) is an alternative of the official Mojang's Minecraft Realms, designed and written from scratch by Viet Nguyen and Keir Nellyer, with assistance from some friendly developers and helpers from the internet. It aims towards POSIX and Single UNIX Specification compliance.
 
   It has all the features you would expect in a Minecraft server, with additional performance gain
   including async, cloud computing compatibility, on demand

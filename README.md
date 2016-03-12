@@ -21,7 +21,7 @@ software, and what to do if something goes wrong.
   As an alternative of Mojang's Minecraft Realms, if you install Minecraftly in your server, then each of your player will have his/her own server, accessible via (player's MC username).(your domain name).com
   
 #Contributing
-  Minecraftly is licensed under the Apache License V2, and we welcome anybody to fork and submit a Pull Request back with their changes, and if you want to join as a permanent member we can add you to the team.
+  Minecraftly is licensed under the GNU Public License, and we welcome anybody to fork and submit a Pull Request back with their changes, and if you want to join as a permanent member we can add you to the team.
 
 Check out the CONTRIBUTING.md file for more details.
 

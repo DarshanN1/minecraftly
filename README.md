@@ -29,3 +29,6 @@ Check out the CONTRIBUTING.md file for more details.
 
 #Managed Hosting
   Besides the free and open source version, we also offer a value added hosted service at https://m.ly, so you can play with friends and don't have to setup server.
+  
+#Special Thanks To
+  Andrew, Keir, Tux, Michael, Devin, Snivell, and many others who have been helping me over the years to make this happen.

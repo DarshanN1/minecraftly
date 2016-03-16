@@ -23,12 +23,12 @@ software, and what to do if something goes wrong.
 #Architecture
   Minecraftly operates under the premise that everything can fail at anytime, so we focus on designing a high availability, fault tolerant system that can withstand failure at the server, database, or network level.
   
-  First, let's visualize:
+  First, let's visualize the stack:
   
              Network Load Balancer
       |              |              |
       |              |              |
-   BungeeCord 1 BungeeCord 2  BungeeCord 3
+   Bungee 1      Bungee 2        Bungee 3
       |              |              |
       |              |              |
    Spigot 1      Spigot 2        Spigot 3

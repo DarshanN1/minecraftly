@@ -25,7 +25,7 @@ software, and what to do if something goes wrong.
   
   First, let's visualize the stack:
   
- <pre><code><center>
+ <pre><code>
       +----------- Network Load Balancer -----------+
       |                     |                       |
       |                     |                       |
@@ -39,7 +39,7 @@ software, and what to do if something goes wrong.
       |                     |                       |
       |                     |                       |
       +------------- NFS, MySQL & Redis ------------+
-</center></code></pre>
+</code></pre>
   
   According to the drawing above, you can clearly see that all BungeeCord & Spigot servers share the same NFS, MySQL and Redis servers. In this case, we call such shared server "endpoints" (because behind the endpoints maybe a cluster of servers as well.
 

@@ -25,7 +25,7 @@ software, and what to do if something goes wrong.
   
   First, let's visualize the stack:
   
- <pre><code>
+<pre><code>
                            Minecraft Players
                                   ▲
                                   |
@@ -40,7 +40,7 @@ software, and what to do if something goes wrong.
       |                           |                             |
       |                           |                             |
       |                           |                             |
-   Spigot 1------------------- Spigot 2 -------------------- Spigot n
+   Spigot 1                    Spigot 2                      Spigot n
       |                           |                             |
       |                           |                             |
       |                           |                             |
@@ -51,6 +51,27 @@ software, and what to do if something goes wrong.
   According to the drawing above, you can clearly see that all BungeeCord & Spigot servers share the same NFS, MySQL and Redis servers. In this case, we call such shared server "endpoints" (because behind the endpoints maybe a cluster of servers as well.
 
   There are an infinite amount of BungeeCord and Spigot servers, having the same exact configuration. It doesn't matter how many BungeeCord or Spigot servers out there. As long as they use the same NFS mount point, the same MySQL server, and the same Redis server, then the player's experience will be unified.
+  
+#Cheap Architecture
+To build a simplier and cheaper architecture, it can be vizualize this way:
+<pre><code>
+                           Minecraft Players
+                                  ▲
+                                  |
+                                  |
+                                  |
+                                  ▼
+   BungeeCord 1                                           BungeeCord 2
+      |                                                         |
+      |                                                         |
+      |                                                         |
+   Spigot 1                                                  Spigot 2
+      |                                                         |
+      |                                                         |
+      |                                                         |
+      +------------------- NFS, MySQL & Redis ------------------+
+      
+</code></pre>
   
 #Contributing
   Minecraftly is licensed under the GNU General Public License version 3 (GNU GPLv3), and we welcome anybody to fork and submit a Pull Request back with their changes, and if you want to join as a permanent member we can add you to the team.

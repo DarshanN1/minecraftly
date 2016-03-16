@@ -26,26 +26,16 @@ software, and what to do if something goes wrong.
   First, let's visualize:
   
              Network Load Balancer
-      |                 |                  |
-      |                 |                  |
-   BungeeCord 1    BungeeCord 2      BungeeCord 3
-      |                 |                  |
-      |                 |                  |
-   Spigot 1          Spigot 2           Spigot 3
-      |                 |                  |
-      |                 |                  |
-      +--------- NFS, MySQL & Redis -------+
+      |              |              |
+      |              |              |
+   BungeeCord 1 BungeeCord 2  BungeeCord 3
+      |              |              |
+      |              |              |
+   Spigot 1      Spigot 2        Spigot 3
+      |              |              |
+      |              |              |
+      +----- NFS, MySQL & Redis ----+
   
-  
-  Load balancer và/hoặc reverse proxy web server
-      |               |                |
-      |               |                |
-App server 1    App server 2     App server 3
-      |               |                |
-      |               |                |
-      +------------- DB ---------------+
-      
-      
   According to the drawing above, you can clearly see that all BungeeCord & Spigot servers share the same NFS, MySQL and Redis servers. In this case, we call such shared server "endpoints" (because behind the endpoints maybe a cluster of servers as well.
   
 #Contributing

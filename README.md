@@ -27,6 +27,7 @@ software, and what to do if something goes wrong.
   
  <pre><code>
                            Minecraft Players
+                                  ▲
                                   |
                                   |
                                   |

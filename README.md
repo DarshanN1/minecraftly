@@ -16,6 +16,9 @@ software, and what to do if something goes wrong.
   
   We currently support the latest version of Minecraft. The version is always up to date.
   
+#Why Open Source?
+  I'm Viet, a simple guy with passion for cloud computing, the web, technologies, and Minecraft just like you. Ever since I first run a Minecraft server in 2012, I've always been looking for a way to scale Minecraft with high availability and fault tolerant. It took me years to think and build the first prototype. I can't do it alone and need your contribution to make it better.
+  
 #Download
   You can download the already compiled version of Minecraftly at https://ci.m.ly
   
@@ -74,6 +77,8 @@ To build a simplier and cheaper architecture, it can be vizualize this way:
       +------------------- NFS, MySQL & Redis ------------------+
       
 </code></pre>
+  
+  In a way, it works with traditional server cluster (VM, dedicated servers, etc...). It can also work with cloud servers (Amazon Web Services, Google Cloud Platform, Microsoft Azure).
   
 #Contributing
   Minecraftly is licensed under the GNU General Public License version 3 (GNU GPLv3), and we welcome anybody to fork and submit a Pull Request back with their changes, and if you want to join as a permanent member we can add you to the team.

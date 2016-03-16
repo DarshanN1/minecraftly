@@ -30,6 +30,9 @@ mkdir /minecraftly/bungeecord2
 mkdir /minecraftly/buildtools
 mkdir /minecraftly/spigot1
 mkdir /minecraftly/spigot2
+mkdir /minecraftly/worlds
+mkdir /minecraftly/spigot1/plugins
+mkdir /minecraftly/spigot2/plugins
 
 #Download some files
 bash -c "wget -P /minecraftly/bungeecord1 http://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar"
@@ -41,3 +44,7 @@ cp /minecraftly/buildtools/spigot-1.9.jar /minecraftly/spigot2/spigot-1.9.jar
 #Configure some stuffs
 sed -i "s/server-id:.*/server-id: localhost/" /minecraftly/bungeecord1/plugins/RedisBungee/config.yml
 sed -i "s/server-id:.*/server-id: 127.0.0.1/" /minecraftly/bungeecord2/plugins/RedisBungee/config.yml
+
+#Start servers
+screen -dmS spigot1 java -Dcom.mojang.eula.agree=true -jar spigot-1.9.jar --world-dir /minecraftly/worlds --port 25567 --online-mode=false
+screen -dmS spigot2 java -Dcom.mojang.eula.agree=true -jar spigot-1.9.jar --world-dir /minecraftly/worlds --port 25568 --online-mode=false

@@ -1,3 +1,4 @@
+#This is a script to automatically install Minecraftly on Debian servers
 #! /bin/bash
 #Update some stuffs
 sudo -i

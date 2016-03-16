@@ -31,8 +31,6 @@ mkdir /minecraftly/buildtools
 mkdir /minecraftly/spigot1
 mkdir /minecraftly/spigot2
 mkdir /minecraftly/worlds
-mkdir /minecraftly/spigot1/plugins
-mkdir /minecraftly/spigot2/plugins
 
 #Download some files
 bash -c "wget -P /minecraftly/bungeecord1 http://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar"
@@ -45,6 +43,36 @@ cp /minecraftly/buildtools/spigot-1.9.jar /minecraftly/spigot2/spigot-1.9.jar
 sed -i "s/server-id:.*/server-id: localhost/" /minecraftly/bungeecord1/plugins/RedisBungee/config.yml
 sed -i "s/server-id:.*/server-id: 127.0.0.1/" /minecraftly/bungeecord2/plugins/RedisBungee/config.yml
 
-#Start servers
-screen -dmS spigot1 java -Dcom.mojang.eula.agree=true -jar spigot-1.9.jar --world-dir /minecraftly/worlds --port 25567 --online-mode=false
-screen -dmS spigot2 java -Dcom.mojang.eula.agree=true -jar spigot-1.9.jar --world-dir /minecraftly/worlds --port 25568 --online-mode=false
+#Start servers for the first time to generate files
+cd /minecraftly/bungeecord1 && screen -dmS bungeecord1 java -jar BungeeCord.jar
+sleep 30
+screen -r bungeecord1 -X stuff 'end'
+cd /minecraftly/bungeecord2 && java -jar BungeeCord.jar
+sleep 30
+screen -r bungeecord2 -X stuff 'end'
+cd /minecraftly/spigot1 && screen -dmS spigot1 java -Dcom.mojang.eula.agree=true -jar spigot-1.9.jar --world-dir /minecraftly/worlds --port 25567 --online-mode=false
+sleep 30
+screen -r spigot1 -X stuff 'stop'
+cd /minecraftly/spigot2 && screen -dmS spigot2 java -Dcom.mojang.eula.agree=true -jar spigot-1.9.jar --world-dir /minecraftly/worlds --port 25568 --online-mode=false
+sleep 30
+screen -r spigot2 -X stuff 'stop'
+
+#Download Minecraftly plugins
+wget -P /minecraftly/bungeecord1/plugins https://ci.m.ly/job/MinecraftlyBungee/lastSuccessfulBuild/artifact/bootstrap/target/MinecraftlyBungee.jar
+wget -P /minecraftly/bungeecord2/plugins https://ci.m.ly/job/MinecraftlyBungee/lastSuccessfulBuild/artifact/bootstrap/target/MinecraftlyBungee.jar
+wget -P /minecraftly/spigot1/plugins https://ci.m.ly/job/MinecraftlySpigot/lastSuccessfulBuild/artifact/bootstrap/target/MinecraftlySpigot.jar
+wget -P /minecraftly/spigot2/plugins https://ci.m.ly/job/MinecraftlySpigot/lastSuccessfulBuild/artifact/bootstrap/target/MinecraftlySpigot.jar
+
+#Start servers for the second time to generate plugin files
+cd /minecraftly/bungeecord1 && screen -dmS bungeecord1 java -jar BungeeCord.jar
+sleep 30
+screen -r bungeecord1 -X stuff 'end'
+cd /minecraftly/bungeecord2 && java -jar BungeeCord.jar
+sleep 30
+screen -r bungeecord2 -X stuff 'end'
+cd /minecraftly/spigot1 && screen -dmS spigot1 java -Dcom.mojang.eula.agree=true -jar spigot-1.9.jar --world-dir /minecraftly/worlds --port 25567 --online-mode=false
+sleep 30
+screen -r spigot1 -X stuff 'stop'
+cd /minecraftly/spigot2 && screen -dmS spigot2 java -Dcom.mojang.eula.agree=true -jar spigot-1.9.jar --world-dir /minecraftly/worlds --port 25568 --online-mode=false
+sleep 30
+screen -r spigot2 -X stuff 'stop'

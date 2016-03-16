@@ -26,19 +26,24 @@ software, and what to do if something goes wrong.
   First, let's visualize the stack:
   
  <pre><code>
-      +------- Network Load Balancer -------+
-      |                 |                   |
-      |                 |                   |
-   BungeeCord 1    BungeeCord 2       BungeeCord 3
-      |                 |                   |
-      |                 |                   |
-   Spigot 1         Spigot 2           Spigot 3
-      |                 |                   |
-      |                 |                   |
-      +--------- NFS, MySQL & Redis --------+
+      +----------- Network Load Balancer -----------+
+      |                     |                       |
+      |                     |                       |
+      |                     |                       |
+   BungeeCord 1        BungeeCord 2           BungeeCord n
+      |                     |                       |
+      |                     |                       |
+      |                     |                       |
+   Spigot 1             Spigot 2               Spigot n
+      |                     |                       |
+      |                     |                       |
+      |                     |                       |
+      +------------- NFS, MySQL & Redis ------------+
  </code></pre>
   
   According to the drawing above, you can clearly see that all BungeeCord & Spigot servers share the same NFS, MySQL and Redis servers. In this case, we call such shared server "endpoints" (because behind the endpoints maybe a cluster of servers as well.
+
+  There are an infinite amount of BungeeCord and Spigot servers, having the same exact configuration. It doesn't matter how many BungeeCord or Spigot servers out there. As long as they use the same NFS mount point, the same MySQL server, and the same Redis server, then the player's experience will be unified.
   
 #Contributing
   Minecraftly is licensed under the GNU General Public License version 3 (GNU GPLv3), and we welcome anybody to fork and submit a Pull Request back with their changes, and if you want to join as a permanent member we can add you to the team.

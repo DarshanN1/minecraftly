@@ -20,6 +20,25 @@ software, and what to do if something goes wrong.
 #How it works
   As an alternative of Mojang's Minecraft Realms, if you install Minecraftly in your server, then each of your player will have his/her own server, accessible via (player's MC username).(your domain name).com
   
+#Architecture
+  Minecraftly operates under the premise that everything can fail at anytime, so we focus on designing a high availability, fault tolerant system that can withstand failure at the server, database, or network level.
+  
+  First, let's visualize:
+  
+             Network Load Balancer
+      |                 |                  |
+      |                 |                  |
+   BungeeCord 1    BungeeCord 2      BungeeCord 3
+      |                 |                  |
+      |                 |                  |
+   Spigot 1          Spigot 2           Spigot 3
+      |                 |                  |
+      |                 |                  |
+      +--------- NFS, MySQL & Redis -------+
+      
+  
+  According to the drawing above, you can clearly see that all BungeeCord & Spigot servers share the same NFS, MySQL and Redis servers. In this case, we call such shared server "endpoints" (because behind the endpoints maybe a cluster of servers as well.
+  
 #Contributing
   Minecraftly is licensed under the GNU General Public License version 3 (GNU GPLv3), and we welcome anybody to fork and submit a Pull Request back with their changes, and if you want to join as a permanent member we can add you to the team.
   

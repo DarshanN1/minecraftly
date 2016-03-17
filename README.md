@@ -86,7 +86,7 @@ To build a single machine test environment, it will be visualized like this:
   
   This is a "copyleft" license, which means if you publish the modified work as your own, you must open source it as well. It benefits the educational purpose of the software and helps everyone build better software that work on both traditional and cloud infrastructure.
 
-Check out the CONTRIBUTING.md file for more details.
+Check out the [a relative link]CONTRIBUTING.md file for more details.
 
 #Managed Hosting
   Besides the free and open source version, we also offer a value added hosted service at https://m.ly, so you can play with friends and don't have to setup server.

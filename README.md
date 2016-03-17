@@ -20,7 +20,7 @@ software, and what to do if something goes wrong.
   I'm Viet, a simple guy with passion for cloud computing, the web, technologies, and Minecraft just like you. Ever since I first run a Minecraft server in 2012, I've always been looking for a way to scale Minecraft with high availability and fault tolerant. It took me years to think and build the first prototype. I can't do it alone and need your contribution to make it better.
   
 #Download
-  You can download the already compiled version of Minecraftly at https://ci.m.ly
+  You can download the already compiled version of Minecraftly at [https://ci.m.ly](https://ci.m.ly)
   
 #How it works
   As an alternative of Mojang's Minecraft Realms, if you install Minecraftly in your server, then each of your player will have his/her own server, accessible via (player's MC username).(your domain name).com

@@ -73,10 +73,10 @@ sleep 30
 screen -r spigot2 -X stuff 'stop'
 
 #Download Minecraftly plugins
-wget -P /minecraftly/bungeecord1/plugins https://ci.m.ly/job/MinecraftlyBungee/lastSuccessfulBuild/artifact/bootstrap/target/MinecraftlyBungee.jar
-wget -P /minecraftly/bungeecord2/plugins https://ci.m.ly/job/MinecraftlyBungee/lastSuccessfulBuild/artifact/bootstrap/target/MinecraftlyBungee.jar
-wget -P /minecraftly/spigot1/plugins https://ci.m.ly/job/MinecraftlySpigot/lastSuccessfulBuild/artifact/bootstrap/target/MinecraftlySpigot.jar
-wget -P /minecraftly/spigot2/plugins https://ci.m.ly/job/MinecraftlySpigot/lastSuccessfulBuild/artifact/bootstrap/target/MinecraftlySpigot.jar
+wget -P /minecraftly/bungeecord1/plugins https://ci.m.ly/job/Minecraftly/MinecraftlyBungee.jar
+wget -P /minecraftly/bungeecord2/plugins https://ci.m.ly/job/Minecraftly/MinecraftlyBungee.jar
+wget -P /minecraftly/spigot1/plugins https://ci.m.ly/job/Minecraftly/MinecraftlySpigot.jar
+wget -P /minecraftly/spigot2/plugins https://ci.m.ly/job/Minecraftly/MinecraftlySpigot.jar
 
 #Start servers for the second time to generate plugin files
 cd /minecraftly/bungeecord1 && screen -dmS bungeecord1 java -jar BungeeCord.jar

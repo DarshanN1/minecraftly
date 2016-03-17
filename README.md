@@ -57,7 +57,7 @@ software, and what to do if something goes wrong.
 
   There are an infinite amount of BungeeCord and Spigot servers, having the same exact configuration. It doesn't matter how many BungeeCord or Spigot servers out there. As long as they use the same NFS mount point, the same MySQL server, and the same Redis server, then the player's experience will be unified.
   
-#Cheap Architecture
+#Single Machine Architecture (for testing)
 To build a simplier and cheaper architecture, it can be vizualize this way:
 <pre><code>
                            Minecraft Players

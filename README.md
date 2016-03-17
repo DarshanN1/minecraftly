@@ -86,7 +86,7 @@ To build a single machine test environment, it will be visualized like this:
   
   This is a "copyleft" license, which means if you publish the modified work as your own, you must open source it as well. It benefits the educational purpose of the software and helps everyone build better software that work on both traditional and cloud infrastructure.
   
-  For details of license, check the [license.txt](license.txt) file.
+  For details of license, check the [LICENSE](LICENSE) file.
 
   For contributing information, check out the [CONTRIBUTING.md](CONTRIBUTING.md) file for more details.
 

@@ -74,7 +74,7 @@ To build a simplier and cheaper architecture, it can be vizualize this way:
       |                                                         |
       |                                                         |
       |                                                         |
-      +------------------- NFS, MySQL & Redis ------------------+
+      +------------------- MySQL & Redis ------------------+
       
 </code></pre>
   

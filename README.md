@@ -57,8 +57,9 @@ software, and what to do if something goes wrong.
 
   There are an infinite amount of BungeeCord and Spigot servers, having the same exact configuration. It doesn't matter how many BungeeCord or Spigot servers out there. As long as they use the same NFS mount point, the same MySQL server, and the same Redis server, then the player's experience will be unified.
   
-#Single Machine Architecture (for testing)
-To build a simplier and cheaper architecture, it can be vizualize this way:
+#Single Machine Environment (for testing)
+To build a single machine test environment, it will be visualized like this:
+
 <pre><code>
                            Minecraft Players
                                   ▲
@@ -66,19 +67,19 @@ To build a simplier and cheaper architecture, it can be vizualize this way:
                                   |
                                   |
                                   ▼
-   BungeeCord 1                                           BungeeCord 2
+   BungeeCord 1 (port 25565)                        BungeeCord 2 (port 25566)
       |                                                         |
       |                                                         |
       |                                                         |
-   Spigot 1                                                  Spigot 2
+   Spigot 1 (port 25567)                               Spigot 2 (port 25568)
       |                                                         |
       |                                                         |
       |                                                         |
-      +------------------- MySQL & Redis ------------------+
+      +--------------------- MySQL & Redis ---------------------+
       
 </code></pre>
   
-  In a way, it works with traditional server cluster (VM, dedicated servers, etc...). It can also work with cloud servers (Amazon Web Services, Google Cloud Platform, Microsoft Azure).
+  This testing environment is very simple. It works with traditional server cluster (VM, dedicated servers, etc...). It can also work with cloud servers (Amazon Web Services, Google Cloud Platform, Microsoft Azure).
   
 #Contributing
   Minecraftly is licensed under the GNU General Public License version 3 (GNU GPLv3), and we welcome anybody to fork and submit a Pull Request back with their changes, and if you want to join as a permanent member we can add you to the team.

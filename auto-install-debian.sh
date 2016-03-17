@@ -8,6 +8,21 @@ apt-get upgrade -y
 apt-get dist-upgrade -y
 apt-get install screen -y
 
+#Install MySQL, in this case MariaDB
+apt-get install python-software-properties -y
+apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
+add-apt-repository 'deb http://mariadb.biz.net.id//repo/10.1/debian sid main'
+apt-get install software-properties-common -y
+apt-get update -y
+apt-get install mariadb-server mariadb-client -y
+
+#Install Redis
+apt-get install build-essential -y
+wget http://redis.googlecode.com/files/redis-2.6.13.tar.gz
+tar -xzf redis-2.6.13.tar.gz
+cd redis-2.6.13
+make install
+
 #Change ulimit
 ulimit -n 1048576
 ulimit -c unlimited

@@ -67,11 +67,11 @@ To build a single machine test environment, it will be visualized like this:
                                   |
                                   |
                                   ▼
-   BungeeCord 1 (port 25565)                        BungeeCord 2 (port 25566)
+   BungeeCord 1 (port 25565)                    BungeeCord 2 (port 25566)
       |                                                         |
       |                                                         |
       |                                                         |
-   Spigot 1 (port 25567)                               Spigot 2 (port 25568)
+   Spigot 1 (port 25567)                           Spigot 2 (port 25568)
       |                                                         |
       |                                                         |
       |                                                         |

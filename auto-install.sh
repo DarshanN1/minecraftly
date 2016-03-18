@@ -60,7 +60,7 @@ sed -i "s/server-id:.*/server-id: 127.0.0.1/" /minecraftly/bungeecord2/plugins/R
 cd /minecraftly/bungeecord1 && screen -dmS bungeecord1 java -jar BungeeCord.jar
 sleep 30
 screen -r bungeecord1 -X stuff 'end\n'
-cd /minecraftly/bungeecord2 && java -jar BungeeCord.jar
+cd /minecraftly/bungeecord2 && screen -dmS bungeecord2 java -jar BungeeCord.jar
 sleep 30
 screen -r bungeecord2 -X stuff 'end\n'
 cd /minecraftly/spigot1 && screen -dmS spigot1 java -Dcom.mojang.eula.agree=true -jar spigot-1.9.jar --world-dir /minecraftly/worlds --port 25567 --online-mode=false

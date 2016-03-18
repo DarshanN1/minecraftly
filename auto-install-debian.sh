@@ -3,7 +3,7 @@
 #Update some stuffs
 sudo -i
 apt-get update -y
-sudo DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
+DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
 apt-get upgrade -y
 apt-get dist-upgrade -y
 apt-get install screen -y

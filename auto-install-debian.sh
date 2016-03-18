@@ -16,9 +16,9 @@ apt-get install software-properties-common -y
 add-apt-repository 'deb http://mariadb.biz.net.id//repo/10.1/debian sid main'
 apt-get update -y
 export DEBIAN_FRONTEND=noninteractive
-sudo debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password password 123456'
-sudo debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password_again password 123456'
-sudo -E apt-get install mariadb-server mariadb-client -q -y
+debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password password 123456'
+debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password_again password 123456'
+apt-get install mariadb-server-10.0 mariadb-client-10.0 -y
 mysql -uroot -pPASS -e "SET PASSWORD = PASSWORD('');"
 
 #Install Redis

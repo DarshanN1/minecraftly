@@ -18,8 +18,8 @@ apt-get update -y
 export DEBIAN_FRONTEND=noninteractive
 sudo debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password password 123456'
 sudo debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password_again password 123456'
-mysql -uroot -pPASS -e "SET PASSWORD = PASSWORD('');"
 sudo -E apt-get install mariadb-server mariadb-client -q -y
+mysql -uroot -pPASS -e "SET PASSWORD = PASSWORD('');"
 
 #Install Redis
 apt-get install build-essential -y

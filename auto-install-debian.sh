@@ -9,12 +9,7 @@ apt-get dist-upgrade -y
 apt-get install screen -y
 apt-get install git -y
 
-#Install MySQL, in this case MariaDB
-apt-get install python-software-properties -y
-apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
-apt-get install software-properties-common -y
-add-apt-repository 'deb http://mariadb.biz.net.id//repo/10.1/debian sid main'
-apt-get update -y
+#Install MySQL, in this case MariaDB, with username "root" and password "123456"
 export DEBIAN_FRONTEND=noninteractive
 debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password password 123456'
 debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password_again password 123456'

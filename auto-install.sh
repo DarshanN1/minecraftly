@@ -18,12 +18,8 @@ apt-get install mariadb-server-10.0 -y
 apt-get install mariadb-client-10.0 -y
 mysql -uroot -pPASS -e "SET PASSWORD = PASSWORD('');"
 
-#Install Redis
-apt-get install build-essential -y
-wget http://redis.googlecode.com/files/redis-2.6.13.tar.gz
-tar -xzf redis-2.6.13.tar.gz
-cd redis-2.6.13
-make install
+#Install Redis server
+apt-get install redis-server -y
 
 #Change ulimit
 ulimit -n 1048576

@@ -7,6 +7,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confd
 apt-get upgrade -y
 apt-get dist-upgrade -y
 apt-get install screen -y
+apt-get install git -y
 
 #Install MySQL, in this case MariaDB
 apt-get install python-software-properties -y

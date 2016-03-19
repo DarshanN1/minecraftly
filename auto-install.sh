@@ -46,8 +46,10 @@ mkdir /minecraftly/spigot2
 mkdir /minecraftly/worlds
 
 #Download some files
-bash -c "wget -P /minecraftly/bungeecord1 http://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar"
-bash -c "wget -P /minecraftly/bungeecord2 http://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar"
+bash -c "wget -P /minecraftly/bungeecord1 https://m.ly/BungeeCord.jar"
+bash -c "wget -P /minecraftly/bungeecord2 https://m.ly/BungeeCord.jar"
+bash -c "wget -P /minecraftly/spigot1 https://m.ly/spigot.jar"
+bash -c "wget -P /minecraftly/spigot2 https://m.ly/spigot.jar"
 bash -c "wget -P /minecraftly/buildtools https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar && java -jar /minecraftly/buildtools/BuildTools.jar"
 cp /minecraftly/buildtools/spigot-1.9.jar /minecraftly/spigot1/spigot-1.9.jar
 cp /minecraftly/buildtools/spigot-1.9.jar /minecraftly/spigot2/spigot-1.9.jar
@@ -59,10 +61,10 @@ screen -r bungeecord1 -X stuff 'end\n'
 screen -dmS bungeecord2 java -jar /minecraftly/bungeecord2/BungeeCord.jar
 sleep 30
 screen -r bungeecord2 -X stuff 'end\n'
-screen -dmS spigot1 java -Dcom.mojang.eula.agree=true -jar /minecraftly/spigot1/spigot-1.9.jar --world-dir /minecraftly/worlds --port 25567 --online-mode=false
+screen -dmS spigot1 java -Dcom.mojang.eula.agree=true -jar /minecraftly/spigot1/spigot.jar --world-dir /minecraftly/worlds --port 25567 --online-mode=false
 sleep 30
 screen -r spigot1 -X stuff 'stop\n'
-screen -dmS spigot2 java -Dcom.mojang.eula.agree=true -jar /minecraftly/spigot2/spigot-1.9.jar --world-dir /minecraftly/worlds --port 25568 --online-mode=false
+screen -dmS spigot2 java -Dcom.mojang.eula.agree=true -jar /minecraftly/spigot2/spigot.jar --world-dir /minecraftly/worlds --port 25568 --online-mode=false
 sleep 30
 screen -r spigot2 -X stuff 'stop\n'
 

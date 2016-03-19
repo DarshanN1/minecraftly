@@ -71,6 +71,8 @@ screen -r spigot2 -X stuff 'stop\n'
 #Configure BungeeCord config
 sed -i "s/ host: 0.0.0.0:.*/ host: 0.0.0.0:25565/" /minecraftly/bungeecord1/config.yml
 sed -i "s/ host: 0.0.0.0:.*/ host: 0.0.0.0:25566/" /minecraftly/bungeecord2/config.yml
+sed -i "s/level-name=.*/level-name=world1/" /minecraftly/spigot1/server.properties
+sed -i "s/level-name=.*/level-name=world2/" /minecraftly/spigot1/server.properties
 
 #Download & configure RedisBungee
 wget -P /minecraftly/bungeecord1/plugins https://m.ly/RedisBungee.jar

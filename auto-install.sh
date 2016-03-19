@@ -45,14 +45,6 @@ mkdir /minecraftly/spigot1
 mkdir /minecraftly/spigot2
 mkdir /minecraftly/worlds
 
-#Symlink worlds, world_nether & world_the_end to spigot server instead of shared folder
-ln -s /minecraftly/spigot1/world /minecraftly/worlds/world
-ln -s /minecraftly/spigot1/world_nether /minecraftly/worlds/world_nether
-ln -s /minecraftly/spigot1/world_the_end /minecraftly/worlds/world_the_end
-ln -s /minecraftly/spigot2/world /minecraftly/worlds/world
-ln -s /minecraftly/spigot2/world_nether /minecraftly/worlds/world_nether
-ln -s /minecraftly/spigot2/world_the_end /minecraftly/worlds/world_the_end
-
 #Download some files
 bash -c "wget -P /minecraftly/bungeecord1 https://m.ly/BungeeCord.jar"
 bash -c "wget -P /minecraftly/bungeecord2 https://m.ly/BungeeCord.jar"

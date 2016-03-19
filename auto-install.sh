@@ -58,7 +58,7 @@ cp /minecraftly/buildtools/spigot-1.9.jar /minecraftly/spigot2/spigot-1.9.jar
 cd /minecraftly/bungeecord1 && screen -dmS bungeecord1 java -jar BungeeCord.jar
 sleep 30
 screen -r bungeecord1 -X stuff 'end\n'
-cd /minecraftly/bungeecord2 && java -jar BungeeCord.jar
+cd /minecraftly/bungeecord2 && screen -dmS bungeecord2 java -jar BungeeCord.jar
 sleep 30
 screen -r bungeecord2 -X stuff 'end\n'
 cd /minecraftly/spigot1 && screen -dmS spigot1 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /minecraftly/worlds --port 25567 --online-mode=false
@@ -78,7 +78,7 @@ wget -P /minecraftly/bungeecord2/plugins https://m.ly/RedisBungee.jar
 cd /minecraftly/bungeecord1 && screen -dmS bungeecord1 java -jar BungeeCord.jar
 sleep 30
 screen -r bungeecord1 -X stuff 'end\n'
-cd /minecraftly/bungeecord2 && java -jar BungeeCord.jar
+cd /minecraftly/bungeecord2 && screen -dmS bungeecord2 java -jar BungeeCord.jar
 sleep 30
 screen -r bungeecord2 -X stuff 'end\n'
 sed -i "s/server-id:.*/server-id: localhost/" /minecraftly/bungeecord1/plugins/RedisBungee/config.yml
@@ -94,7 +94,7 @@ wget -P /minecraftly/spigot2/plugins https://m.ly/MinecraftlySpigot.jar
 cd /minecraftly/bungeecord1 && screen -dmS bungeecord1 java -jar BungeeCord.jar
 sleep 30
 screen -r bungeecord1 -X stuff 'end\n'
-cd /minecraftly/bungeecord2 && java -jar BungeeCord.jar
+cd /minecraftly/bungeecord2 && screen -dmS bungeecord2 java -jar BungeeCord.jar
 sleep 30
 screen -r bungeecord2 -X stuff 'end\n'
 cd /minecraftly/spigot1 && screen -dmS spigot1 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /minecraftly/worlds --port 25567 --online-mode=false

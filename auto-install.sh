@@ -91,6 +91,8 @@ wget -P /minecraftly/bungeecord1/plugins https://m.ly/MinecraftlyBungee.jar
 wget -P /minecraftly/bungeecord2/plugins https://m.ly/MinecraftlyBungee.jar
 wget -P /minecraftly/spigot1/plugins https://m.ly/MinecraftlySpigot.jar
 wget -P /minecraftly/spigot2/plugins https://m.ly/MinecraftlySpigot.jar
+wget -P /minecraftly/spigot1/plugins http://ci.shadowvolt.com/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar
+wget -P /minecraftly/spigot2/plugins http://ci.shadowvolt.com/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar
 wget -P /minecraftly/spigot1/plugins http://dev.bukkit.org/media/files/894/359/Vault.jar
 wget -P /minecraftly/spigot2/plugins http://dev.bukkit.org/media/files/894/359/Vault.jar
 

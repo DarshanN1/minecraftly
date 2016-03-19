@@ -70,6 +70,10 @@ cd /minecraftly/spigot2 && screen -dmS spigot2 java -Dcom.mojang.eula.agree=true
 sleep 30
 screen -r spigot2 -X stuff 'stop\n'
 
+#Configure some stuffs
+sed -i "s/ host: 0.0.0.0:.*/ host: 0.0.0.0:25565/" /minecraftly/bungeecord1/config.yml
+sed -i "s/ host: 0.0.0.0:.*/ host: 0.0.0.0:25566/" /minecraftly/bungeecord2/config.yml
+
 #Download Minecraftly plugins
 wget -P /minecraftly/bungeecord1/plugins https://ci.m.ly/job/Minecraftly/lastSuccessfulBuild/artifact/target/MinecraftlyBungee.jar
 wget -P /minecraftly/bungeecord2/plugins https://ci.m.ly/job/Minecraftly/lastSuccessfulBuild/artifact/target/MinecraftlyBungee.jar

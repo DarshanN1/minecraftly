@@ -53,16 +53,16 @@ cp /minecraftly/buildtools/spigot-1.9.jar /minecraftly/spigot1/spigot-1.9.jar
 cp /minecraftly/buildtools/spigot-1.9.jar /minecraftly/spigot2/spigot-1.9.jar
 
 #Start servers for the first time to generate files
-cd /minecraftly/bungeecord1 && screen -dmS bungeecord1 java -jar BungeeCord.jar
+screen -dmS bungeecord1 java -jar /minecraftly/bungeecord1/BungeeCord.jar
 sleep 30
 screen -r bungeecord1 -X stuff 'end\n'
-cd /minecraftly/bungeecord2 && screen -dmS bungeecord2 java -jar BungeeCord.jar
+screen -dmS bungeecord2 java -jar /minecraftly/bungeecord2/BungeeCord.jar
 sleep 30
 screen -r bungeecord2 -X stuff 'end\n'
-cd /minecraftly/spigot1 && screen -dmS spigot1 java -Dcom.mojang.eula.agree=true -jar spigot-1.9.jar --world-dir /minecraftly/worlds --port 25567 --online-mode=false
+screen -dmS spigot1 java -Dcom.mojang.eula.agree=true -jar /minecraftly/spigot1/spigot-1.9.jar --world-dir /minecraftly/worlds --port 25567 --online-mode=false
 sleep 30
 screen -r spigot1 -X stuff 'stop\n'
-cd /minecraftly/spigot2 && screen -dmS spigot2 java -Dcom.mojang.eula.agree=true -jar spigot-1.9.jar --world-dir /minecraftly/worlds --port 25568 --online-mode=false
+screen -dmS spigot2 java -Dcom.mojang.eula.agree=true -jar /minecraftly/spigot2/spigot-1.9.jar --world-dir /minecraftly/worlds --port 25568 --online-mode=false
 sleep 30
 screen -r spigot2 -X stuff 'stop\n'
 
@@ -73,10 +73,10 @@ sed -i "s/ host: 0.0.0.0:.*/ host: 0.0.0.0:25566/" /minecraftly/bungeecord2/conf
 #Download & configure RedisBungee
 wget -P /minecraftly/bungeecord1/plugins https://m.ly/RedisBungee.jar
 wget -P /minecraftly/bungeecord2/plugins https://m.ly/RedisBungee.jar
-cd /minecraftly/bungeecord1 && screen -dmS bungeecord1 java -jar BungeeCord.jar
+screen -dmS bungeecord1 java -jar /minecraftly/bungeecord1/BungeeCord.jar
 sleep 30
 screen -r bungeecord1 -X stuff 'end\n'
-cd /minecraftly/bungeecord2 && screen -dmS bungeecord2 java -jar BungeeCord.jar
+screen -dmS bungeecord2 java -jar /minecraftly/bungeecord2/BungeeCord.jar
 sleep 30
 screen -r bungeecord2 -X stuff 'end\n'
 sed -i "s/server-id:.*/server-id: localhost/" /minecraftly/bungeecord1/plugins/RedisBungee/config.yml
@@ -89,15 +89,15 @@ wget -P /minecraftly/spigot1/plugins https://m.ly/MinecraftlySpigot.jar
 wget -P /minecraftly/spigot2/plugins https://m.ly/MinecraftlySpigot.jar
 
 #Start servers for the second time to generate Minecraftly plugin files
-cd /minecraftly/bungeecord1 && screen -dmS bungeecord1 java -jar BungeeCord.jar
+screen -dmS bungeecord1 java -jar /minecraftly/bungeecord1/BungeeCord.jar
 sleep 30
 screen -r bungeecord1 -X stuff 'end\n'
-cd /minecraftly/bungeecord2 && screen -dmS bungeecord2 java -jar BungeeCord.jar
+screen -dmS bungeecord2 java -jar /minecraftly/bungeecord2/BungeeCord.jar
 sleep 30
 screen -r bungeecord2 -X stuff 'end\n'
-cd /minecraftly/spigot1 && screen -dmS spigot1 java -Dcom.mojang.eula.agree=true -jar spigot-1.9.jar --world-dir /minecraftly/worlds --port 25567 --online-mode=false
+screen -dmS spigot1 java -Dcom.mojang.eula.agree=true -jar /minecraftly/spigot1/spigot-1.9.jar --world-dir /minecraftly/worlds --port 25567 --online-mode=false
 sleep 30
 screen -r spigot1 -X stuff 'stop\n'
-cd /minecraftly/spigot2 && screen -dmS spigot2 java -Dcom.mojang.eula.agree=true -jar spigot-1.9.jar --world-dir /minecraftly/worlds --port 25568 --online-mode=false
+screen -dmS spigot2 java -Dcom.mojang.eula.agree=true -jar /minecraftly/spigot2/spigot-1.9.jar --world-dir /minecraftly/worlds --port 25568 --online-mode=false
 sleep 30
 screen -r spigot2 -X stuff 'stop\n'

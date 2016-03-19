@@ -91,6 +91,8 @@ wget -P /minecraftly/bungeecord1/plugins https://m.ly/MinecraftlyBungee.jar
 wget -P /minecraftly/bungeecord2/plugins https://m.ly/MinecraftlyBungee.jar
 wget -P /minecraftly/spigot1/plugins https://m.ly/MinecraftlySpigot.jar
 wget -P /minecraftly/spigot2/plugins https://m.ly/MinecraftlySpigot.jar
+wget -P /minecraftly/spigot1/plugins https://m.ly/ProtocolLib.jar
+wget -P /minecraftly/spigot2/plugins https://m.ly/ProtocolLib.jar
 
 #Start servers for the second time to generate Minecraftly plugin files
 cd /minecraftly/bungeecord1 && screen -dmS bungeecord1 java -jar BungeeCord.jar

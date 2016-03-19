@@ -16,7 +16,7 @@ debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password passw
 debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password_again password $1'
 apt-get install mariadb-server-10.0 -y
 apt-get install mariadb-client-10.0 -y
-mysql -uroot -pPASS -e "SET PASSWORD = PASSWORD('');"
+mysql -u root -p PASS -e "SET PASSWORD = PASSWORD('');"
 
 #Install Redis server
 apt-get install redis-server -y

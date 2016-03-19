@@ -48,7 +48,7 @@ mkdir /minecraftly/worlds
 #Download some files
 bash -c "wget -P /minecraftly/bungeecord1 http://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar"
 bash -c "wget -P /minecraftly/bungeecord2 http://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar"
-bash -c "wget -P /minecraftly/buildtools https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar && cd /minecraftly/buildtools && java -jar BuildTools.jar"
+bash -c "wget -P /minecraftly/buildtools https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar && java -jar /minecraftly/buildtools/BuildTools.jar"
 cp /minecraftly/buildtools/spigot-1.9.jar /minecraftly/spigot1/spigot-1.9.jar
 cp /minecraftly/buildtools/spigot-1.9.jar /minecraftly/spigot2/spigot-1.9.jar
 

@@ -114,5 +114,5 @@ screen -r s2 -X stuff 'stop\n'
 #Configure stuffs
 wget -P /minecraftly/b1/plugins/MinecraftlyBungee https://m.ly/config.yml
 wget -P /minecraftly/b2/plugins/MinecraftlyBungee https://m.ly/config.yml
-wget -P /minecraftly/s1/plugins/MinecraftlyBungee https://m.ly/motd.yml
+wget -P /minecraftly/b1/plugins/MinecraftlyBungee https://m.ly/motd.yml
 wget -P /minecraftly/b2/plugins/MinecraftlyBungee https://m.ly/motd.yml

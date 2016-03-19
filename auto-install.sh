@@ -74,6 +74,8 @@ sed -i "s/ host: 0.0.0.0:.*/ host: 0.0.0.0:25565/" /minecraftly/b1/config.yml
 sed -i "s/ host: 0.0.0.0:.*/ host: 0.0.0.0:25566/" /minecraftly/b2/config.yml
 sed -i "s/ip_forward: .*/ip_forward: true/" /minecraftly/b1/config.yml
 sed -i "s/ip_forward: .*/ip_forward: true/" /minecraftly/b2/config.yml
+sed -i "s/address: localhost:.*/address: localhost:25567/" /minecraftly/b1/config.yml
+sed -i "s/address: localhost:.*/address: localhost:25568/" /minecraftly/b2/config.yml
 sed -i "s/level-name=.*/level-name=world1/" /minecraftly/s1/server.properties
 sed -i "s/level-name=.*/level-name=world2/" /minecraftly/s2/server.properties
 sed -i "s/online-mode=.*/online-mode=false/" /minecraftly/s1/server.properties

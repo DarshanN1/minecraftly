@@ -62,10 +62,10 @@ screen -r b1 -X stuff 'end\n'
 cd /minecraftly/b2 && screen -dmS b2 java -jar BungeeCord.jar
 sleep 30
 screen -r b2 -X stuff 'end\n'
-cd /minecraftly/s1 && screen -dmS s1 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /minecraftly/worlds --port 25567 --online-mode=false
+cd /minecraftly/s1 && screen -dmS s1 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /minecraftly/worlds --port 25567
 sleep 30
 screen -r s1 -X stuff 'stop\n'
-cd /minecraftly/s2 && screen -dmS s2 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /minecraftly/worlds --port 25568 --online-mode=false
+cd /minecraftly/s2 && screen -dmS s2 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /minecraftly/worlds --port 25568
 sleep 30
 screen -r s2 -X stuff 'stop\n'
 
@@ -74,6 +74,10 @@ sed -i "s/ host: 0.0.0.0:.*/ host: 0.0.0.0:25565/" /minecraftly/b1/config.yml
 sed -i "s/ host: 0.0.0.0:.*/ host: 0.0.0.0:25566/" /minecraftly/b2/config.yml
 sed -i "s/level-name=.*/level-name=world1/" /minecraftly/s1/server.properties
 sed -i "s/level-name=.*/level-name=world2/" /minecraftly/s2/server.properties
+sed -i "s/online-mode=.*/online-mode=false/" /minecraftly/s1/server.properties
+sed -i "s/online-mode=.*/online-mode=false/" /minecraftly/s2/server.properties
+sed -i "s/bungeecord: .*/bungeecord: true/" /minecraftly/s1/spigot.yml
+sed -i "s/bungeecord: .*/bungeecord: true/" /minecraftly/s2/spigot.yml
 
 #Download & configure RedisBungee
 wget -P /minecraftly/b1/plugins https://m.ly/RedisBungee.jar
@@ -104,10 +108,10 @@ screen -r b1 -X stuff 'end\n'
 cd /minecraftly/b2 && screen -dmS b2 java -jar BungeeCord.jar
 sleep 30
 screen -r b2 -X stuff 'end\n'
-cd /minecraftly/s1 && screen -dmS s1 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /minecraftly/worlds --port 25567 --online-mode=false
+cd /minecraftly/s1 && screen -dmS s1 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /minecraftly/worlds --port 25567
 sleep 30
 screen -r s1 -X stuff 'stop\n'
-cd /minecraftly/s2 && screen -dmS s2 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /minecraftly/worlds --port 25568 --online-mode=false
+cd /minecraftly/s2 && screen -dmS s2 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /minecraftly/worlds --port 25568
 sleep 30
 screen -r s2 -X stuff 'stop\n'
 

@@ -110,3 +110,9 @@ screen -r spigot1 -X stuff 'stop\n'
 cd /minecraftly/spigot2 && screen -dmS s2 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /minecraftly/worlds --port 25568 --online-mode=false
 sleep 30
 screen -r spigot2 -X stuff 'stop\n'
+
+#Configure stuffs
+wget -P /minecraftly/bungeecord1/plugins/MinecraftlyBungee https://m.ly/config.yml
+wget -P /minecraftly/bungeecord2/plugins/MinecraftlyBungee https://m.ly/config.yml
+wget -P /minecraftly/bungeecord1/plugins/MinecraftlyBungee https://m.ly/motd.yml
+wget -P /minecraftly/bungeecord2/plugins/MinecraftlyBungee https://m.ly/motd.yml

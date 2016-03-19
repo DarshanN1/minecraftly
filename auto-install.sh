@@ -10,13 +10,14 @@ apt-get dist-upgrade -y
 apt-get install screen -y
 apt-get install git -y
 
-#Install MySQL, in this case MariaDB, with username "root" and password "123456"
+#Install MySQL, in this case MariaDB, with username "root", no password, and database name "minecraftly"
 export DEBIAN_FRONTEND=noninteractive
 debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password password 123456'
 debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password_again password 123456'
 apt-get install mariadb-server-10.0 -y
 apt-get install mariadb-client-10.0 -y
 mysql -u root -p123456 -e "create database minecraftly;"
+mysqladmin -u root -p123456 password ''
 
 #Install Redis server
 apt-get install redis-server -y
@@ -96,7 +97,7 @@ wget -P /minecraftly/spigot2/plugins http://ci.shadowvolt.com/job/ProtocolLib/la
 wget -P /minecraftly/spigot1/plugins http://dev.bukkit.org/media/files/894/359/Vault.jar
 wget -P /minecraftly/spigot2/plugins http://dev.bukkit.org/media/files/894/359/Vault.jar
 
-#Start servers for the second time to generate Minecraftly plugin files
+#Start servers for the second time to generate plugins files
 cd /minecraftly/bungeecord1 && screen -dmS bungeecord1 java -jar BungeeCord.jar
 sleep 30
 screen -r bungeecord1 -X stuff 'end\n'
@@ -109,3 +110,6 @@ screen -r spigot1 -X stuff 'stop\n'
 cd /minecraftly/spigot2 && screen -dmS spigot2 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /minecraftly/worlds --port 25568 --online-mode=false
 sleep 30
 screen -r spigot2 -X stuff 'stop\n'
+
+#Configure Minecraftly plugin
+sed -i "s/level-name=.*/level-name=world1/" /minecraftly/spigot1/plugins/Minecraftly/config.yml

@@ -52,10 +52,6 @@ bash -c "wget -P /minecraftly/buildtools https://hub.spigotmc.org/jenkins/job/Bu
 cp /minecraftly/buildtools/spigot-1.9.jar /minecraftly/spigot1/spigot-1.9.jar
 cp /minecraftly/buildtools/spigot-1.9.jar /minecraftly/spigot2/spigot-1.9.jar
 
-#Configure some stuffs
-sed -i "s/server-id:.*/server-id: localhost/" /minecraftly/bungeecord1/plugins/RedisBungee/config.yml
-sed -i "s/server-id:.*/server-id: 127.0.0.1/" /minecraftly/bungeecord2/plugins/RedisBungee/config.yml
-
 #Start servers for the first time to generate files
 cd /minecraftly/bungeecord1 && screen -dmS bungeecord1 java -jar BungeeCord.jar
 sleep 30
@@ -70,25 +66,29 @@ cd /minecraftly/spigot2 && screen -dmS spigot2 java -Dcom.mojang.eula.agree=true
 sleep 30
 screen -r spigot2 -X stuff 'stop\n'
 
-#Configure some stuffs
+#Configure BungeeCord config
 sed -i "s/ host: 0.0.0.0:.*/ host: 0.0.0.0:25565/" /minecraftly/bungeecord1/config.yml
 sed -i "s/ host: 0.0.0.0:.*/ host: 0.0.0.0:25566/" /minecraftly/bungeecord2/config.yml
 
-#Download Minecraftly plugins, not yet available
-wget -P /minecraftly/bungeecord1/plugins https://ci.m.ly/job/Minecraftly/lastSuccessfulBuild/artifact/target/MinecraftlyBungee.jar
-wget -P /minecraftly/bungeecord2/plugins https://ci.m.ly/job/Minecraftly/lastSuccessfulBuild/artifact/target/MinecraftlyBungee.jar
-wget -P /minecraftly/spigot1/plugins https://ci.m.ly/job/Minecraftly/lastSuccessfulBuild/artifact/target/MinecraftlySpigot.jar
-wget -P /minecraftly/spigot2/plugins https://ci.m.ly/job/Minecraftly/lastSuccessfulBuild/artifact/target/MinecraftlySpigot.jar
-
-#Temporary download links for plugins
-wget -P /minecraftly/bungeecord1/plugins https://m.ly/MinecraftlyBungee.jar
-wget -P /minecraftly/bungeecord2/plugins https://m.ly/MinecraftlyBungee.jar
+#Download & configure RedisBungee
 wget -P /minecraftly/bungeecord1/plugins https://m.ly/RedisBungee.jar
 wget -P /minecraftly/bungeecord2/plugins https://m.ly/RedisBungee.jar
+cd /minecraftly/bungeecord1 && screen -dmS bungeecord1 java -jar BungeeCord.jar
+sleep 30
+screen -r bungeecord1 -X stuff 'end\n'
+cd /minecraftly/bungeecord2 && screen -dmS bungeecord2 java -jar BungeeCord.jar
+sleep 30
+screen -r bungeecord2 -X stuff 'end\n'
+sed -i "s/server-id:.*/server-id: localhost/" /minecraftly/bungeecord1/plugins/RedisBungee/config.yml
+sed -i "s/server-id:.*/server-id: 127.0.0.1/" /minecraftly/bungeecord2/plugins/RedisBungee/config.yml
+
+#Download Minecraftly plugins
+wget -P /minecraftly/bungeecord1/plugins https://m.ly/MinecraftlyBungee.jar
+wget -P /minecraftly/bungeecord2/plugins https://m.ly/MinecraftlyBungee.jar
 wget -P /minecraftly/spigot1/plugins https://m.ly/MinecraftlySpigot.jar
 wget -P /minecraftly/spigot2/plugins https://m.ly/MinecraftlySpigot.jar
 
-#Start servers for the second time to generate plugin files
+#Start servers for the second time to generate Minecraftly plugin files
 cd /minecraftly/bungeecord1 && screen -dmS bungeecord1 java -jar BungeeCord.jar
 sleep 30
 screen -r bungeecord1 -X stuff 'end\n'

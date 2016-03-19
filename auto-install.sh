@@ -74,11 +74,19 @@ screen -r spigot2 -X stuff 'stop\n'
 sed -i "s/ host: 0.0.0.0:.*/ host: 0.0.0.0:25565/" /minecraftly/bungeecord1/config.yml
 sed -i "s/ host: 0.0.0.0:.*/ host: 0.0.0.0:25566/" /minecraftly/bungeecord2/config.yml
 
-#Download Minecraftly plugins
+#Download Minecraftly plugins, not yet available
 wget -P /minecraftly/bungeecord1/plugins https://ci.m.ly/job/Minecraftly/lastSuccessfulBuild/artifact/target/MinecraftlyBungee.jar
 wget -P /minecraftly/bungeecord2/plugins https://ci.m.ly/job/Minecraftly/lastSuccessfulBuild/artifact/target/MinecraftlyBungee.jar
 wget -P /minecraftly/spigot1/plugins https://ci.m.ly/job/Minecraftly/lastSuccessfulBuild/artifact/target/MinecraftlySpigot.jar
 wget -P /minecraftly/spigot2/plugins https://ci.m.ly/job/Minecraftly/lastSuccessfulBuild/artifact/target/MinecraftlySpigot.jar
+
+#Temporary download links for plugins
+wget -P /minecraftly/bungeecord1/plugins https://m.ly/MinecraftlyBungee.jar
+wget -P /minecraftly/bungeecord2/plugins https://m.ly/MinecraftlyBungee.jar
+wget -P /minecraftly/bungeecord1/plugins https://m.ly/RedisBungee.jar
+wget -P /minecraftly/bungeecord2/plugins https://m.ly/RedisBungee.jar
+wget -P /minecraftly/spigot1/plugins https://m.ly/MinecraftlySpigot.jar
+wget -P /minecraftly/spigot2/plugins https://m.ly/MinecraftlySpigot.jar
 
 #Start servers for the second time to generate plugin files
 cd /minecraftly/bungeecord1 && screen -dmS bungeecord1 java -jar BungeeCord.jar

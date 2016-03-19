@@ -1,5 +1,5 @@
 #This is a script to automatically install Minecraftly on a single server for testing
-#Requirements: Debian 8 or higher. Server needs at least 2GB RAM and 1 virtual CPU
+#Requirements: Debian 8 or higher. Server needs at least 1GB Ram
 #! /bin/bash
 #Update some stuffs
 sudo -i

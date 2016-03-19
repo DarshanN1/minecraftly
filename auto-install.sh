@@ -12,8 +12,8 @@ apt-get install git -y
 
 #Install MySQL, in this case MariaDB, with username "root" and password "123456"
 export DEBIAN_FRONTEND=noninteractive
-debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password password 123456'
-debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password_again password 123456'
+debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password password $1'
+debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password_again password $1'
 apt-get install mariadb-server-10.0 -y
 apt-get install mariadb-client-10.0 -y
 mysql -uroot -pPASS -e "SET PASSWORD = PASSWORD('');"

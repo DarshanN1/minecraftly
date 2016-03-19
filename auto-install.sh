@@ -70,12 +70,6 @@ cd /minecraftly/spigot2 && screen -dmS spigot2 java -Dcom.mojang.eula.agree=true
 sleep 30
 screen -r spigot2 -X stuff 'stop\n'
 
-#Download Minecraftly plugins
-wget -P /minecraftly/bungeecord1/plugins https://ci.m.ly/job/Minecraftly/lastSuccessfulBuild/artifact/target/MinecraftlyBungee.jar
-wget -P /minecraftly/bungeecord2/plugins https://ci.m.ly/job/Minecraftly/lastSuccessfulBuild/artifact/target/MinecraftlyBungee.jar
-wget -P /minecraftly/spigot1/plugins https://ci.m.ly/job/Minecraftly/lastSuccessfulBuild/artifact/target/MinecraftlySpigot.jar
-wget -P /minecraftly/spigot2/plugins https://ci.m.ly/job/Minecraftly/lastSuccessfulBuild/artifact/target/MinecraftlySpigot.jar
-
 #Start servers for the second time to generate plugin files
 cd /minecraftly/bungeecord1 && screen -dmS bungeecord1 java -jar BungeeCord.jar
 sleep 30
@@ -89,3 +83,9 @@ screen -r spigot1 -X stuff 'stop'
 cd /minecraftly/spigot2 && screen -dmS spigot2 java -Dcom.mojang.eula.agree=true -jar spigot-1.9.jar --world-dir /minecraftly/worlds --port 25568 --online-mode=false
 sleep 30
 screen -r spigot2 -X stuff 'stop'
+
+#Download Minecraftly plugins
+wget -P /minecraftly/bungeecord1/plugins https://ci.m.ly/job/Minecraftly/lastSuccessfulBuild/artifact/target/MinecraftlyBungee.jar
+wget -P /minecraftly/bungeecord2/plugins https://ci.m.ly/job/Minecraftly/lastSuccessfulBuild/artifact/target/MinecraftlyBungee.jar
+wget -P /minecraftly/spigot1/plugins https://ci.m.ly/job/Minecraftly/lastSuccessfulBuild/artifact/target/MinecraftlySpigot.jar
+wget -P /minecraftly/spigot2/plugins https://ci.m.ly/job/Minecraftly/lastSuccessfulBuild/artifact/target/MinecraftlySpigot.jar

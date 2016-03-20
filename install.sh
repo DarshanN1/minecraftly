@@ -5,8 +5,6 @@
 sudo -i
 apt-get update -y
 DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
-apt-get upgrade -y
-apt-get dist-upgrade -y
 apt-get install screen -y
 apt-get install git -y
 
@@ -15,7 +13,6 @@ export DEBIAN_FRONTEND=noninteractive
 debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password password 123456'
 debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password_again password 123456'
 apt-get install mariadb-server-10.0 -y
-apt-get install mariadb-client-10.0 -y
 mysql -u root -p123456 -e "create database minecraftly;"
 mysqladmin -u root -p123456 password ''
 
@@ -37,10 +34,14 @@ echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | su
 apt-get update -y
 apt-get install oracle-java8-set-default -y
 
-#Make some directories
+#Make some directories & download some preconfigured files
 mkdir /m
 mkdir /m/b1
 mkdir /m/b2
+mkdir /m/b1/plugins/MinecraftlyBungee/
+mkdir /m/b2/plugins/MinecraftlyBungee/
+wget -P /m/b1/plugins/MinecraftlyBungee https://storage.googleapis.com/minecraftly/test/config.yml
+wget -P /m/b2/plugins/MinecraftlyBungee https://storage.googleapis.com/minecraftly/test/config.yml
 mkdir /m/buildtools
 mkdir /m/s1
 mkdir /m/s2
@@ -51,9 +52,6 @@ wget -P /m/b1 https://storage.googleapis.com/minecraftly/test/BungeeCord.jar
 wget -P /m/b2 https://storage.googleapis.com/minecraftly/test/BungeeCord.jar
 wget -P /m/s1 https://storage.googleapis.com/minecraftly/test/spigot.jar
 wget -P /m/s2 https://storage.googleapis.com/minecraftly/test/spigot.jar
-#bash -c "wget -P /m/buildtools https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar && java -jar /m/buildtools/BuildTools.jar"
-#cp /m/buildtools/spigot-1.9.jar /m/spigot1/spigot-1.9.jar
-#cp /m/buildtools/spigot-1.9.jar /m/spigot2/spigot-1.9.jar
 
 #Start servers for the first time to generate files
 cd /m/b1 && screen -dmS b1 java -jar BungeeCord.jar
@@ -118,14 +116,6 @@ screen -r s1 -X stuff 'stop\n'
 cd /m/s2 && screen -dmS s2 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /m/worlds --port 25568
 sleep 30
 screen -r s2 -X stuff 'stop\n'
-
-#Configure stuffs
-rm -rf //m/b1/plugins/MinecraftlyBungee/config.yml
-rm -rf //m/b2/plugins/MinecraftlyBungee/config.yml
-wget -P /m/b1/plugins/MinecraftlyBungee https://storage.googleapis.com/minecraftly/test/config.yml
-wget -P /m/b2/plugins/MinecraftlyBungee https://storage.googleapis.com/minecraftly/test/config.yml
-wget -P /m/b1/plugins/MinecraftlyBungee https://storage.googleapis.com/minecraftly/test/motd.yml
-wget -P /m/b2/plugins/MinecraftlyBungee https://storage.googleapis.com/minecraftly/test/motd.yml
 
 #Start servers to play
 cd /m/b1 && screen -dmS b1 java -jar BungeeCord.jar

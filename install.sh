@@ -19,13 +19,6 @@ mysqladmin -u root -p123456 password ''
 #Install Redis server
 apt-get install redis-server -y
 
-#Change ulimit
-ulimit -n 1048576
-ulimit -c unlimited
-echo -e "*             -       nofile          1048576" >> /etc/security/limits.conf
-echo -e "*             soft    nofile          65536" >> /etc/security/limits.conf
-echo -e "*             hard    nofile          65536" >> /etc/security/limits.conf
-
 #Install Latest Java Version
 echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee /etc/apt/sources.list.d/webupd8team-java.list
 echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/webupd8team-java.list

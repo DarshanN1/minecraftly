@@ -10,8 +10,8 @@ apt-get install git -y
 
 #Install MySQL server with username "root", no password, and database name "minecraftly"
 export DEBIAN_FRONTEND=noninteractive
-echo "mysql-server-5.5 mysql-server/root_password password root" | debconf-set-selections
-echo "mysql-server-5.5 mysql-server/root_password_again password root" | debconf-set-selections
+echo "mysql-server-5.5 mysql-server/root_password password 123456" | debconf-set-selections
+echo "mysql-server-5.5 mysql-server/root_password_again password 123456" | debconf-set-selections
 apt-get -y install mysql-server-5.5
 mysql -u root -p123456 -e "create database minecraftly;"
 mysqladmin -u root -p123456 password ''

@@ -38,6 +38,8 @@ apt-get install oracle-java8-set-default -y
 mkdir /m
 mkdir /m/b1
 mkdir /m/b2
+wget -P /m/b1 https://storage.googleapis.com/minecraftly/test/BungeeCord.jar
+wget -P /m/b2 https://storage.googleapis.com/minecraftly/test/BungeeCord.jar
 mkdir /m/b1/plugins
 mkdir /m/b2/plugins
 wget -P /m/b1/plugins https://storage.googleapis.com/minecraftly/test/RedisBungee.jar
@@ -53,6 +55,8 @@ wget -P /m/b2/plugins/MinecraftlyBungee https://storage.googleapis.com/minecraft
 mkdir /m/buildtools
 mkdir /m/s1
 mkdir /m/s2
+wget -P /m/s1 https://storage.googleapis.com/minecraftly/test/spigot.jar
+wget -P /m/s2 https://storage.googleapis.com/minecraftly/test/spigot.jar
 mkdir /m/s1/plugins
 mkdir /m/s2/plugins
 wget -P /m/s1/plugins https://storage.googleapis.com/minecraftly/test/Minecraftly.jar
@@ -62,12 +66,6 @@ wget -P /m/s2/plugins https://storage.googleapis.com/minecraftly/test/ProtocolLi
 wget -P /m/s1/plugins https://storage.googleapis.com/minecraftly/test/Vault.jar
 wget -P /m/s2/plugins https://storage.googleapis.com/minecraftly/test/Vault.jar
 mkdir /m/worlds
-
-#Download some files
-wget -P /m/b1 https://storage.googleapis.com/minecraftly/test/BungeeCord.jar
-wget -P /m/b2 https://storage.googleapis.com/minecraftly/test/BungeeCord.jar
-wget -P /m/s1 https://storage.googleapis.com/minecraftly/test/spigot.jar
-wget -P /m/s2 https://storage.googleapis.com/minecraftly/test/spigot.jar
 
 #Start servers for the first time to generate files
 cd /m/b1 && screen -dmS b1 java -jar BungeeCord.jar

@@ -8,11 +8,11 @@ DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -
 apt-get install screen -y
 apt-get install git -y
 
-#Install MySQL, in this case MariaDB, with username "root", no password, and database name "minecraftly"
+#Install MySQL server with username "root", no password, and database name "minecraftly"
 export DEBIAN_FRONTEND=noninteractive
-debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password password 123456'
-debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password_again password 123456'
-apt-get install mariadb-server-10.0 -y
+echo "mysql-server-5.5 mysql-server/root_password password root" | debconf-set-selections
+echo "mysql-server-5.5 mysql-server/root_password_again password root" | debconf-set-selections
+apt-get -y install mysql-server-5.5
 mysql -u root -p123456 -e "create database minecraftly;"
 mysqladmin -u root -p123456 password ''
 

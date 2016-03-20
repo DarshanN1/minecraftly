@@ -92,8 +92,9 @@ sed -i "s/md_5:/minecraftly:/" /m/b1/config.yml
 sed -i "s/md_5:/minecraftly:/" /m/b2/config.yml
 sed -i "s/address: localhost:.*/address: localhost:25567/" /m/b1/config.yml
 sed -i "s/address: localhost:.*/address: localhost:25568/" /m/b2/config.yml
-sed -i "s/server-id:.*/server-id: b1/" /m/b1/plugins/RedisBungee/config.yml
-sed -i "s/server-id:.*/server-id: b2/" /m/b2/plugins/RedisBungee/config.yml
+HOSTNAME=$(ifconfig eth0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
+sed -i "s/server-id:.*/server-id: $HOSTNAME/" /m/b1/plugins/RedisBungee/config.yml
+sed -i "s/server-id:.*/server-id: $HOSTNAME/" /m/b2/plugins/RedisBungee/config.yml
 sed -i "s/level-name=.*/level-name=world1/" /m/s1/server.properties
 sed -i "s/level-name=.*/level-name=world2/" /m/s2/server.properties
 sed -i "s/online-mode=.*/online-mode=false/" /m/s1/server.properties

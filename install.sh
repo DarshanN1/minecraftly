@@ -48,6 +48,8 @@ mkdir /m/b1/plugins/MinecraftlyBungee/
 mkdir /m/b2/plugins/MinecraftlyBungee/
 wget -P /m/b1/plugins/MinecraftlyBungee https://storage.googleapis.com/minecraftly/test/config.yml
 wget -P /m/b2/plugins/MinecraftlyBungee https://storage.googleapis.com/minecraftly/test/config.yml
+wget -P /m/b1/plugins/MinecraftlyBungee https://storage.googleapis.com/minecraftly/test/motd.yml
+wget -P /m/b2/plugins/MinecraftlyBungee https://storage.googleapis.com/minecraftly/test/motd.yml
 mkdir /m/buildtools
 mkdir /m/s1
 mkdir /m/s2

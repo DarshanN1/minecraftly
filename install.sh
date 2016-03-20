@@ -81,7 +81,7 @@ cd /m/s2 && screen -dmS s2 java -Dcom.mojang.eula.agree=true -jar spigot.jar --w
 sleep 30
 screen -r s2 -X stuff 'stop\n'
 
-#Configure some configs
+#Configure some files
 sed -i "s/ host: 0.0.0.0:.*/ host: 0.0.0.0:25565/" /m/b1/config.yml
 sed -i "s/ host: 0.0.0.0:.*/ host: 0.0.0.0:25566/" /m/b2/config.yml
 sed -i "s/ip_forward: .*/ip_forward: true/" /m/b1/config.yml

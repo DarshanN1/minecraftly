@@ -86,6 +86,8 @@ sed -i "s/ host: 0.0.0.0:.*/ host: 0.0.0.0:25565/" /m/b1/config.yml
 sed -i "s/ host: 0.0.0.0:.*/ host: 0.0.0.0:25566/" /m/b2/config.yml
 sed -i "s/ip_forward: .*/ip_forward: true/" /m/b1/config.yml
 sed -i "s/ip_forward: .*/ip_forward: true/" /m/b2/config.yml
+sed -i "s/motd: .*/motd: 'b1'/" /m/b1/config.yml
+sed -i "s/motd: .*/motd: 'b1'/" /m/b2/config.yml
 sed -i "s/address: localhost:.*/address: localhost:25567/" /m/b1/config.yml
 sed -i "s/address: localhost:.*/address: localhost:25568/" /m/b2/config.yml
 sed -i "s/server-id:.*/server-id: b1/" /m/b1/plugins/RedisBungee/config.yml

@@ -126,3 +126,9 @@ wget -P /m/b1/plugins/MinecraftlyBungee https://storage.googleapis.com/minecraft
 wget -P /m/b2/plugins/MinecraftlyBungee https://storage.googleapis.com/minecraftly/test/config.yml
 wget -P /m/b1/plugins/MinecraftlyBungee https://storage.googleapis.com/minecraftly/test/motd.yml
 wget -P /m/b2/plugins/MinecraftlyBungee https://storage.googleapis.com/minecraftly/test/motd.yml
+
+#Start servers to play
+cd /m/b1 && screen -dmS b1 java -jar BungeeCord.jar
+cd /m/b2 && screen -dmS b2 java -jar BungeeCord.jar
+cd /m/s1 && screen -dmS s1 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /m/worlds --port 25567
+cd /m/s2 && screen -dmS s2 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /m/worlds --port 25568

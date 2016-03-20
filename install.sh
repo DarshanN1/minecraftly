@@ -51,7 +51,7 @@ bash -c "wget -P /m/b1 https://m.ly/BungeeCord.jar"
 bash -c "wget -P /m/b2 https://m.ly/BungeeCord.jar"
 bash -c "wget -P /m/s1 https://m.ly/spigot.jar"
 bash -c "wget -P /m/s2 https://m.ly/spigot.jar"
-bash -c "wget -P /m/buildtools https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar && java -jar /minecraftly/buildtools/BuildTools.jar"
+bash -c "wget -P /m/buildtools https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar && java -jar /m/buildtools/BuildTools.jar"
 cp /m/buildtools/spigot-1.9.jar /m/spigot1/spigot-1.9.jar
 cp /m/buildtools/spigot-1.9.jar /m/spigot2/spigot-1.9.jar
 
@@ -62,10 +62,10 @@ screen -r b1 -X stuff 'end\n'
 cd /m/b2 && screen -dmS b2 java -jar BungeeCord.jar
 sleep 30
 screen -r b2 -X stuff 'end\n'
-cd /m/s1 && screen -dmS s1 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /minecraftly/worlds --port 25567
+cd /m/s1 && screen -dmS s1 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /m/worlds --port 25567
 sleep 30
 screen -r s1 -X stuff 'stop\n'
-cd /m/s2 && screen -dmS s2 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /minecraftly/worlds --port 25568
+cd /m/s2 && screen -dmS s2 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /m/worlds --port 25568
 sleep 30
 screen -r s2 -X stuff 'stop\n'
 

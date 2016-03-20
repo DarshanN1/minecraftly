@@ -88,8 +88,8 @@ sed -i "s/heartbeatPort: .*/heartbeatPort: 25568/" /m/s1/plugins/Minecraftly/con
 sed -i "s/address: localhost:.*/address: localhost:25567/" /m/b1/config.yml
 sed -i "s/address: localhost:.*/address: localhost:25568/" /m/b2/config.yml
 HOSTNAME=$(ifconfig eth0 | grep "inet addr" | cut -d ':' -f 2 | cut -d ' ' -f 1)
-sed -i "s/server-id:.*/server-id: $HOSTNAME:25565/" /m/b1/plugins/RedisBungee/config.yml
-sed -i "s/server-id:.*/server-id: $HOSTNAME:25566/" /m/b2/plugins/RedisBungee/config.yml
+sed -i "s/server-id:.*/server-id: $HOSTNAME/" /m/b1/plugins/RedisBungee/config.yml
+sed -i "s/server-id:.*/server-id: $HOSTNAME/" /m/b2/plugins/RedisBungee/config.yml
 sed -i "s/level-name=.*/level-name=world1/" /m/s1/server.properties
 sed -i "s/level-name=.*/level-name=world2/" /m/s2/server.properties
 sed -i "s/online-mode=.*/online-mode=false/" /m/s1/server.properties

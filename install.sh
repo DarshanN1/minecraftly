@@ -51,9 +51,9 @@ bash -c "wget -P /m/b1 https://m.ly/BungeeCord.jar"
 bash -c "wget -P /m/b2 https://m.ly/BungeeCord.jar"
 bash -c "wget -P /m/s1 https://m.ly/spigot.jar"
 bash -c "wget -P /m/s2 https://m.ly/spigot.jar"
-bash -c "wget -P /m/buildtools https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar && java -jar /m/buildtools/BuildTools.jar"
-cp /m/buildtools/spigot-1.9.jar /m/spigot1/spigot-1.9.jar
-cp /m/buildtools/spigot-1.9.jar /m/spigot2/spigot-1.9.jar
+#bash -c "wget -P /m/buildtools https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar && java -jar /m/buildtools/BuildTools.jar"
+#cp /m/buildtools/spigot-1.9.jar /m/spigot1/spigot-1.9.jar
+#cp /m/buildtools/spigot-1.9.jar /m/spigot2/spigot-1.9.jar
 
 #Start servers for the first time to generate files
 cd /m/b1 && screen -dmS b1 java -jar BungeeCord.jar
@@ -92,8 +92,8 @@ screen -r b1 -X stuff 'end\n'
 cd /m/b2 && screen -dmS b2 java -jar BungeeCord.jar
 sleep 30
 screen -r b2 -X stuff 'end\n'
-sed -i "s/server-id:.*/server-id: localhost/" /m/b1/plugins/RedisBungee/config.yml
-sed -i "s/server-id:.*/server-id: 127.0.0.1/" /m/b2/plugins/RedisBungee/config.yml
+sed -i "s/server-id:.*/server-id: b1/" /m/b1/plugins/RedisBungee/config.yml
+sed -i "s/server-id:.*/server-id: b2/" /m/b2/plugins/RedisBungee/config.yml
 
 #Download Minecraftly plugins
 wget -P /m/b1/plugins https://m.ly/MinecraftlyBungee.jar

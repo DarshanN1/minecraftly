@@ -69,16 +69,16 @@ mkdir /m/worlds
 
 #Start servers for the first time to generate files
 cd /m/b1 && screen -dmS b1 java -jar BungeeCord.jar
-sleep 30
+sleep 60
 screen -r b1 -X stuff 'end\n'
 cd /m/b2 && screen -dmS b2 java -jar BungeeCord.jar
-sleep 30
+sleep 60
 screen -r b2 -X stuff 'end\n'
 cd /m/s1 && screen -dmS s1 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /m/worlds --port 25567
-sleep 30
+sleep 60
 screen -r s1 -X stuff 'stop\n'
 cd /m/s2 && screen -dmS s2 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /m/worlds --port 25568
-sleep 30
+sleep 60
 screen -r s2 -X stuff 'stop\n'
 
 #Configure some files

@@ -1,7 +1,7 @@
 #This is a script to automatically install Minecraftly on a single server for testing
 #Requirements: Google Cloud Platform server only (for now). Debian 8 or higher. Server needs at least 1GB Ram
 #! /bin/bash
-#Update some stuffs
+#Update operating system & install some packages
 sudo -i
 apt-get update -y
 DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade

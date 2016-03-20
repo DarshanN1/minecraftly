@@ -38,6 +38,10 @@ apt-get install oracle-java8-set-default -y
 mkdir /m
 mkdir /m/b1
 mkdir /m/b2
+mkdir /m/b1/plugins
+mkdir /m/b2/plugins
+wget -P /m/b1/plugins https://storage.googleapis.com/minecraftly/test/MinecraftlyBungee.jar
+wget -P /m/b2/plugins https://storage.googleapis.com/minecraftly/test/MinecraftlyBungee.jar
 mkdir /m/b1/plugins/MinecraftlyBungee/
 mkdir /m/b2/plugins/MinecraftlyBungee/
 wget -P /m/b1/plugins/MinecraftlyBungee https://storage.googleapis.com/minecraftly/test/config.yml
@@ -45,6 +49,14 @@ wget -P /m/b2/plugins/MinecraftlyBungee https://storage.googleapis.com/minecraft
 mkdir /m/buildtools
 mkdir /m/s1
 mkdir /m/s2
+mkdir /m/s1/plugins
+mkdir /m/s2/plugins
+wget -P /m/s1/plugins https://storage.googleapis.com/minecraftly/test/Minecraftly.jar
+wget -P /m/s2/plugins https://storage.googleapis.com/minecraftly/test/Minecraftly.jar
+wget -P /m/s1/plugins https://storage.googleapis.com/minecraftly/test/ProtocolLib.jar
+wget -P /m/s2/plugins https://storage.googleapis.com/minecraftly/test/ProtocolLib.jar
+wget -P /m/s1/plugins https://storage.googleapis.com/minecraftly/test/Vault.jar
+wget -P /m/s2/plugins https://storage.googleapis.com/minecraftly/test/Vault.jar
 mkdir /m/worlds
 
 #Download some files
@@ -92,30 +104,6 @@ sleep 30
 screen -r b2 -X stuff 'end\n'
 sed -i "s/server-id:.*/server-id: b1/" /m/b1/plugins/RedisBungee/config.yml
 sed -i "s/server-id:.*/server-id: b2/" /m/b2/plugins/RedisBungee/config.yml
-
-#Download Minecraftly plugins
-wget -P /m/b1/plugins https://storage.googleapis.com/minecraftly/test/MinecraftlyBungee.jar
-wget -P /m/b2/plugins https://storage.googleapis.com/minecraftly/test/MinecraftlyBungee.jar
-wget -P /m/s1/plugins https://storage.googleapis.com/minecraftly/test/Minecraftly.jar
-wget -P /m/s2/plugins https://storage.googleapis.com/minecraftly/test/Minecraftly.jar
-wget -P /m/s1/plugins https://storage.googleapis.com/minecraftly/test/ProtocolLib.jar
-wget -P /m/s2/plugins https://storage.googleapis.com/minecraftly/test/ProtocolLib.jar
-wget -P /m/s1/plugins https://storage.googleapis.com/minecraftly/test/Vault.jar
-wget -P /m/s2/plugins https://storage.googleapis.com/minecraftly/test/Vault.jar
-
-#Start servers for the second time to generate plugins files
-cd /m/b1 && screen -dmS b1 java -jar BungeeCord.jar
-sleep 30
-screen -r b1 -X stuff 'end\n'
-cd /m/b2 && screen -dmS b2 java -jar BungeeCord.jar
-sleep 30
-screen -r b2 -X stuff 'end\n'
-cd /m/s1 && screen -dmS s1 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /m/worlds --port 25567
-sleep 30
-screen -r s1 -X stuff 'stop\n'
-cd /m/s2 && screen -dmS s2 java -Dcom.mojang.eula.agree=true -jar spigot.jar --world-dir /m/worlds --port 25568
-sleep 30
-screen -r s2 -X stuff 'stop\n'
 
 #Start servers to play
 cd /m/b1 && screen -dmS b1 java -jar BungeeCord.jar

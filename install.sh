@@ -40,6 +40,8 @@ mkdir /m/b1
 mkdir /m/b2
 mkdir /m/b1/plugins
 mkdir /m/b2/plugins
+wget -P /m/b1/plugins https://storage.googleapis.com/minecraftly/test/RedisBungee.jar
+wget -P /m/b2/plugins https://storage.googleapis.com/minecraftly/test/RedisBungee.jar
 wget -P /m/b1/plugins https://storage.googleapis.com/minecraftly/test/MinecraftlyBungee.jar
 wget -P /m/b2/plugins https://storage.googleapis.com/minecraftly/test/MinecraftlyBungee.jar
 mkdir /m/b1/plugins/MinecraftlyBungee/
@@ -79,31 +81,23 @@ cd /m/s2 && screen -dmS s2 java -Dcom.mojang.eula.agree=true -jar spigot.jar --w
 sleep 30
 screen -r s2 -X stuff 'stop\n'
 
-#Configure BungeeCord config
+#Configure some configs
 sed -i "s/ host: 0.0.0.0:.*/ host: 0.0.0.0:25565/" /m/b1/config.yml
 sed -i "s/ host: 0.0.0.0:.*/ host: 0.0.0.0:25566/" /m/b2/config.yml
 sed -i "s/ip_forward: .*/ip_forward: true/" /m/b1/config.yml
 sed -i "s/ip_forward: .*/ip_forward: true/" /m/b2/config.yml
 sed -i "s/address: localhost:.*/address: localhost:25567/" /m/b1/config.yml
 sed -i "s/address: localhost:.*/address: localhost:25568/" /m/b2/config.yml
+sed -i "s/server-id:.*/server-id: b1/" /m/b1/plugins/RedisBungee/config.yml
+sed -i "s/server-id:.*/server-id: b2/" /m/b2/plugins/RedisBungee/config.yml
 sed -i "s/level-name=.*/level-name=world1/" /m/s1/server.properties
 sed -i "s/level-name=.*/level-name=world2/" /m/s2/server.properties
 sed -i "s/online-mode=.*/online-mode=false/" /m/s1/server.properties
 sed -i "s/online-mode=.*/online-mode=false/" /m/s2/server.properties
 sed -i "s/bungeecord: .*/bungeecord: true/" /m/s1/spigot.yml
 sed -i "s/bungeecord: .*/bungeecord: true/" /m/s2/spigot.yml
-
-#Download & configure RedisBungee
-wget -P /m/b1/plugins https://storage.googleapis.com/minecraftly/test/RedisBungee.jar
-wget -P /m/b2/plugins https://storage.googleapis.com/minecraftly/test/RedisBungee.jar
-cd /m/b1 && screen -dmS b1 java -jar BungeeCord.jar
-sleep 30
-screen -r b1 -X stuff 'end\n'
-cd /m/b2 && screen -dmS b2 java -jar BungeeCord.jar
-sleep 30
-screen -r b2 -X stuff 'end\n'
-sed -i "s/server-id:.*/server-id: b1/" /m/b1/plugins/RedisBungee/config.yml
-sed -i "s/server-id:.*/server-id: b2/" /m/b2/plugins/RedisBungee/config.yml
+sed -i "s/connection-throttle: .*/connection-throttle: -1/" /m/s1/bukkit.yml
+sed -i "s/connection-throttle: .*/connection-throttle: -1/" /m/s2/bukkit.yml
 
 #Start servers to play
 cd /m/b1 && screen -dmS b1 java -jar BungeeCord.jar

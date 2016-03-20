@@ -98,10 +98,10 @@ sed -i "s/server-id:.*/server-id: b2/" /m/b2/plugins/RedisBungee/config.yml
 #Download Minecraftly plugins
 wget -P /m/b1/plugins https://m.ly/MinecraftlyBungee.jar
 wget -P /m/b2/plugins https://m.ly/MinecraftlyBungee.jar
-wget -P /m/s1/plugins https://m.ly/MinecraftlySpigot.jar
-wget -P /m/s2/plugins https://m.ly/MinecraftlySpigot.jar
-wget -P /m/s1/plugins http://ci.shadowvolt.com/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar
-wget -P /m/s2/plugins http://ci.shadowvolt.com/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar
+wget -P /m/s1/plugins https://m.ly/Minecraftly.jar
+wget -P /m/s2/plugins https://m.ly/Minecraftly.jar
+wget -P /m/s1/plugins http://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/modules/ProtocolLib/target/ProtocolLib.jar
+wget -P /m/s2/plugins http://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/modules/ProtocolLib/target/ProtocolLib.jar
 wget -P /m/s1/plugins http://dev.bukkit.org/media/files/894/359/Vault.jar
 wget -P /m/s2/plugins http://dev.bukkit.org/media/files/894/359/Vault.jar
 
@@ -120,6 +120,8 @@ sleep 30
 screen -r s2 -X stuff 'stop\n'
 
 #Configure stuffs
+rm -rf //m/b1/plugins/MinecraftlyBungee/config.yml
+rm -rf //m/b2/plugins/MinecraftlyBungee/config.yml
 wget -P /m/b1/plugins/MinecraftlyBungee https://m.ly/config.yml
 wget -P /m/b2/plugins/MinecraftlyBungee https://m.ly/config.yml
 wget -P /m/b1/plugins/MinecraftlyBungee https://m.ly/motd.yml

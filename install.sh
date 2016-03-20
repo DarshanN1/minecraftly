@@ -90,6 +90,8 @@ sed -i "s/motd: .*/motd: 'BungeeCord 1'/" /m/b1/config.yml
 sed -i "s/motd: .*/motd: 'BungeeCord 2'/" /m/b2/config.yml
 sed -i "s/md_5:/minecraftly:/" /m/b1/config.yml
 sed -i "s/md_5:/minecraftly:/" /m/b2/config.yml
+sed -i "s/heartbeatPort: .*/heartbeatPort: 25567/" /m/s1/plugins/Minecraftly/config.yml
+sed -i "s/heartbeatPort: .*/heartbeatPort: 25568/" /m/s1/plugins/Minecraftly/config.yml
 sed -i "s/address: localhost:.*/address: localhost:25567/" /m/b1/config.yml
 sed -i "s/address: localhost:.*/address: localhost:25568/" /m/b2/config.yml
 HOSTNAME=$(ifconfig eth0 | grep "inet addr" | cut -d ':' -f 2 | cut -d ' ' -f 1)

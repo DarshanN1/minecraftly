@@ -179,6 +179,7 @@ To build a single machine test environment, it will be visualized like this:
 - [x] Create world with UUID format for each player with the same UUID
 - [x] Multiple servers pointing to one folder that serves worlds
 - [ ] Let players mute, kick, ban and trust others in their own world
+- [ ] Let players teleport to others via /tpa {username}, /tpahere {username}, /server {username} commands.
 
 #License
  Minecraftly is licensed under the [GNU General Public License version 3 (GNU GPLv3)](LICENSE)

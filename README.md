@@ -57,6 +57,20 @@ software, and what to do if something goes wrong.
                                World A
 </code></pre>
  As you can see, in this method, it doesn't matter which server brings player his/her own world when they log in, as long as the one server serves the correct world to the correct player at that correct moment.
+ 
+ You will then ask: The visualization above shows one player and one world. What about multiple players at the same time? Here you go:
+<pre><code>
+     Player A          Player B          Player C          Player D          Player E
+        |                 |                 |                 |                 |
+        |                 |                 |                 |                 |
+        |                 |                 |                 |                 |
+        ▼                 ▼                 ▼                 ▼                 ▼
+    Server 1 or 2 or 3 or 4 or 5 or 6 or 7 or 8 or 9 or 10 or 11 or 12 or 13 or ... or ∞
+        |                 |                 |                 |                 |
+        |                 |                 |                 |                 |
+        |                 |                 |                 |                 |
+        ▼                 ▼                 ▼                 ▼                 ▼
+     World A           World B            World C           World E           World F
 
 #Architecture
   Minecraftly operates under the premise that everything can fail at anytime, so we focus on designing a high availability, fault tolerant system that can withstand failure at the server, database, or network level.

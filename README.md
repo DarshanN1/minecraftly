@@ -29,18 +29,18 @@ software, and what to do if something goes wrong.
   
 #Player Flow
  Usually, in a normal Minecraft server, player flow is like this:
-```
+```ruby
                                Player A
                                   |
                                   |
                                   |
                                   ▼ 
-                              "Server 1"
+                              Server 1
                                   |
                                   |
                                   |
                                   ▼ 
-                               "World 1"
+                               World 1
 ```
  With the old way of distributing players, a single machine gets filled up with players very quickly, and will crash at a certain amount of concurrent players online.
 

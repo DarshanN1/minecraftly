@@ -158,7 +158,7 @@ To build a single machine test environment, it will be visualized like this:
  * Minecraftly doesn't need Frontend, Manager, Controller, and Amazon S3 object storage
  * Minecraftly doesn't need move world from object storage back to local block storage, which means players can load world right away.
  * Minecraftly lets players jump from server to server in real time, embracing the feeling of having many people playing with you at the same time.
- * Minecraftly saves server cost more efficiently than Minecraft Realms. While Realms creates a separated server for each paid player, we use one server for many free players, and still afford better performance.
+ * Minecraftly saves server cost more efficiently than Minecraft Realms. While Realms creates a separated server for each paid player which is costly, we use one server for many free and paid players, and still deliver better and more seamless performance.
  
 ##Contributing
   Minecraftly is licensed under the GNU General Public License version 3 (GNU GPLv3), and we welcome anybody to fork and submit a Pull Request back with their changes, and if you want to join as a permanent member we can add you to the team.

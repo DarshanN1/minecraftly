@@ -71,7 +71,11 @@ software, and what to do if something goes wrong.
         |                 |                 |                 |                 |
         ▼                 ▼                 ▼                 ▼                 ▼
      World A           World B            World C           World E           World F
-
+</code></pre>
+ How do I store world A, B, C, D, E, and F for the respective players and load them as fast as possible, using traditional way of saving worlds on disk?
+ 
+ The answer is to have all servers using the same "global worlds" folder, storing all the worlds for the respective player there.
+ 
 #Architecture
   Minecraftly operates under the premise that everything can fail at anytime, so we focus on designing a high availability, fault tolerant system that can withstand failure at the server, database, or network level.
   

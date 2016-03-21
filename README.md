@@ -21,9 +21,6 @@ software, and what to do if something goes wrong.
   
   I dedicated myself to cloud computing and passed my AWS Solutions Architect Certification exam in 2015. It helped construct my knowledge to build a simplier open source project that anyone can test, build, host their own network.
   
-##Download
-  You can download the already compiled version of Minecraftly at [https://ci.m.ly](https://ci.m.ly)
-  
 ##How it works
   As an alternative of Mojang's Minecraft Realms, if you install Minecraftly in your server, then each of your player will have his/her own server, accessible via (player's MC username).(your domain name).com
   

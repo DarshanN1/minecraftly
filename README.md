@@ -17,7 +17,9 @@ software, and what to do if something goes wrong.
   We currently support the latest version of Minecraft. The version is always up to date.
   
 #Why Open Source?
-  I'm Viet, a simple guy with passion for cloud computing, the web, technologies, and Minecraft just like you. Ever since I first run a Minecraft server in 2012, I've always been looking for a way to scale Minecraft with high availability and fault tolerant. It took me years to think and build the first prototype. I can't do it alone and need your contribution to make it better.
+  I'm [Viet](https://twitter.com/vietdoge), a simple guy with love for cloud computing, the web, technologies, and Minecraft just like you. Ever since I first run a Minecraft server in 2012, I've always been looking for a way to scale Minecraft with high availability and fault tolerant. It took me years to think and build the first prototype after seeing that not many people in the community have a high availability mindset. I can't do it alone and need your contribution to make it better.
+  
+  I dedicated myself to cloud computing and passed my AWS Solutions Architect Certification exam in 2015. It helped construct my knowledge to build a simplier open source project that anyone can test, build, host their own network.
   
 #Download
   You can download the already compiled version of Minecraftly at [https://ci.m.ly](https://ci.m.ly)

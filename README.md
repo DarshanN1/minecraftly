@@ -70,7 +70,11 @@ software, and what to do if something goes wrong.
         |                 |                 |                 |                 |
         |                 |                 |                 |                 |
         ▼                 ▼                 ▼                 ▼                 ▼
-     World A           World B            World C           World E           World F
+   +----------------------------------------------------------------------------------+
+   |                                                                                  |
+   | World A           World B            World C           World E           World F |
+   |                                                                                  |
+   +----------------------------------------------------------------------------------+
 </code></pre>
  How do I store world A, B, C, D, E, and F for the respective players and load them as fast as possible, using traditional way of saving worlds on disk?
  

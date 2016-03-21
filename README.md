@@ -45,7 +45,7 @@ software, and what to do if something goes wrong.
  With the old way of distributing players, a single machine gets filled up with players very quickly, and will crash at a certain amount of concurrent players online.
 
  Let's visualize a smarter way to distribute players. In Minecraftly, it's like this:
-<pre><code>
+```java
                                Player A
                                   |
                                   |
@@ -57,11 +57,11 @@ software, and what to do if something goes wrong.
                                   |
                                   ▼ 
                                World A
-</code></pre>
+```
  As you can see, in this method, it doesn't matter which server brings player his/her own world when they log in, as long as the one server serves the correct world to the correct player at that correct moment.
  
  You will then ask: The visualization above shows one player and one world. What about multiple players at the same time? Here you go:
-<pre><code>
+```html
      Player A          Player B          Player C          Player D          Player E
         |                 |                 |                 |                 |
         |                 |                 |                 |                 |
@@ -77,7 +77,7 @@ software, and what to do if something goes wrong.
    | World A           World B            World C           World E           World F |
    |                                                                                  |
    +----------------------------------------------------------------------------------+
-</code></pre>
+```
  How do I store world A, B, C, D, E, and F for the respective players and load them as fast as possible, using traditional way of saving worlds on disk?
  
  The answer is to have all servers using the same "global worlds" folder, storing all the worlds for the respective player there.
@@ -89,7 +89,7 @@ software, and what to do if something goes wrong.
   
   First, let's visualize the stack:
   
-<pre><code>
+```php
                            Minecraft Players
                                   ▲
                                   |
@@ -110,7 +110,7 @@ software, and what to do if something goes wrong.
       |                           |                             |
       +------------------- NFS, MySQL & Redis ------------------+
       
-</code></pre>
+```php
   
   According to the drawing above, you can clearly see that all BungeeCord & Spigot servers share the same NFS, MySQL and Redis servers. In this case, we call such shared server "endpoints" (because behind the endpoints maybe a cluster of servers as well.
 

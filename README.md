@@ -27,7 +27,7 @@ software, and what to do if something goes wrong.
 ##How it works
   As an alternative of Mojang's Minecraft Realms, if you install Minecraftly in your server, then each of your player will have his/her own server, accessible via (player's MC username).(your domain name).com
   
-#Player Flow
+##Player Flow
  Usually, in a normal Minecraft server, player flow is like this:
 ```ruby
                                Player A
@@ -84,7 +84,7 @@ software, and what to do if something goes wrong.
  
  For multiple servers to "share the same folder", the simpliest way is to use NFS (Network File System) server.
  
-#Architecture
+##Architecture
   Minecraftly operates under the premise that everything can fail at anytime, so we focus on designing a high availability, fault tolerant system that can withstand failure at the server, database, or network level.
   
   First, let's visualize the stack:
@@ -116,7 +116,7 @@ software, and what to do if something goes wrong.
 
   There are an infinite amount of BungeeCord and Spigot servers, having the same exact configuration. It doesn't matter how many BungeeCord or Spigot servers out there. As long as they use the same NFS mount point, the same MySQL server, and the same Redis server, then the player's experience will be unified.
   
-#Single Machine Environment (for testing)
+##Single Machine Environment (for testing)
 To build a single machine test environment, it will be visualized like this:
 
 ```ruby
@@ -140,7 +140,7 @@ To build a single machine test environment, it will be visualized like this:
   
   This testing environment is very simple. It works with traditional server cluster (VM, dedicated servers, etc...). It can also work with cloud servers (Amazon Web Services, Google Cloud Platform, Microsoft Azure).
   
-#Requirements
+##Requirements
  * BungeeCord: serve as a proxy server
  * Spigot: serve as Minecraft server
  * MySQL Server
@@ -148,8 +148,10 @@ To build a single machine test environment, it will be visualized like this:
  * RedisBungee plugin (Will plan to not depend on Redis and RedisBungee)
  * Vault plugin (for permissions hook)
  * ProtocolLib plugin (Will plan to not depend on ProtocolLib)
-  
-#Contributing
+
+##How is it better than [Minecraft Realms](https://minecraft.net/realms)?
+![screen shot Minecraft Realms Architecture](https://media.amazonwebservices.com/blog/2014/minecraft_realms_arch_2.png)
+##Contributing
   Minecraftly is licensed under the GNU General Public License version 3 (GNU GPLv3), and we welcome anybody to fork and submit a Pull Request back with their changes, and if you want to join as a permanent member we can add you to the team.
   
   This is a "copyleft" license, which means if you publish the modified work as your own, you must open source it as well. It benefits the educational purpose of the software and helps everyone build better software that work on both traditional and cloud infrastructure.
@@ -158,10 +160,10 @@ To build a single machine test environment, it will be visualized like this:
 
   For contributing information, check out the [CONTRIBUTING.md](CONTRIBUTING.md) file for more details.
 
-#Managed Hosting
+##Managed Hosting
   Besides the free and open source version, we also offer a value added hosted service at [https://m.ly](https://m.ly). You can play with friends and don't have to setup server.
   
-#Special Thanks To
+##Special Thanks To
   Andrew, Keir, Tux, Michael, Devin, Snivell, Ben (redraskal) and many others who have been helping me over the years to make this happen.
 
 #License

@@ -3,7 +3,7 @@
 as they tell you what this is all about, explain how to install the
 software, and what to do if something goes wrong. 
 
-#What is Minecraftly?
+##What is Minecraftly?
   Minecraftly (Minecraftly Cloud Platform) is a free and open source (FOSS) alternative of the official Mojang's Minecraft Realms, designed and written from scratch by Viet Nguyen and Keir Nellyer, respectively, with assistance from some friendly developers and helpers from the internet. It aims towards creating an easy to run a distributed network, on any server, using traditional server system. Minecraftly Cloud Platform is now community-developed and will be remained free under GNU GPL license.
   
   Started out as a simple Minecraft game server like every other, I understood and saw the importance of education through gaming. The period of changing mindset from owning a proprietary software to deciding if I should open source it was not short of a challenge. In the end, I'm glad that I was able to open source it, and share it with passionate people who want to contribute to the community, to change the world via cloud computing, and with everyone who wants to learn.
@@ -16,15 +16,15 @@ software, and what to do if something goes wrong.
   
   We currently support the latest version of Minecraft. The version is always up to date.
   
-#Why Open Source?
+##Why Open Source?
   I'm [Viet](https://twitter.com/vietdoge), a simple guy with love for cloud computing, the web, technologies, and Minecraft just like you. Ever since I first run a Minecraft server in 2012, I've always been looking for a way to scale Minecraft with high availability and fault tolerant. It took me years to think and build the first prototype after seeing that not many people in the community have a high availability mindset. I can't do it alone and need your contribution to make it better.
   
   I dedicated myself to cloud computing and passed my AWS Solutions Architect Certification exam in 2015. It helped construct my knowledge to build a simplier open source project that anyone can test, build, host their own network.
   
-#Download
+##Download
   You can download the already compiled version of Minecraftly at [https://ci.m.ly](https://ci.m.ly)
   
-#How it works
+##How it works
   As an alternative of Mojang's Minecraft Realms, if you install Minecraftly in your server, then each of your player will have his/her own server, accessible via (player's MC username).(your domain name).com
   
 #Player Flow
@@ -45,7 +45,7 @@ software, and what to do if something goes wrong.
  With the old way of distributing players, a single machine gets filled up with players very quickly, and will crash at a certain amount of concurrent players online.
 
  Let's visualize a smarter way to distribute players. In Minecraftly, it's like this:
-```java
+```ruby
                                Player A
                                   |
                                   |
@@ -61,7 +61,7 @@ software, and what to do if something goes wrong.
  As you can see, in this method, it doesn't matter which server brings player his/her own world when they log in, as long as the one server serves the correct world to the correct player at that correct moment.
  
  You will then ask: The visualization above shows one player and one world. What about multiple players at the same time? Here you go:
-```html
+```ruby
      Player A          Player B          Player C          Player D          Player E
         |                 |                 |                 |                 |
         |                 |                 |                 |                 |
@@ -89,7 +89,7 @@ software, and what to do if something goes wrong.
   
   First, let's visualize the stack:
   
-```php
+```ruby
                            Minecraft Players
                                   ▲
                                   |
@@ -110,7 +110,7 @@ software, and what to do if something goes wrong.
       |                           |                             |
       +------------------- NFS, MySQL & Redis ------------------+
       
-```php
+```
   
   According to the drawing above, you can clearly see that all BungeeCord & Spigot servers share the same NFS, MySQL and Redis servers. In this case, we call such shared server "endpoints" (because behind the endpoints maybe a cluster of servers as well.
 
@@ -119,7 +119,7 @@ software, and what to do if something goes wrong.
 #Single Machine Environment (for testing)
 To build a single machine test environment, it will be visualized like this:
 
-<pre><code>
+```ruby
                            Minecraft Players
                                   ▲
                                   |
@@ -136,7 +136,7 @@ To build a single machine test environment, it will be visualized like this:
       |                                                         |
       +--------------------- MySQL & Redis ---------------------+
       
-</code></pre>
+```
   
   This testing environment is very simple. It works with traditional server cluster (VM, dedicated servers, etc...). It can also work with cloud servers (Amazon Web Services, Google Cloud Platform, Microsoft Azure).
   
@@ -163,3 +163,6 @@ To build a single machine test environment, it will be visualized like this:
   
 #Special Thanks To
   Andrew, Keir, Tux, Michael, Devin, Snivell, Ben (redraskal) and many others who have been helping me over the years to make this happen.
+
+#License
+ Minecraftly is licensed under the [GNU General Public License version 3 (GNU GPLv3)](LICENSE)

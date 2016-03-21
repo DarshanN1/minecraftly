@@ -150,7 +150,16 @@ To build a single machine test environment, it will be visualized like this:
  * ProtocolLib plugin (Will plan to not depend on ProtocolLib)
 
 ##How is it better than [Minecraft Realms](https://minecraft.net/realms)?
+ Minecraftly is better than Minecraft Realms in many ways. First, let's look at how complex and redundant Minecraft Realms is
 ![screen shot Minecraft Realms Architecture](https://media.amazonwebservices.com/blog/2014/minecraft_realms_arch_2.png)
+ Cloud computing doesn't need to be that complicated. It's complicated mainly because of intellectual properties. Since we're open source, we can make it as simple and as extendable as possible.
+ 
+ Here are some simple comparisons:
+ * Minecraftly doesn't need Frontend, Manager, Controller, and Amazon S3 object storage
+ * Minecraftly doesn't need move world from object storage back to local block storage, which means players can load world right away.
+ * Minecraftly lets players jump from server to server in real time, embracing the feeling of having many people playing with you at the same time.
+ * Minecraftly saves server cost more efficiently than Minecraft Realms. While Realms creates a separated server for each paid player, we use one server for many free players, and still afford better performance.
+ 
 ##Contributing
   Minecraftly is licensed under the GNU General Public License version 3 (GNU GPLv3), and we welcome anybody to fork and submit a Pull Request back with their changes, and if you want to join as a permanent member we can add you to the team.
   

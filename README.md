@@ -141,13 +141,13 @@ To build a single machine test environment, it will be visualized like this:
   This testing environment is very simple. It works with traditional server cluster (VM, dedicated servers, etc...). It can also work with cloud servers (Amazon Web Services, Google Cloud Platform, Microsoft Azure).
   
 #Requirements
- - BungeeCord: serve as a proxy server
- - Spigot: serve as Minecraft server
- - MySQL Server
- - Redis Server (Will plan to not depend on Redis and RedisBungee)
- - RedisBungee plugin (Will plan to not depend on Redis and RedisBungee)
- - Vault plugin (for permissions hook)
- - ProtocolLib plugin (Will plan to not depend on ProtocolLib)
+ * BungeeCord: serve as a proxy server
+ * Spigot: serve as Minecraft server
+ * MySQL Server
+ * Redis Server (Will plan to not depend on Redis and RedisBungee)
+ * RedisBungee plugin (Will plan to not depend on Redis and RedisBungee)
+ * Vault plugin (for permissions hook)
+ * ProtocolLib plugin (Will plan to not depend on ProtocolLib)
   
 #Contributing
   Minecraftly is licensed under the GNU General Public License version 3 (GNU GPLv3), and we welcome anybody to fork and submit a Pull Request back with their changes, and if you want to join as a permanent member we can add you to the team.

@@ -179,4 +179,4 @@ To build a single machine test environment, it will be visualized like this:
 - [ ] Let players teleport to others via /tpa {username}, /tpahere {username}, /server {username} commands.
 
 #License
- Minecraftly is licensed under the [(GNU GPLv3)](LICENSE)
+ Minecraftly is distributed under [GNU GPLv3](LICENSE) license.

@@ -159,7 +159,7 @@ To build a single machine test environment, it will be visualized like this:
   For contributing information, check out the [CONTRIBUTING.md](CONTRIBUTING.md) file for more details.
 
 #Managed Hosting
-  Besides the free and open source version, we also offer a value added hosted service at https://m.ly, so you can play with friends and don't have to setup server.
+  Besides the free and open source version, we also offer a value added hosted service at [https://m.ly](https://m.ly). You can play with friends and don't have to setup server.
   
 #Special Thanks To
   Andrew, Keir, Tux, Michael, Devin, Snivell, Ben (redraskal) and many others who have been helping me over the years to make this happen.

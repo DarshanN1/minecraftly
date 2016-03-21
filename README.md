@@ -25,6 +25,19 @@ software, and what to do if something goes wrong.
 #How it works
   As an alternative of Mojang's Minecraft Realms, if you install Minecraftly in your server, then each of your player will have his/her own server, accessible via (player's MC username).(your domain name).com
   
+#Player Flow
+ Usually, in a normal Minecraft server, player flow is like this:
+<pre><code>
+ Players ---> one server ---> world
+</code></pre>
+ With the old way of distributing players, a single machine gets filled up with players very quickly, and will crash at a certain amount of concurrent players online.
+
+ Let's visualize a smarter way to distribute players. In Minecraftly, it's like this:
+<pre><code>
+ Players ---> any server in a cluster ---> their own world
+</code></pre>
+ As you can see, in this method, there are many servers sharing the same "player worlds" folder. It doesn't matter which server serves player world when they log in, as long as the one server serves the correct world to the correct player at that very moment.
+
 #Architecture
   Minecraftly operates under the premise that everything can fail at anytime, so we focus on designing a high availability, fault tolerant system that can withstand failure at the server, database, or network level.
   

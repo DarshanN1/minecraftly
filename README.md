@@ -176,8 +176,8 @@ To build a single machine test environment, it will be visualized like this:
   Andrew, Keir, Tux, Michael, Devin, Snivell, Ben (redraskal) and many others who have been helping me over the years to make this happen.
   
 ##To Do
-- [ ] Create world with UUID format for each player with the same UUID
-- [ ] Multiple servers pointing to one folder that serves worlds
+- [x] Create world with UUID format for each player with the same UUID
+- [x] Multiple servers pointing to one folder that serves worlds
 - [ ] Let players mute, kick, ban and trust others in their own world
 
 #License
